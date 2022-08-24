@@ -1,25 +1,22 @@
 export interface SendTransactionPayload {
   from: string
   to: string
-  town: number
-  gasPrice: number
-  budget: number
+  town: string
+  rate: number
+  bud: number
 }
 
-export interface SendRawTransactionPayload extends SendTransactionPayload {
+export interface SendCustomTransactionPayload extends SendTransactionPayload {
   data: string
-  riceInputs: string[]
 }
 
 export interface SendAssetPayload extends SendTransactionPayload {
   destination: string
-  salt: string
+  grain: string
 }
 
 export interface SendTokenPayload extends SendAssetPayload {
   amount: number
 }
 
-export interface SendNftPayload extends SendAssetPayload {
-  nftIndex: number
-}
+export interface SendNftPayload extends SendAssetPayload {}

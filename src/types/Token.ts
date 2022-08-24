@@ -1,58 +1,20 @@
-export interface NftItem {
-  URI: string
-  desc: string
-}
-
-export interface NftItems {
-  [key: string]: NftItem
-}
-
 export interface TokenData {
   metadata: string
-  salt: string
+  // token
   balance?: number
-  items?: NftItems
-}
-
-export interface RawToken {
-  lord: string
-  data: TokenData
-  id: string
-  holder: string
-  town: number
-}
-
-export interface NftInfo extends NftItem {
-  index: number
+  // nft
+  id?: number
+  transferrable?: boolean
+  uri?: string
+  allowances?: string[]
+  properties?: { [key: string]: string }
 }
 
 export interface Token {
-  town: number
-  riceId: string
-  lord: string
+  id: string
+  token_type: 'token' | 'nft'
+  contract: string
   holder: string
-  balance?: number
-  nftInfo?: NftInfo
+  town: string
   data: TokenData
 }
-
-export const processToken = (raw: RawToken) => ({
-  town: raw.town,
-  riceId: raw.id,
-  lord: raw.lord,
-  holder: raw.holder,
-  balance: raw.data.balance,
-  data: raw.data
-})
-
-export const processNft = (raw: RawToken, index: string, nft: NftItem) : Token => ({
-  town: raw.town,
-  riceId: raw.id,
-  lord: raw.lord,
-  holder: raw.holder,
-  nftInfo: {
-    index: Number(index),
-    ...nft
-  },
-  data: raw.data
-})

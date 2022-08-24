@@ -49,7 +49,7 @@ export const signLedgerTransaction = async (address: string, hash: string, egg: 
     const ethHash = ethers.utils.serializeTransaction({
       to: removeDots(to).substring(0, 42),
       gasPrice: '0x' + parseInt(egg.rate).toString(16),
-      gasLimit: ethers.utils.hexlify(egg.budget),
+      gasLimit: ethers.utils.hexlify(egg.bud),
       nonce: egg.nonce,
       chainId: egg.town,
       data: removeDots(hash),

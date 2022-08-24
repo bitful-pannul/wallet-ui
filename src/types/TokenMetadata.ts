@@ -1,12 +1,19 @@
 export interface TokenMetadata {
-  name: string
-  salt: string
-  decimals?: number
-  deployer: string
-  cap: number
-  symbol: string
-  supply: number
-  mintable: boolean
+  id: string
+  token_type: string
+  town: string
+  data: {
+    mintable: true
+    supply: number
+    symbol: string
+    minters: string[]
+    cap: number | null
+    deployer: string
+    salt: number
+    name: string
+    decimals?: number // Token-only
+    properties?: string[] // NFT-only
+  }
 }
 
 export interface TokenMetadataStore {

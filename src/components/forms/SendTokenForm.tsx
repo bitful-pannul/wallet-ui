@@ -8,41 +8,44 @@ import useWalletStore from '../../store/walletStore'
 import { Token } from '../../types/Token'
 import { addHexDots } from '../../utils/number'
 import { displayPubKey } from '../../utils/account'
-
-import './SendTokenForm.scss'
 import { signLedgerTransaction } from '../../utils/ledger'
 import { removeDots } from '../../utils/format'
+
+import './SendTokenForm.scss'
+import Col from '../spacing/Col'
 
 interface SendTokenFormProps {
   formType: 'tokens' | 'nft'
   setSubmitted: (submitted: boolean) => void
-  riceId: string
-  nftIndex?: number
+  id: string
+  nftId?: number
 }
 
 const SendTokenForm = ({
   formType,
   setSubmitted,
-  riceId,
-  nftIndex
+  id,
+  nftId
 }: SendTokenFormProps) => {
   const selectRef = useRef<HTMLSelectElement>(null)
-  const { assets, metadata, accounts, importedAccounts, setLoading, getPendingHash, sendTokens, sendNft, submitSignedHash } = useWalletStore()
+  const { assets, metadata, importedAccounts, setLoading, getPendingHash, sendTokens, sendNft, submitSignedHash } = useWalletStore()
   const [currentFormType, setCurrentFormType] = useState(formType)
 
   const isNft = currentFormType === 'nft'
   // TODO: base this on whether isNft or not
   const assetsList = useMemo(() => Object.values(assets)
-    .reduce((acc, cur) => acc.concat(cur), [])
-    .filter(t => isNft ? !t.balance : t.balance),
+    .reduce((acc: Token[], cur) => acc.concat(Object.values(cur)), [])
+    .filter(t => isNft ? t.token_type === 'nft' : t.token_type === 'token'),
     [assets, isNft]
   )
 
+  console.log(assetsList)
+
   const [selected, setSelected] =
-    useState<Token | undefined>(assetsList.find(a => a.riceId === riceId && (!isNft || a.nftInfo?.index === Number(nftIndex))))
+    useState<Token | undefined>(assetsList.find(a => a.id === id && (!isNft || a.data.id === Number(nftId))))
   const [destination, setDestination] = useState('')
-  const [gasPrice, setGasPrice] = useState('')
-  const [budget, setBudget] = useState('')
+  const [rate, setGasPrice] = useState('')
+  const [bud, setBudget] = useState('')
   const [amount, setAmount] = useState('')
   
   const clearForm = () => {
@@ -54,10 +57,12 @@ const SendTokenForm = ({
   }
 
   useEffect(() => {
-    if (selected === undefined && riceId) {
-      setSelected(assetsList.find(a => a.riceId === riceId && (nftIndex === undefined || Number(nftIndex) === a.nftInfo?.index)))
+    console.log(1, assetsList, selected, id)
+    if (selected === undefined && id) {
+      console.log(2, selected, id)
+      setSelected(assetsList.find(a => a.id === id && (nftId === undefined || Number(nftId) === a.data.id)))
     }
-  }, [assetsList]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assetsList, id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (currentFormType !== formType) {
@@ -72,27 +77,34 @@ const SendTokenForm = ({
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
-    if (selected?.balance && Number(amount) > selected?.balance) {
-      alert(`You do not have that many tokens. You have ${selected.balance} tokens.`)
+    if (!isNft && (!amount || !Number(amount))) {
+      alert('You must enter an amount')
+    } else if (selected?.data?.balance && Number(amount) > selected?.data?.balance) {
+      alert(`You do not have that many tokens. You have ${selected.data?.balance} tokens.`)
     } else if (!selected) {
       alert('You must select a \'from\' account')
-    } else if (removeDots(destination) === removeDots(selected.holder)) {
-      alert('Destination cannot be the same as the origin')
-    } else if (!accounts.find(a => a.rawAddress === selected.holder) && !importedAccounts.find(a => a.rawAddress === selected.holder)) {
-      alert('You do not have this account, did you remove a hardware wallet account?')
+    } else if (!destination) {
+      // TODO: validate the destination address
+      alert('You must specify a destination address')
+    // } else if (removeDots(destination) === removeDots(selected.holder)) {
+    //   alert('Destination cannot be the same as the origin')
+    } else if (Number(rate) < 1 || Number(bud) < Number(rate)) {
+      alert('You must specify a gas price and budget')
+    // } else if (!accounts.find(a => a.rawAddress === selected.holder) && !importedAccounts.find(a => a.rawAddress === selected.holder)) {
+    //   alert('You do not have this account, did you remove a hardware wallet account?')
     } else {
       const payload = {
         from: selected.holder,
-        to: selected.lord,
+        to: selected.contract,
         town: selected.town,
-        salt: selected.data.salt,
         destination: addHexDots(destination),
-        gasPrice: Number(gasPrice),
-        budget: Number(budget),
+        rate: Number(rate),
+        bud: Number(bud),
+        grain: selected.id,
       }
       
-      if (isNft && selected.nftInfo?.index) {
-        await sendNft({ ...payload, nftIndex: selected.nftInfo?.index })
+      if (isNft && selected.data.id) {
+        await sendNft(payload)
       } else if (!isNft) {
         await sendTokens({ ...payload, amount: Number(amount) })
       }
@@ -117,21 +129,22 @@ const SendTokenForm = ({
     }
   }
 
-  const tokenMetadata = selected && metadata[selected.data.salt]
+  const tokenMetadata = selected && metadata[selected.contract]
 
   return (
     <Form className="send-token-form" onSubmit={submit}>
-      {tokenMetadata && (
-        <Row style={{ alignItems: 'center' }}>
+      {!isNft && (
+        <Col>
           <Text style={{ margin: '8px 12px 0px 0px', fontSize: 14 }}>Token: </Text>
-          <Text mono style={{ marginTop: 10 }}>{tokenMetadata.symbol} - rice ID: {displayPubKey(selected?.riceId)}</Text>
-        </Row>
+          <Text mono style={{ marginTop: 10 }}>{tokenMetadata?.data?.symbol || displayPubKey(selected?.contract || '')} - {selected?.data?.balance}</Text>
+        </Col>
       )}
+
       {isNft && (
-        <Row style={{ alignItems: 'center' }}>
+        <Col>
           <Text style={{ margin: '8px 12px 0px 0px', fontSize: 14 }}>NFT: </Text>
-          <Text mono style={{ marginTop: 10 }}>{`${selected?.nftInfo?.desc || ''} - # ${selected?.nftInfo?.index || ''}`}</Text>
-        </Row>
+          <Text mono style={{ marginTop: 10 }}>{`${tokenMetadata?.data?.symbol || displayPubKey(selected?.contract || '')} - # ${selected?.data?.id || ''}`}</Text>
+        </Col>
       )}
       <Input
         label="To:"
@@ -156,8 +169,7 @@ const SendTokenForm = ({
           label="Gas Price:"
           placeholder="Gas price"
           style={{ width: 'calc(100% - 22px)' }}
-          containerStyle={{ marginTop: 12 }}
-          value={gasPrice}
+          value={rate}
           onChange={(e: any) => setGasPrice(e.target.value.replace(/[^0-9.]/g, ''))}
           required // delete line 86 & 87
         />
@@ -165,8 +177,7 @@ const SendTokenForm = ({
           label="Budget:"
           placeholder="Budget"
           style={{ width: 'calc(100% - 22px)' }}
-          containerStyle={{ marginTop: 12, marginLeft: 8 }}
-          value={budget}
+          value={bud}
           onChange={(e: any) => setBudget(e.target.value.replace(/[^0-9.]/g, ''))}
           required // delete line 86 & 87
         />

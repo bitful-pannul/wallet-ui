@@ -28,7 +28,6 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -39,6 +38,18 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
     <script src="/session.js"></script>
+    <script>
+      const walletAppId = 'wallet-root'
+
+      if (window.location.pathname.includes('/apps/ziggurat/wallet') && !document.getElementById(walletAppId)) {
+        const walletApp = document.createElement('div');
+        walletApp.id = walletAppId
+        document.getElementsByTagName('body')[0].appendChild(walletApp);
+      } else {
+        window.location.pathname = '/apps/ziggurat/wallet';
+      }
+    </script>
   </body>
 </html>

@@ -1,5 +1,7 @@
 import { Token } from "./Token";
 
 export interface Assets {
-  [key: string] : Token[]
+  [key: string]: {
+    [key: string]: Token
+  }
 }

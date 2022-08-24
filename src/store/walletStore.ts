@@ -1,39 +1,26 @@
-import { SubscriptionRequestInterface } from "@urbit/http-api"
 import create from "zustand"
 import api from "../api"
 import { HotWallet, processAccount, RawAccount, HardwareWallet, HardwareWalletType, Seed } from "../types/Accounts"
-import { Token } from "../types/Token"
-import { SendNftPayload, SendRawTransactionPayload, SendTokenPayload } from "../types/SendTransaction"
-import { handleBookUpdate, handleTxnUpdate } from "./subscriptions/wallet"
-import { RawTransactions, Transaction } from "../types/Transaction"
+import { SendNftPayload, SendCustomTransactionPayload, SendTokenPayload } from "../types/SendTransaction"
+import { handleBookUpdate, handleTxnUpdate, handleMetadataUpdate } from "./subscriptions/wallet"
+import { CustomTransactions, Transaction } from "../types/Transaction"
 import { TokenMetadataStore } from "../types/TokenMetadata"
 import { removeDots } from "../utils/format"
 import { deriveLedgerAddress, getLedgerAddress } from "../utils/ledger"
 import { addHexDots } from "../utils/number"
 import { mockData } from "../utils/constants"
 import { mockAccounts, mockAssets, mockMetadata, mockTransactions } from "../utils/mocks"
+import { createSubscription } from "./createSubscription"
+import { Assets } from "../types/Assets"
+import { generateSendTokenPayload } from "./util"
 // import { getLedgerAddress } from "../utils/ledger"
-
-export function createSubscription(app: string, path: string, e: (data: any) => void): SubscriptionRequestInterface {
-  const request = {
-    app,
-    path,
-    event: e,
-    err: () => console.warn('SUBSCRIPTION ERROR'),
-    quit: () => {
-      throw new Error('subscription clogged')
-    }
-  }
-  // TODO: err, quit handling (resubscribe?)
-  return request
-}
 
 export interface WalletStore {
   loadingText: string | null,
   accounts: HotWallet[],
   importedAccounts: HardwareWallet[],
   metadata: TokenMetadataStore,
-  assets: {[key: string] : Token[]},
+  assets: Assets,
   selectedTown: number,
   transactions: Transaction[],
   init: () => Promise<void>,
@@ -41,11 +28,11 @@ export interface WalletStore {
   getAccounts: () => Promise<void>,
   getMetadata: () => Promise<void>,
   getTransactions: () => Promise<void>,
-  createAccount: () => Promise<void>,
+  createAccount: (password: string, nick: string) => Promise<void>,
   deriveNewAddress: (hdpath: string, nick: string, type?: HardwareWalletType) => Promise<void>,
   trackAddress: (address: string, nick: string) => Promise<void>,
   editNickname: (address: string, nick: string) => Promise<void>,
-  restoreAccount: (mnemonic: string, password: string) => Promise<void>,
+  restoreAccount: (mnemonic: string, password: string, nick: string) => Promise<void>,
   importAccount: (type: HardwareWalletType, nick: string) => Promise<void>,
   deleteAccount: (address: string) => Promise<void>,
   getSeed: () => Promise<Seed>,
@@ -53,8 +40,7 @@ export interface WalletStore {
   setIndexer: (ship: string) => Promise<void>,
   sendTokens: (payload: SendTokenPayload) => Promise<void>,
   sendNft: (payload: SendNftPayload) => Promise<void>,
-  sendRawTransaction: (payload: SendRawTransactionPayload) => Promise<void>,
-  addAsset: (assetContract: string) => Promise<void>,
+  sendCustomTransaction: (payload: SendCustomTransactionPayload) => Promise<void>,
   getPendingHash: () => Promise<{ hash: string; egg: any; }>
   submitSignedHash: (hash: string, ethHash: string, sig: { v: number; r: string; s: string; }) => Promise<void>
 }
@@ -68,20 +54,23 @@ const useWalletStore = create<WalletStore>((set, get) => ({
   selectedTown: 0,
   transactions: [],
   init: async () => {
-    if (mockData) {
-      set({ assets: mockAssets })
-    } else {
-      // Subscriptions, includes getting assets
-      api.subscribe(createSubscription('wallet', '/book-updates', handleBookUpdate(get, set)))
-      api.subscribe(createSubscription('wallet', '/tx-updates', handleTxnUpdate(get, set)))
+    try {
+      if (mockData) {
+        set({ assets: mockAssets as Assets })
+      } else {
+        api.subscribe(createSubscription('wallet', '/book-updates', handleBookUpdate(get, set))) // get asset list
+        api.subscribe(createSubscription('wallet', '/metadata-updates', handleMetadataUpdate(get, set)))
+        api.subscribe(createSubscription('wallet', '/tx-updates', handleTxnUpdate(get, set)))
+      }
+  
+      const { getAccounts, getMetadata, getTransactions } = get()
+  
+      await Promise.all([getAccounts(), getMetadata()])
+  
+      getTransactions()
+    } catch (error) {
+      console.warn('INIT ERROR:', error)
     }
-
-    await Promise.all([
-      get().getAccounts(),
-      get().getMetadata(),
-    ])
-
-    get().getTransactions()
 
     set({ loadingText: null })
   },
@@ -108,7 +97,7 @@ const useWalletStore = create<WalletStore>((set, get) => ({
   },
   getMetadata: async () => {
     if (mockData) {
-      return set({ metadata: mockMetadata })
+      return set({ metadata: mockMetadata as TokenMetadataStore })
     }
     const metadata = await api.scry<any>({ app: 'wallet', path: '/token-metadata' })
     set({ metadata })
@@ -119,84 +108,61 @@ const useWalletStore = create<WalletStore>((set, get) => ({
     }
     const { accounts } = get()
     if (accounts.length) {
-      const rawTransactions = await api.scry<RawTransactions>({ app: 'wallet', path: `/transactions/${accounts[0].rawAddress}` })
+      const rawTransactions = await api.scry<CustomTransactions>({ app: 'wallet', path: `/transactions/${accounts[0].rawAddress}` })
       const transactions = Object.keys(rawTransactions).map(hash => ({ ...rawTransactions[hash], hash }))
       set({ transactions })
     }
   },
-  createAccount: async () => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: { 'generate-hot-wallet': true }
-    })
+  createAccount: async (password: string, nick: string) => {
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json: { 'generate-hot-wallet': { password, nick } } })
     get().getAccounts()
   },
   deriveNewAddress: async (hdpath: string, nick: string, type?: HardwareWalletType) => {
     set({ loadingText: 'Deriving address, this could take up to 60 seconds...' })
-    if (type) {
-      let deriveAddress: ((path: string) => Promise<string>) | undefined
-      if (type === 'ledger') {
-        deriveAddress = deriveLedgerAddress
-      }
-
-      if (deriveAddress !== undefined) {
-        const importedAddress = await deriveAddress(hdpath)
-        if (importedAddress) {
-          const { importedAccounts } = get()
-          if (!importedAccounts.find(({ address }) => importedAddress === address)) {
-            await api.poke({
-              app: 'wallet',
-              mark: 'zig-wallet-poke',
-              json: {
-                'add-tracked-address': { address: addHexDots(importedAddress), nick: `${nick}//${type}` }
-              }
-            })
-          } else {
-            alert('You have already imported this address.')
+    try {
+      if (type) {
+        let deriveAddress: ((path: string) => Promise<string>) | undefined
+        if (type === 'ledger') {
+          deriveAddress = deriveLedgerAddress
+        }
+  
+        if (deriveAddress !== undefined) {
+          const importedAddress = await deriveAddress(hdpath)
+          if (importedAddress) {
+            const { importedAccounts } = get()
+            if (!importedAccounts.find(({ address }) => importedAddress === address)) {
+              await api.poke({
+                app: 'wallet',
+                mark: 'zig-wallet-poke',
+                json: {
+                  'add-tracked-address': { address: addHexDots(importedAddress), nick: `${nick}//${type}` }
+                }
+              })
+            } else {
+              alert('You have already imported this address.')
+            }
           }
         }
+      } else {
+        await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json: { 'derive-new-address': { hdpath, nick } } })
       }
-    } else {
-      await api.poke({
-        app: 'wallet',
-        mark: 'zig-wallet-poke',
-        json: {
-          'derive-new-address': { hdpath, nick }
-        }
-      })
+      get().getAccounts()
+    } catch (error) {
+      console.warn('ERROR DERIVING ADDRESS:', error)
+      window.alert('There was an error deriving the address, please check the HD path and try again.')
     }
-    get().getAccounts()
     set({ loadingText: null })
   },
   trackAddress: async (address: string, nick: string) => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        'add-tracked-address': { address, nick }
-      }
-    })
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json: { 'add-tracked-address': { address, nick } } })
     get().getAccounts()
   },
   editNickname: async (address: string, nick: string) => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        'edit-nickname': { address, nick }
-      }
-    })
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json: { 'edit-nickname': { address, nick } } })
     get().getAccounts()
   },
-  restoreAccount: async (mnemonic: string, password: string) => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        'import-seed': { mnemonic, password }
-      }
-    })
+  restoreAccount: async (mnemonic: string, password: string, nick: string) => {
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json: { 'import-seed': { mnemonic, password, nick } } })
     get().getAccounts()
   },
   importAccount: async (type: HardwareWalletType, nick: string) => {
@@ -226,11 +192,7 @@ const useWalletStore = create<WalletStore>((set, get) => ({
   },
   deleteAccount: async (address: string) => {
     if (window.confirm(`Are you sure you want to remove this address?\n\n${removeDots(address)}`)) {
-      await api.poke({
-        app: 'wallet',
-        mark: 'zig-wallet-poke',
-        json: { 'delete-address': { address } }
-      })
+      await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json: { 'delete-address': { address } } })
       get().getAccounts()
     }
   },
@@ -257,101 +219,26 @@ const useWalletStore = create<WalletStore>((set, get) => ({
       }
     })
   },
-  sendTokens: async ({ from, to, town, amount, destination, salt, gasPrice, budget }: SendTokenPayload) => {
-    console.log({
-      submit: {
+  sendTokens: async (payload: SendTokenPayload) => {
+    const json = generateSendTokenPayload(payload)
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json })
+  },
+  sendNft: async (payload: SendNftPayload) => {
+    const json = generateSendTokenPayload(payload)
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json })
+  },
+  sendCustomTransaction: async ({ from, to, town, data, rate, bud }: SendCustomTransactionPayload) => {
+    const json = {
+      'submit-custom': {
         from,
         to,
         town,
-        gas: {
-          rate: gasPrice,
-          bud: budget,
-        },
-        args: {
-          give: {
-            salt,
-            to: destination,
-            amount
-          },
-        }
+        gas: { rate, bud },
+        args: data
       }
-    })
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        submit: {
-          from,
-          to,
-          town,
-          gas: {
-            rate: gasPrice,
-            bud: budget,
-          },
-          args: {
-            give: {
-              salt,
-              to: destination,
-              amount
-            },
-          }
-        }
-      }
-    })
-  },
-  sendNft: async ({ from, to, town, destination, salt, nftIndex, gasPrice, budget }: SendNftPayload) => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        submit: {
-          from,
-          to,
-          town,
-          gas: {
-            rate: gasPrice,
-            bud: budget,
-          },
-          args: {
-            'give-nft': {
-              salt,
-              'item-id': nftIndex,
-              to: destination,
-            },
-          }
-        }
-      }
-    })
-  },
-  sendRawTransaction: async ({ from, to, town, data, riceInputs, gasPrice, budget }: SendRawTransactionPayload) => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        submit: {
-          from,
-          to,
-          town,
-          gas: {
-            rate: gasPrice,
-            bud: budget,
-          },
-          args: {
-            data,
-            riceInputs
-          }
-        }
-      }
-    })
-  },
-  addAsset: async (assetContract: string) => {
-    await api.poke({
-      app: 'wallet',
-      mark: 'zig-wallet-poke',
-      json: {
-        'add-asset': { asset: assetContract }
-      }
-    })
+    }
+
+    await api.poke({ app: 'wallet', mark: 'zig-wallet-poke', json })
   },
   getPendingHash: async () => {
     const { hash, egg } = await api.scry<{ hash: string; egg: any }>({ app: 'wallet', path: '/pending' }) || {}

@@ -1,35 +1,37 @@
 import React, { useEffect, useState } from 'react'
-import { NftInfo } from '../../types/Token'
+import { TokenData } from '../../types/Token'
 import { ipfsConnection } from '../../utils/ipfs'
 import './NftImage.scss'
 
 interface NftImageProps extends React.HTMLAttributes<HTMLDivElement> {
-  nftInfo?: NftInfo
+  nftInfo?: TokenData
 }
 
 const NftImage: React.FC<NftImageProps> = ({ nftInfo, ...props }) => {
   const [imageSource, setImageSource] = useState<string | undefined>()
   
   useEffect(() => {
-    if (nftInfo?.URI) {
-      if (nftInfo.URI.includes('ipfs')) {
+    if (nftInfo?.uri) {
+      if (nftInfo.uri.includes('ipfs')) {
         (async function() {
           // prereqs
           const node = await ipfsConnection
-          const cid = nftInfo.URI.replace('ipfs://', '/ipfs/')
-  
-          // load the raw data from js-ipfs (>=0.40.0)
-          let bufs = []
-          for await (const buf of node.cat(cid)) {
-            bufs.push(buf)
+          if (nftInfo?.uri) {
+            const cid = nftInfo.uri.replace('ipfs://', '/ipfs/')
+    
+            // load the raw data from js-ipfs (>=0.40.0)
+            let bufs = []
+            for await (const buf of node.cat(cid)) {
+              bufs.push(buf)
+            }
+            const data = Buffer.concat(bufs)
+    
+            const blob = new Blob([data], { type: 'image/jpg' })
+            setImageSource(window.URL.createObjectURL(blob))
           }
-          const data = Buffer.concat(bufs)
-  
-          const blob = new Blob([data], { type: 'image/jpg' })
-          setImageSource(window.URL.createObjectURL(blob))
         })()
       } else {
-        setImageSource(nftInfo.URI)
+        setImageSource(nftInfo.uri)
       }
     }
   }, [nftInfo])
@@ -39,7 +41,7 @@ const NftImage: React.FC<NftImageProps> = ({ nftInfo, ...props }) => {
   }
 
   return (
-    <img src={imageSource} className="nft-image" alt={nftInfo.desc} />
+    <img src={imageSource} className="nft-image" alt={String(nftInfo.id)} />
   )
 }
 

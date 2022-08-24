@@ -6,51 +6,29 @@ import Col from '../../components/spacing/Col'
 import Row from '../../components/spacing/Row'
 import Text from '../../components/text/Text'
 import useWalletStore from '../../store/walletStore'
-import { formatHash } from '../../utils/format'
+import { abbreviateHex } from '../../utils/format'
 import CopyIcon from '../../components/transactions/CopyIcon';
 import { getStatus } from '../../utils/constants'
 import SendTokenForm from '../../components/forms/SendTokenForm'
-import SendRawTransactionForm from '../../components/forms/SendRawTransactionForm'
+import SendCustomTransactionForm from '../../components/forms/SendCustomTransactionForm'
 import { Transaction } from '../../types/Transaction'
 import Modal, { ModalProps } from './Modal'
 
 import './SendModal.scss'
 
-export type SendType = 'tokens' | 'nft' | 'data';
-
-const titles = {
-  tokens: 'Tokens',
-  nft: 'NFT',
-  data: 'Raw Data',
-}
-
-interface SelectorProps {
-  title: SendType
-  active: boolean
-  onClick: () => void
-}
-
-const Selector = ({
-  title,
-  active,
-  onClick,
-}: SelectorProps) => {
-  return (
-    <Col onClick={onClick} className="selector">
-      <Text className={active ? 'active' : 'inactive'}>{titles[title]}</Text>
-    </Col>
-  );
-}
+export type SendType = 'tokens' | 'nft' | 'custom';
 
 interface SendModalProps extends ModalProps {
-  riceId?: string
-  nftIndex?: number
+  id?: string
+  from?: string
+  nftId?: number
   formType: SendType
 }
 
 const SendModal = ({
-  riceId = '',
-  nftIndex,
+  id = '',
+  from = '',
+  nftId,
   show,
   formType,
   hide
@@ -72,11 +50,11 @@ const SendModal = ({
   const getForm = () => {
     switch (formType) {
       case 'tokens':
-        return <SendTokenForm {...{ setSubmitted, riceId, formType: 'tokens' }} />
+        return <SendTokenForm {...{ setSubmitted, id, formType: 'tokens' }} />
       case 'nft':
-        return <SendTokenForm {...{ setSubmitted, riceId, nftIndex, formType: 'nft' }} />
-      case 'data':
-        return <SendRawTransactionForm {...{ setSubmitted }} />
+        return <SendTokenForm {...{ setSubmitted, id, nftId, formType: 'nft' }} />
+      case 'custom':
+        return <SendCustomTransactionForm {...{ setSubmitted, from }} />
     }
   }
 
@@ -84,7 +62,6 @@ const SendModal = ({
     hide();
     setSubmitted(false);
   }
-
 
   return (
     <Modal show={show} hide={hideModal} className='send-view'>
@@ -97,7 +74,7 @@ const SendModal = ({
               <Row style={{ marginBottom: 8 }}>
                 <Text style={{ marginRight: 18 }}>Hash: </Text>
                 <Link style={{ maxWidth: 'calc(100% - 100px)', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} href={`/transactions/${txn.hash}`}>
-                  <Text mono>{formatHash(txn.hash)}</Text>
+                  <Text mono>{abbreviateHex(txn.hash)}</Text>
                 </Link>
                 <CopyIcon text={txn.hash} />
               </Row>

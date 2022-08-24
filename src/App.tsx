@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from './components/nav/Navbar';
 import LoadingOverlay from './components/popups/LoadingOverlay';
 import useWalletStore from './store/walletStore';
+import { PUBLIC_URL } from './utils/constants';
 import AccountsView from './views/AccountsView';
 import AccountView from './views/AccountView';
 import AssetsView from './views/AssetsView';
@@ -17,7 +18,7 @@ function App() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter basename={PUBLIC_URL}>
       <Navbar />
       <Routes>
         <Route path="/" element={<AssetsView />} />

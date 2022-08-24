@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import useWalletStore from '../../store/walletStore';
 import { HotWallet, HardwareWallet } from '../../types/Accounts';
 import { displayPubKey } from '../../utils/account';
-import { capitalize } from '../../utils/format';
 import Input from '../form/Input';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row'
@@ -46,7 +45,6 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
     <Col {...props} className={`account-display ${props.className || ''}`}>
       <Row style={{ justifyContent: 'space-between' }}>
         <Row>
-          {/* MAKE THIS AN INPUT */}
           <Input
             className='nick-input'
             style={{ fontWeight: 600, marginRight: 16, width: 120 }}

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { FaCaretRight, FaCaretDown } from 'react-icons/fa';
 import useWalletStore from '../../store/walletStore';
 import { Token } from '../../types/Token'
-import { getTownColor } from '../../utils/colors';
+import { abbreviateHex } from '../../utils/format';
 import { formatAmount } from '../../utils/number';
 import Button from '../form/Button';
 import Col from '../spacing/Col';
@@ -12,70 +12,63 @@ import NftImage from './NftImage';
 import './TokenDisplay.scss'
 
 interface TokenDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
-  tokenBalance: Token
-  setRiceId: (riceId: string) => void
-  setNftIndex: (nftIndex?: number) => void
+  token: Token
+  setId: (id: string) => void
+  setNftIndex: (nftId?: number) => void
 }
 
 const TokenDisplay: React.FC<TokenDisplayProps> = ({
-  tokenBalance,
-  setRiceId,
+  token,
+  setId,
   setNftIndex,
   ...props
 }) => {
   const { metadata } = useWalletStore()
-  const { lord, balance, town, riceId, nftInfo } = tokenBalance
+  const tokenMetadata = metadata[token.contract]
+  const { contract, id, data } = token
   const [open, setOpen] = useState(false)
-  const tokenMetadata = metadata[tokenBalance.data.salt]
-  const isToken = Boolean(balance)
+  const isToken = data.balance !== undefined
   const selectToken = () => {
-    setRiceId(riceId)
-    setNftIndex(nftInfo?.index)
+    setId(id)
+    setNftIndex(data.id)
   }
 
   return (
-    <Col {...props} className={`token-display ${props.className || ''}`} style={{ ...props.style, background: getTownColor(town) }}>
+    <Col {...props} className={`token-display ${props.className || ''}`}>
       <Row style={{ justifyContent: 'space-between' }}>
         <Row>
           <Row onClick={() => setOpen(!open)} style={{ padding: '2px 4px', cursor: 'pointer' }}>
             {open ? <FaCaretDown /> : <FaCaretRight />}
           </Row>
-          {isToken ? (
-            <Text mono>{tokenMetadata?.symbol || lord}</Text>
-          ) : (
-            nftInfo && <Text mono>{nftInfo.desc}</Text>
-          )}
+          <Text mono>{(isToken ? tokenMetadata?.data?.symbol : tokenMetadata?.data?.name) || abbreviateHex(contract)}</Text>
         </Row>
         <Row>
           {isToken ? (
-            <Text>{formatAmount(balance!)}</Text>
+            <Text>{formatAmount(data.balance! / Math.pow(10, tokenMetadata?.data?.decimals || 1))}</Text>
             ) : (
-            <Text># {nftInfo?.index}</Text>
+            <Text># {data.id || ''}</Text>
           )}
-          <Button onClick={selectToken} style={{ marginLeft: 16, padding: '4px 8px', fontSize: '14px' }} variant="dark">
+          <Button onClick={selectToken} style={{ marginLeft: 16 }} variant="dark small">
             Transfer
           </Button>
         </Row>
       </Row>
       {open && (
         <Col style={{ paddingLeft: 24, paddingTop: 8 }}>
-          {tokenMetadata && (
-            <>
-              <Row>
-                <Text style={{ width: 80 }}>Name:</Text>
-                <Text mono>{' ' + tokenMetadata.name}</Text>
-              </Row>
-            </>
+          {isToken && tokenMetadata?.data?.name && (
+            <Row>
+              <Text mono>{tokenMetadata?.data?.name}</Text>
+            </Row>
           )}
-          <Row>
-            <Text style={{ width: 80 }}>Town:</Text>
-            <Text mono>{' ' + town}</Text>
-          </Row>
-          <Row>
-            <Text style={{ width: 80 }}>Rice ID:</Text>
-            <Text mono>{' ' + riceId}</Text>
-          </Row>
-          <NftImage nftInfo={nftInfo} />
+          <Col style={{ marginBottom: 6 }}>
+            <Text>Contract ID:</Text>
+            <Text style={{ wordBreak: 'break-all', display: 'block' }} mono>{' ' + contract}</Text>
+          </Col>
+          <Col style={{ marginBottom: 6 }}>
+            <Text>Grain ID:</Text>
+            <Text style={{ wordBreak: 'break-all', display: 'block' }} mono>{' ' + id}</Text>
+          </Col>
+          {!isToken && <NftImage nftInfo={data} />}
         </Col>
       )}
     </Col>

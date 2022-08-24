@@ -1,7 +1,7 @@
 import React from 'react'
 import { Transaction } from '../../types/Transaction';
 import { getStatus } from '../../utils/constants';
-import { formatHash } from '../../utils/format';
+import { abbreviateHex } from '../../utils/format';
 import Link from '../nav/Link';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row'
@@ -22,7 +22,7 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
       <Row>
         <Text style={{ marginRight: 31 }}>Hash: </Text>
         <Link href={`/transactions/${txn.hash}`}>
-          <Text mono>{formatHash(txn.hash)}</Text>
+          <Text mono>{abbreviateHex(txn.hash)}</Text>
         </Link>
         <CopyIcon text={txn.hash} />
       </Row>

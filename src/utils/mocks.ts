@@ -1,7 +1,74 @@
 export const mockAccounts = [{"nick":"0xbeef","address":"0x3e87b0cbb431d0e8a2ee2ac42d9dacab8063d6bb62ff9b2aae1b90f569c3f3423","rawAddress":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","privateKey":"0xf3b2f5ab92dfa29d5e8efe7098cbed993856949bfb4f5cfb7bca4a450ae70e50","rawPrivateKey":"0xf3b2.f5ab.92df.a29d.5e8e.fe70.98cb.ed99.3856.949b.fb4f.5cfb.7bca.4a45.0ae7.0e50","nonces":{"0":1,"1":7},"imported":false}]
 
-export const mockMetadata = {"32.770.263.103.071.854":{"name":"Monkey JPEGs","salt":"0x74.6c61.7374.666e","deployer":"0x0","attributes":"TODO...","cap":0,"symbol":"BADART","supply":1,"mintable":false},"1.936.157.050":{"name":"Uqbar Tokens","salt":"0x7367.697a","decimals":18,"deployer":"0x0","cap":0,"symbol":"ZIG","supply":1e+24,"mintable":false}}
+export const mockMetadata = {
+  '0x61.7461.6461.7465.6d2d.7367.697a': {
+    'token_type': 'token',
+    'town': '0x0',
+    'id': '0x61.7461.6461.7465.6d2d.7367.697a',
+    'data': {
+      'name': 'UQ| Tokens',
+      'symbol': 'ZIG',
+      'salt': 1936157050,
+      'decimals': 18,
+      'supply': 100000000000000,
+      'cap': null,
+      'mintable': true,
+      'minters': ['0xdead', '0xbeef'],
+      'deployer': '0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04',
+    }
+  }
+}
 
-export const mockTransactions = [{"status":0,"budget":10000,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x6c.6f74.6970.6163","rate":1,"nonce":1,"town":0,"args":{"":{"signature":"~zod","town":1}},"hash":"0x5235.15b8.72fc.e829.7919.a3e4.0bfd.48de.c4d2.7d97.00dd.44dd.81ef.c254.ef8a.a3e6"},{"status":0,"budget":100,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":3,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d","amount":1000}},"hash":"0x11a2.2388.bc88.0e76.278f.fc32.f9c8.2e50.0741.7fac.3a19.f052.bdce.3257.5873.ddbd"},{"status":0,"budget":100,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":2,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","amount":1000}},"hash":"0xd0ef.30eb.676e.902d.2f7c.5dea.eae8.82c0.c738.5f89.eb46.7edc.fdcf.a7e7.e1a5.c2db"},{"status":0,"budget":100,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":5,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d","amount":1000}},"hash":"0x4aa1.055a.201d.7429.333b.278f.dd95.6356.9c74.4280.c06b.8b04.12e8.a1b9.2e0e.e1be"},{"status":0,"budget":10,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":1,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","amount":1000}},"hash":"0x5001.6413.50c6.3157.40ef.c835.c018.0836.43be.7410.be95.6c45.85d0.2826.a9c1.c1a9"},{"status":0,"budget":100,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":6,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d","amount":1000}},"hash":"0xfb6c.8f80.77ee.95f0.4fae.0cd9.08d7.0839.d5d4.daa3.64b1.65d3.2e5b.8c23.564f.f2c8"},{"status":0,"budget":10,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":7,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d","amount":100}},"hash":"0x876a.f177.df9b.123e.46ad.7eb4.7f9e.4d5d.2a7d.e02e.6b22.92b2.c885.e505.81d1.c3d3"},{"status":0,"budget":100,"from":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","to":"0x74.6361.7274.6e6f.632d.7367.697a","rate":1,"nonce":4,"town":1,"args":{"":{"salt":"0x7367.697a","to":"0x2.eaea.cffd.2bbe.e0c0.02dd.b5f8.dd04.e63f.297f.14cf.d809.b616.2137.126c.da9e.8d3d","amount":10000}},"hash":"0x4e0c.d846.de4f.c033.7283.b5fd.7641.dcff.1d89.452c.cdfe.dbed.cabd.c4d9.dbf2.e7a7"}]
+export const mockTransactions = [
+  {
+    'hash': '0xb3cb.cbe3.65b0.f6e1.588d.fe02.11df.ef88',
+    'args': {
+      'give': {
+        'grain': '0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6',
+        'to': '0xd6dc.c8ff.7ec5.4416.6d4e.b701.d1a6.8e97.b464.76de'
+      }
+    },
+    'town': '0x0',
+    'nonce': 6,
+    'rate': 1,
+    'budget': 1000000,
+    'to': '0x74.6361.7274.6e6f.632d.7367.697a',
+    'from': '0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70',
+    'status': 0
+  }
+]
 
-export const mockAssets = {"0x3e87b0cbb431d0e8a2ee2ac42d9dacab8063d6bb62ff9b2aae1b90f569c3f3423":[{"town":0,"riceId":"0x532c.d5cf.befc.5c0f.86e1.40bb.6e89.c2d8","lord":"0x74.6361.7274.6e6f.632d.7367.697a","holder":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","balance":300000000000000000000,"data":{"balance":300000000000000000000,"metadata":"0x61.7461.6461.7465.6d2d.7367.697a","salt":"1.936.157.050"}},{"town":1,"riceId":"0xcb22.90ff.6e2f.ba63.86e1.40bb.6e89.c2d8","lord":"0x74.6361.7274.6e6f.632d.7367.697a","holder":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","balance":10321054999999990000,"data":{"balance":10321054999999990000,"metadata":"0x61.7461.6461.7465.6d2d.7367.697a","salt":"1.936.157.050"}},{"town":1,"riceId":"0x53c5.16a4.0abd.bb0a.86e1.40bb.6e89.c2d8","lord":"0xcafe.babe","holder":"0x3.e87b.0cbb.431d.0e8a.2ee2.ac42.d9da.cab8.063d.6bb6.2ff9.b2aa.e1b9.0f56.9c3f.3423","nftInfo":{"index":1,"desc":"a smiling monkey","URI":"ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9","attributes":"TODO..."},"data":{"metadata":"0x6174.6164.6174.656d.2d74.666e","salt":"32.770.263.103.071.854","items":{"1":{"desc":"a smiling monkey","URI":"ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9","attributes":"TODO..."}}}}]}
+export const mockAssets = {
+  "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70": {
+      "0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6": {
+          "contract": "0x61.7461.6461.7465.6d2d.7367.697a",
+          "data": {
+              "balance": 300000000000000000000,
+              "metadata": "0x74.6361.7274.6e6f.632d.7367.697a"
+          },
+          "id": "0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6",
+          "town": "0x0",
+          "token_type": "token",
+          "holder": "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70",
+      },
+      "0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97": {
+          "contract": "0x6174.6164.6174.656d.2d74.666e",
+          "data": {
+              "metadata": "0xcafe.babe",
+              "transferrable": true,
+              "uri": "ipfs://QmUbFVTm113tJEuJ4hZY2Hush4Urzx7PBVmQGjv1dXdSV9",
+              "id": 1,
+              "allowances": [],
+              "properties": {
+                  "mouth": "smile",
+                  "eyes": "big",
+                  "hat": "pyramid"
+              }
+          },
+          "id": "0x7e21.2812.bfae.4d2e.6b3d.9941.b776.3c0f.33bc.fb6d.c759.2d80.be02.a7b2.48a8.da97",
+          "town": "0x0",
+          "token_type": "nft",
+          "holder": "0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70",
+      }
+  }
+}

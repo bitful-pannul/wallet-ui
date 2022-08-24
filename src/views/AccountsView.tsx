@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import AccountDisplay from '../components/accounts/AccountDisplay'
 import Button from '../components/form/Button'
+import Form from '../components/form/Form'
 import Input from '../components/form/Input'
 import TextArea from '../components/form/TextArea'
 import Modal from '../components/popups/Modal'
@@ -15,10 +16,9 @@ import { capitalize } from '../utils/format'
 import './AccountsView.scss'
 
 const AccountsView = () => {
-  const inputRef = useRef<any>(null)
   const { accounts, importedAccounts, getAccounts, createAccount, restoreAccount, importAccount, getSeed, deriveNewAddress } = useWalletStore()
   const [showCreate, setShowCreate] = useState(false)
-  const [showRestore, setShowRestore] = useState(false)
+  const [showAddWallet, setShowAddWallet] = useState<'create' | 'restore' | undefined>()
   const [showImport, setShowImport] = useState(false)
   const [mnemonic, setMnemonic] = useState('')
   const [password, setPassword] = useState('')
@@ -26,7 +26,6 @@ const AccountsView = () => {
   const [addAddressType, setAddAddressType] = useState<DerivedAddressType | null>(null)
   const [nick, setNick] = useState('')
   const [hdpath, setHdpath] = useState('')
-  const [importNick, setImportNick] = useState('')
   const [importType, setImportType] = useState<HardwareWalletType | null>(null)
 
   const addHardwareAddress = addAddressType && addAddressType !== 'hot'
@@ -36,10 +35,10 @@ const AccountsView = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (showRestore && inputRef.current) {
-      inputRef.current.focus()
+    if (!showImport && !showAddWallet && !addAddressType) {
+      setNick('')
     }
-  }, [showRestore, inputRef])
+  }, [showImport, showAddWallet, addAddressType])
 
   const showSeed = useCallback(async () => {
     if (window.confirm('Are you sure you want to display your seed phrase? Anyone viewing this will have access to your account.')) {
@@ -48,53 +47,57 @@ const AccountsView = () => {
     }
   }, [getSeed, setSeed])
 
-  const create = useCallback(async (restore = false) => {
+  const clearForm = useCallback(() => {
+    setNick('')
+    setHdpath('')
+    setPassword('')
+    setAddAddressType(null)
+  }, [setNick, setHdpath, setPassword, setAddAddressType])
+
+  const create = useCallback(async (e) => {
+    e.preventDefault()
     if (window.confirm('Please make sure you have backed up your seed phrase and password. This will overwrite your existing account(s), are you sure?')) {
-      if (restore) {
+      if (showAddWallet === 'restore') {
         if (!mnemonic) {
-          alert('Mnemonic is required')
+          return alert('Mnemonic is required')
         } else {
-          restoreAccount(mnemonic, password)
+          restoreAccount(mnemonic, password, nick)
         }
       } else {
-        createAccount()
+        createAccount(password, nick)
       }
+      setShowAddWallet(undefined)
+      setShowCreate(false)
+      clearForm()
     }
-  }, [mnemonic, password, createAccount, restoreAccount])
+  }, [mnemonic, password, nick, showAddWallet, createAccount, restoreAccount, clearForm])
 
   const doImport = useCallback(() => {
-    if (!importNick) {
+    if (!nick) {
       alert('Nickname is required')
     } else {
       if (importType) {
-        importAccount(importType, importNick)
+        importAccount(importType, nick)
       }
       setShowCreate(false)
-      setShowRestore(false)
+      setShowAddWallet(undefined)
       setShowImport(false)
       setImportType(null)
+      clearForm()
     }
-  }, [setShowCreate, setShowRestore, setShowImport, importAccount, importNick, importType])
+  }, [setShowCreate, setShowAddWallet, setShowImport, importAccount, clearForm, nick, importType])
 
-  const addAddress = () => {
+  const addAddress = (e: any) => {
+    e.preventDefault()
     if (addHardwareAddress) {
       if (!hdpath) {
-        alert('You must supply an HD path')
-        return
+        return alert('You must supply an HD path')
       }
       deriveNewAddress(hdpath, nick, addAddressType)
     } else if (addAddressType) {
       deriveNewAddress(hdpath, nick)
     }
-    setNick('')
-    setHdpath('')
-    setAddAddressType(null)
-  }
-
-  const closeModal = () => {
-    setNick('')
-    setHdpath('')
-    setAddAddressType(null)
+    clearForm()
   }
 
   const hardwareWalletTypes: HardwareWalletType[] =
@@ -119,7 +122,7 @@ const AccountsView = () => {
         </>
       )}
       <Button onClick={() => setShowCreate(true)} style={{ width: 200 }}>
-        + Add Wallet
+        + New Wallet
       </Button>
       <Divider style={{ margin: '40px 0 16px' }} />
       <h3>Hardware Wallets</h3>
@@ -148,37 +151,43 @@ const AccountsView = () => {
       </Modal>
       <Modal show={showCreate} hide={() => setShowCreate(false)} style={{ minHeight: 160, minWidth: 300 }}>
         <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-          <Button  style={{ minWidth: 280, marginBottom: 24 }} onClick={create}>Create New Wallet</Button>
-          <Button  style={{ minWidth: 280 }} onClick={() => setShowRestore(true)}>Restore Wallet From Seed</Button>
+          <Button  style={{ minWidth: 280, marginBottom: 24 }} onClick={() => setShowAddWallet('create')}>Create New Wallet</Button>
+          <Button  style={{ minWidth: 280 }} onClick={() => setShowAddWallet('restore')}>Restore Wallet From Seed</Button>
         </Col>
       </Modal>
-      <Modal show={showRestore} hide={() => setShowRestore(false)} style={{ minHeight: 160, minWidth: 300 }}>
-        <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-          <h3>Restore Wallet</h3>
-          <TextArea
-            ref={inputRef}
+      <Modal show={Boolean(showAddWallet)} hide={() => setShowAddWallet(undefined)} style={{ minHeight: 160, minWidth: 300 }}>
+        <Form style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: 'calc(100% - 32px)', background: 'white' }} onSubmit={create}>
+          <h3 style={{ marginTop: 0 }}>{showAddWallet === 'create' ? 'Create' : 'Restore'} Wallet</h3>
+          <Input
+            onChange={(e: any) => setNick(e.target.value)}
+            placeholder="Nickname"
+            style={{ width: 'calc(100% - 20px)' }}
+            containerStyle={{ width: '100%', marginBottom: 16 }}
+            value={nick}
+            minLength={3}
+            required
+            autoFocus
+          />
+          {showAddWallet === 'restore' && (<TextArea
             onChange={(e: any) => setMnemonic(e.target.value)}
             placeholder="Enter seed phrase"
             containerStyle={{ width: '100%', marginBottom: 16 }}
             style={{ width: 'calc(100% - 8px)', height: 80 }}
-          />
+          />)}
           <Input
             onChange={(e: any) => setPassword(e.target.value)}
             placeholder="Enter password"
-            style={{ width: 'calc(100% - 16px)', marginBottom: 16, marginLeft: -3 }}
+            style={{ width: 'calc(100% - 20px)', marginBottom: 16 }}
             containerStyle={{ width: '100%' }}
             type="password"
             value={password}
+            minLength={8}
+            required
           />
-          <Button style={{ minWidth: 120 }} onClick={() => {
-            if (mnemonic && window.confirm('Please make sure you have backed up your seed phrase and password. This will overwrite your existing account(s), are you sure?')) {
-              restoreAccount(mnemonic, password)
-            }
-            setShowRestore(false)
-          }}>
-            Restore
+          <Button style={{ minWidth: 120 }} type="submit" variant='dark'>
+            {showAddWallet === 'create' ? 'Create' : 'Restore'}
           </Button>
-        </Col>
+        </Form>
       </Modal>
       <Modal show={showImport} hide={() => setShowImport(false)} style={{ minHeight: 160, minWidth: 300 }}>
         <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
@@ -200,20 +209,20 @@ const AccountsView = () => {
         <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
           <h4 style={{ marginTop: 0 }}>Set Nickname</h4>
           <Input
-            onChange={(e: any) => setImportNick(e.target.value)}
+            onChange={(e: any) => setNick(e.target.value)}
             placeholder={`Nickname, i.e. ${capitalize(importType || '')} primary`}
             style={{ width: 'calc(100% - 16px)' }}
             containerStyle={{ width: '100%', marginBottom: 24 }}
-            value={importNick}
+            value={nick}
           />
           <Button style={{ minWidth: 120 }} onClick={doImport} variant="dark">
             Connect
           </Button>
         </Col>
       </Modal>
-      <Modal show={Boolean(addAddressType)} hide={closeModal}>
-        <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <h4 style={{ margin: '0 0 12px' }}>Derive New Address</h4>
+      <Modal show={Boolean(addAddressType)} hide={clearForm}>
+        <Form style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: 300, maxWidth: '100%', background: 'white' }} onSubmit={addAddress}>
+          <h3 style={{ margin: '0 0 12px' }}>Derive New Address</h3>
           {(addHardwareAddress) && (
             <select className='hardware-type' value={addAddressType} onChange={(e) => setAddAddressType(e.target.value as HardwareWalletType)}>
               {hardwareWalletTypes.map(hwt => (
@@ -229,6 +238,8 @@ const AccountsView = () => {
             style={{ width: 'calc(100% - 20px)' }}
             containerStyle={{ width: '100%', marginBottom: 16 }}
             value={nick}
+            minLength={3}
+            required
           />
           <Input
             onChange={(e: any) => setHdpath(e.target.value)}
@@ -236,9 +247,10 @@ const AccountsView = () => {
             style={{ width: 'calc(100% - 20px)' }}
             containerStyle={{ width: '100%', marginBottom: 16 }}
             value={hdpath}
+            required={Boolean(addHardwareAddress)}
           />
-          <Button onClick={addAddress} variant="dark">Derive</Button>
-        </Col>
+          <Button type="submit" variant="dark" style={{ minWidth: 120 }}>Derive</Button>
+        </Form>
       </Modal>
     </Container>
   )

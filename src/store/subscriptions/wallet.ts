@@ -1,33 +1,29 @@
 import { GetState, SetState } from "zustand";
 import { Assets } from "../../types/Assets";
-import { processNft, processToken, RawToken, Token } from "../../types/Token";
 import { Transaction } from "../../types/Transaction";
-import { removeDots } from "../../utils/format";
 import { showNotification } from "../../utils/notification";
 import { WalletStore } from "../walletStore";
-import { formatHash } from '../../utils/format';
+import { abbreviateHex } from '../../utils/format';
+import { TokenMetadataStore } from "../../types/TokenMetadata";
+import { Token } from "../../types/Token";
 
-export const handleBookUpdate = (get: GetState<WalletStore>, set: SetState<WalletStore>) => (balanceData: { [key: string]: RawToken }) => {
+export const handleBookUpdate = (get: GetState<WalletStore>, set: SetState<WalletStore>) => (balanceData: Assets) => {
+  console.log('ASSETS:', balanceData)
   const assets: Assets = {}
 
-  for (let account in balanceData) {
-    assets[removeDots(account)] = Object.values(balanceData[account])
-      .reduce((acc, cur) => cur.data.balance ? acc.concat([processToken(cur)]) : acc, [])
-      
-
-    const nftData = Object.values(balanceData[account]).find(tokenData => tokenData.data.items)
-    if (nftData?.data?.items) {
-      Object.keys(nftData.data.items)
-        .forEach((index) => {
-          const nft = processNft(nftData, index, nftData?.data?.items![index])
-          assets[removeDots(account)].push(nft)
-        })
-    }
-
-    assets[removeDots(account)].sort((a: Token, b: Token) => a.town - b.town)
-  }
+  Object.keys(balanceData).forEach(holder => {
+    assets[holder] = Object.keys(balanceData[holder]).reduce((acc, cur) => {
+      acc[cur] = { ...balanceData[holder][cur], holder }
+      return acc
+    }, {} as { [key: string]: Token })
+  })
 
   set({ assets })
+}
+
+export const handleMetadataUpdate = (get: GetState<WalletStore>, set: SetState<WalletStore>) => (metadata: TokenMetadataStore) => {
+  console.log('METADATA', metadata)
+  set({ metadata })
 }
 
 export const handleTxnUpdate = (get: GetState<WalletStore>, set: SetState<WalletStore>) => async (rawTxn: { [key: string]: Transaction }) => {
@@ -47,6 +43,6 @@ export const handleTxnUpdate = (get: GetState<WalletStore>, set: SetState<Wallet
   }
 
   if (txn.status === 0) {
-    showNotification(`Transaction ${formatHash(txn.hash)} confirmed!`)
+    showNotification(`Transaction ${abbreviateHex(txn.hash)} confirmed!`)
   }
 }

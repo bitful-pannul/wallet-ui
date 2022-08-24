@@ -1,17 +1,23 @@
-export interface RawTransactions {
+export interface CustomTransactions {
   [key: string]: Transaction
+}
+
+export interface TransactionArgs {
+  [key: string]: {
+    [key: string]: string | number
+  }
 }
 
 export interface Transaction {
   hash: string
-  from: string
-  to: string
-  town: number
-  destination?: string
+  town: string
+  nonce: number
   rate: number
   budget: number
-  nonce: number
+  to: string
+  from: string
   status: number
   created?: Date
   modified?: Date
+  args: TransactionArgs | string
 }

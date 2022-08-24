@@ -1,9 +1,11 @@
+export const PUBLIC_URL = '/apps/ziggurat/wallet'
+
 export const STATUS_CODES : { [key: number] : string } = {
   0: 'confirmed',
   1: 'no account info',
   2: 'bad signature',
   3: 'incorrect nonce',
-  4: 'insufficient budget',
+  4: 'insufficient bud',
   5: 'contract not found',
   6: 'crash in contract execution',
   7: 'rice validation failed',

@@ -3,11 +3,11 @@ import Row from '../spacing/Row'
 import Link from './Link'
 // import logoWithText from '../../assets/img/uqbar-logo-text.png'
 import logo from '../../assets/img/logo192.png'
-import './Navbar.scss'
 import { isMobileCheck } from '../../utils/dimensions'
-import Text from '../text/Text'
 import useWalletStore from '../../store/walletStore'
 import { FaWallet, FaKey, FaHistory } from 'react-icons/fa'
+import { PUBLIC_URL } from '../../utils/constants'
+import './Navbar.scss'
 
 const Navbar = () => {
   const isMobile = isMobileCheck()
@@ -24,7 +24,7 @@ const Navbar = () => {
         <div className="nav-link logo">
           <img src={logo} alt="Uqbar Logo" />
         </div>
-        <Link className={`nav-link ${window.location.pathname === `${process.env.PUBLIC_URL}/` || window.location.pathname === process.env.PUBLIC_URL ? 'selected' : ''}`} href="/">
+        <Link className={`nav-link ${window.location.pathname === `${PUBLIC_URL}/` || window.location.pathname === PUBLIC_URL ? 'selected' : ''}`} href="/">
           {isMobile ? <FaWallet  /> : 'Assets'}
         </Link>
         <Link className={`nav-link ${window.location.pathname.includes('/accounts') ? 'selected' : ''}`} href="/accounts">
@@ -33,9 +33,6 @@ const Navbar = () => {
         <Link className={`nav-link ${window.location.pathname.includes('/transactions') ? 'selected' : ''}`} href="/transactions">
           {isMobile ? <FaHistory  /> : 'History'}
         </Link>
-      </Row>
-      <Row className='town'>
-        <Text style={{ fontWeight: 600 }}>Town: {selectedTown}</Text>
       </Row>
     </Row>
   )

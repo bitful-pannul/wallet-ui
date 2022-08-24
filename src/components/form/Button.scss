@@ -16,4 +16,9 @@ button.button {
     color: white;
     background: black;
   }
+
+  &.small {
+    padding: 4px 8px;
+    font-size: 14px;
+  }
 }
