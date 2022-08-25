@@ -24,7 +24,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
   ...props
 }) => {
   const { metadata } = useWalletStore()
-  const tokenMetadata = metadata[token.contract]
+  const tokenMetadata = metadata[token.data.metadata]
   const { contract, id, data } = token
   const [open, setOpen] = useState(false)
   const isToken = data.balance !== undefined

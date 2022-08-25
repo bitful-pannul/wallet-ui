@@ -3,7 +3,7 @@ export interface TokenMetadata {
   token_type: string
   town: string
   data: {
-    mintable: true
+    mintable: boolean
     supply: number
     symbol: string
     minters: string[]

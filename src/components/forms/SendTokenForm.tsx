@@ -129,7 +129,7 @@ const SendTokenForm = ({
     }
   }
 
-  const tokenMetadata = selected && metadata[selected.contract]
+  const tokenMetadata = selected && metadata[selected.data.metadata]
 
   return (
     <Form className="send-token-form" onSubmit={submit}>

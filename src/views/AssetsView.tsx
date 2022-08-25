@@ -50,7 +50,7 @@ const AssetsView = () => {
             showAddress={!selectedAddress}
             setId={setId}
             setNftIndex={setNftIndex}
-            balances={Object.values(assets[a]).filter(({ contract }) => metadata[contract])}
+            balances={Object.values(assets[a]).filter(({ data }) => metadata[data.metadata])}
           />
         ))}
       </Col>
