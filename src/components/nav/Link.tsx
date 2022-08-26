@@ -1,25 +1,31 @@
 import React from 'react'
-import { PUBLIC_URL } from '../../utils/constants';
+import { Link } from 'react-router-dom';
+import useWalletStore from '../../store/walletStore';
 import './Link.scss'
 
-interface LinkProps extends React.HTMLAttributes<HTMLAnchorElement> {
+interface CustomLinkProps extends React.HTMLAttributes<HTMLAnchorElement> {
   href: string;
   urlPrefix?: string;
   type?: string;
   target?: string;
 }
 
-const Link: React.FC<LinkProps> = ({
+const CustomLink: React.FC<CustomLinkProps> = ({
   href,
   urlPrefix,
   type = '',
   ...props
 }) => {
+  const { setPathname } = useWalletStore()
+
   return (
-    <a href={(urlPrefix || PUBLIC_URL) + href} {...props} className={`link ${props.className || ''} ${type}`}>
+    <Link to={href} {...props} className={`link ${props.className || ''} ${type}`} onClick={(e) => {
+      setPathname(href)
+      props.onClick && props.onClick(e)
+    }}>
       {props.children}
-    </a>
+    </Link>
   )
 }
 
-export default Link
+export default CustomLink
