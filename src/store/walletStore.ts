@@ -8,13 +8,14 @@ import { CustomTransactions, Transaction } from "../types/Transaction"
 import { TokenMetadataStore } from "../types/TokenMetadata"
 import { removeDots } from "../utils/format"
 import { deriveLedgerAddress, getLedgerAddress } from "../utils/ledger"
+import { deriveTrezorAddress, getTrezorAddress } from "../utils/trezor"
 import { addHexDots } from "../utils/number"
 import { mockData } from "../utils/constants"
 import { mockAccounts, mockAssets, mockMetadata, mockTransactions } from "../utils/mocks"
 import { createSubscription } from "./createSubscription"
 import { Assets } from "../types/Assets"
 import { generateSendTokenPayload } from "./util"
-// import { getLedgerAddress } from "../utils/ledger"
+import { getAccountInfo } from "@trezor/connect/lib/types/api/getAccountInfo"
 
 export interface WalletStore {
   loadingText: string | null,
@@ -130,6 +131,9 @@ const useWalletStore = create<WalletStore>(
           if (type === 'ledger') {
             deriveAddress = deriveLedgerAddress
           }
+          else if (type === 'trezor') {
+            deriveAddress = deriveTrezorAddress
+          }
     
           if (deriveAddress !== undefined) {
             const importedAddress = await deriveAddress(hdpath)
@@ -171,9 +175,16 @@ const useWalletStore = create<WalletStore>(
       get().getAccounts()
     },
     importAccount: async (type: HardwareWalletType, nick: string) => {
-      // only Ledger for now
       set({ loadingText: 'Importing...' })
-      const importedAddress = await getLedgerAddress()
+
+      let importedAddress: string | undefined = ''
+
+      if (type === 'ledger'){
+
+        importedAddress = await getLedgerAddress()
+      } else if (type === 'trezor') {
+        importedAddress = await getTrezorAddress()
+      }
 
       if (importedAddress) {
         // TODO: get nonce info

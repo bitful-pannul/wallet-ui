@@ -103,8 +103,6 @@ const AccountsView = () => {
   const hardwareWalletTypes: HardwareWalletType[] =
     importedAccounts.reduce((acc, { type }) => !acc.includes(type) ? acc.concat([type]) : acc, [] as HardwareWalletType[])
 
-  hardwareWalletTypes.push('trezor')
-
   return (
     <Container className='accounts-view'>
       <h3>Hot Wallets</h3>
@@ -190,12 +188,18 @@ const AccountsView = () => {
         </Form>
       </Modal>
       <Modal show={showImport} hide={() => setShowImport(false)} style={{ minHeight: 160, minWidth: 300 }}>
-        <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-          <Button style={{ minWidth: 120 }} onClick={() => {
+        <Col style={{ justifyContent: 'space-evenly', alignItems: 'center', height: '100%', width: '100%' }}>
+        <Button style={{ minWidth: 120 }} onClick={() => {
             setShowImport(false)
             setImportType('ledger')
           }}>
             Connect Ledger
+          </Button>
+          <Button style={{ minWidth: 120 }} onClick={() => {
+            setShowImport(false)
+            setImportType('trezor')
+          }}>
+            Connect Trezor
           </Button>
         </Col>
       </Modal>
@@ -226,7 +230,7 @@ const AccountsView = () => {
           {(addHardwareAddress) && (
             <select className='hardware-type' value={addAddressType} onChange={(e) => setAddAddressType(e.target.value as HardwareWalletType)}>
               {hardwareWalletTypes.map(hwt => (
-                <option value={hwt}>
+                <option value={hwt} key={hwt}>
                   {capitalize(hwt)}
                 </option>
               ))}
