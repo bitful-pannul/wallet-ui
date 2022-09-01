@@ -45,10 +45,10 @@ const TransactionsView = () => {
           <h2 style={{ margin: '16px 0' }}>Transaction History</h2>
           <Row>
             <label style={{ marginRight: 8 }}>Address:</label>
-            <select style={{ width: 160 }} value={selectedAddress} onChange={selectAddress}>
+            <select className='address-selector' value={selectedAddress} onChange={selectAddress}>
               <option>{PLACEHOLDER}</option>
-              {accounts.map(({ address }) => (
-                <option value={address} key={address}>
+              {accounts.map(({ address, rawAddress }) => (
+                <option value={rawAddress} key={address}>
                   {displayPubKey(address)}
                 </option>
               ))}

@@ -5,4 +5,37 @@
   margin: 16px 0px;
   background: colors.$light-gray;
   border-radius: 4px;
+
+  &:hover{
+    background: linear-gradient(-45deg, colors.$uq-pink, colors.$uq-lightpurple);
+    animation: gradient 15s linear infinite;
+    background-size: 400% 400%;
+    .token-name {
+      text-decoration: underline;
+      // background: colors.$uq-lightpurple;
+      // border-radius: 9999px;
+      // padding: 0.25em  0.5em;
+    }
+  }
+
+
+}
+
+// inspired by a pen by https://manuel.pinto.dev
+@keyframes gradient {
+	0% {
+		background-position: 0% 0%;
+	}
+  25% {
+		background-position: 100% 0%;
+	}
+	50% {
+		background-position: 100% 100%;
+	}
+	75% {
+		background-position: 0% 100%;
+	}
+  100% {
+		background-position: 0% 0%;
+	}
 }

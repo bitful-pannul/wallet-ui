@@ -1,15 +1,17 @@
 import React, { useCallback, useState } from 'react'
-import { FaCopy } from 'react-icons/fa';
+import { FaCheckCircle, FaCopy, FaRegCheckCircle, FaRegCopy } from 'react-icons/fa';
 import Row from '../spacing/Row'
 import Text from '../text/Text';
 import './CopyIcon.scss'
 
 interface CopyIconProps extends React.HTMLAttributes<HTMLDivElement> {
   text: string
+  iconOnly?: boolean
 }
 
 const CopyIcon: React.FC<CopyIconProps> = ({
   text,
+  iconOnly = true,
   ...props
 }) => {
   const [didCopy, setDidCopy] = useState(false)
@@ -22,7 +24,10 @@ const CopyIcon: React.FC<CopyIconProps> = ({
 
   return (
     <Row style={{ marginLeft: 12, padding: '2px 4px', cursor: 'pointer' }} className="icon" onClick={onCopy}>
-      {didCopy ? <Text style={{ fontSize: 14 }}>Copied!</Text> : <FaCopy />}
+      {didCopy ? 
+        iconOnly ? <FaRegCheckCircle />
+        : <Text style={{ fontSize: 14 }}>Copied!</Text>
+      : <FaRegCopy />}
     </Row>
   )
 }

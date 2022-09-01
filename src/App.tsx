@@ -10,6 +10,8 @@ import AssetsView from './views/AssetsView';
 import TransactionsView from './views/TransactionsView';
 import TransactionView from './views/TransactionView';
 
+import './App.scss'
+
 function App() {
   const { init, loadingText } = useWalletStore()
 

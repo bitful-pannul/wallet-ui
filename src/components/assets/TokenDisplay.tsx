@@ -8,8 +8,13 @@ import Button from '../form/Button';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row'
 import Text from '../text/Text';
+import Field from '../form/Field';
 import NftImage from './NftImage';
+import CopyIcon from '../transactions/CopyIcon';
+
 import './TokenDisplay.scss'
+import Divider from '../spacing/Divider';
+import Entry from '../form/Entry';
 
 interface TokenDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   token: Token
@@ -36,11 +41,11 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
   return (
     <Col {...props} className={`token-display ${props.className || ''}`}>
       <Row style={{ justifyContent: 'space-between' }}>
-        <Row>
-          <Row onClick={() => setOpen(!open)} style={{ padding: '2px 4px', cursor: 'pointer' }}>
+        <Row onClick={() => setOpen(!open)} style={{ cursor: 'pointer', flexBasis: '70%'  }}>
+          <Row style={{ padding: '2px 4px' }}>
             {open ? <FaCaretDown /> : <FaCaretRight />}
           </Row>
-          <Text mono>{(isToken ? tokenMetadata?.data?.symbol : tokenMetadata?.data?.name) || abbreviateHex(contract)}</Text>
+          <Text bold className='token-name'>{(isToken ? tokenMetadata?.data?.symbol : tokenMetadata?.data?.name) || abbreviateHex(contract)}</Text>
         </Row>
         <Row>
           {isToken ? (
@@ -55,19 +60,26 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
       </Row>
       {open && (
         <Col style={{ paddingLeft: 24, paddingTop: 8 }}>
+          <Divider />
           {isToken && tokenMetadata?.data?.name && (
-            <Row>
-              <Text mono>{tokenMetadata?.data?.name}</Text>
-            </Row>
+            <Entry>
+              <Field name='Name:'>
+                <Text mono>{tokenMetadata?.data?.name}</Text>
+              </Field>
+            </Entry>
           )}
-          <Col style={{ marginBottom: 6 }}>
-            <Text>Contract ID:</Text>
-            <Text style={{ wordBreak: 'break-all', display: 'block' }} mono>{' ' + contract}</Text>
-          </Col>
-          <Col style={{ marginBottom: 6 }}>
-            <Text>Grain ID:</Text>
-            <Text style={{ wordBreak: 'break-all', display: 'block' }} mono>{' ' + id}</Text>
-          </Col>
+          <Entry>
+            <Field name='Contract:'>
+              <Text breakWord mono>{contract}</Text>
+              <CopyIcon text={contract} />
+            </Field>
+          </Entry>
+          <Entry>
+            <Field name='Grain:'>
+              <Text breakWord mono>{id}</Text>
+              <CopyIcon text={id} />
+            </Field>
+          </Entry>
           {!isToken && <NftImage nftInfo={data} />}
         </Col>
       )}

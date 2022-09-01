@@ -31,8 +31,8 @@ const AssetsView = () => {
           <label style={{ marginRight: 8 }}>Address:</label>
           <select className='address-selector' value={selectedAddress} onChange={selectAddress}>
             <option>{PLACEHOLDER}</option>
-            {accounts.map(({ address }) => (
-              <option value={address} key={address}>
+            {accounts.map(({ address, rawAddress }) => (
+              <option value={rawAddress} key={address}>
                 {displayPubKey(address)}
               </option>
             ))}
