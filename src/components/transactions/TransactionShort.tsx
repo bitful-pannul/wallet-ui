@@ -2,6 +2,8 @@ import React from 'react'
 import { Transaction } from '../../types/Transaction';
 import { getStatus } from '../../utils/constants';
 import { abbreviateHex } from '../../utils/format';
+import Entry from '../form/Entry';
+import Field from '../form/Field';
 import Link from '../nav/Link';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row'
@@ -19,20 +21,16 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
 }) => {
   return (
     <Col {...props} className={`transaction-short ${props.className || ''}`}>
-      <Row>
-        <Text style={{ marginRight: 31 }}>Hash: </Text>
-        <Link href={`/transactions/${txn.hash}`}>
-          <Text mono>{abbreviateHex(txn.hash)}</Text>
-        </Link>
-        <CopyIcon text={txn.hash} />
-      </Row>
-      <Row style={{ justifyContent: 'space-between' }}>
-        <Row>
-          <Text style={{ marginRight: 22 }}>Status: </Text>
+        <Field name='Hash:'>
+          <Link href={`/transactions/${txn.hash}`}>
+            <Text mono>{abbreviateHex(txn.hash)}</Text>
+          </Link>
+          <CopyIcon text={txn.hash} />
+        </Field>
+        <Field name='Status:'>
           <Text mono>{getStatus(txn.status)}</Text>
-        </Row>
-        {txn.created && <Text mono>{txn.created.toDateString()}</Text>}
-      </Row>
+          {txn.created && <Text style={{ marginLeft: 'auto' }} mono>{txn.created.toDateString()}</Text>}
+        </Field>
     </Col>
   )
 }

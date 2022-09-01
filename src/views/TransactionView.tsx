@@ -1,5 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
+import Entry from '../components/form/Entry'
+import Field from '../components/form/Field'
 import Link from '../components/nav/Link'
 import Col from '../components/spacing/Col'
 import Container from '../components/spacing/Container'
@@ -17,11 +19,10 @@ const TransactionView = () => {
   const { transactions } = useWalletStore()
   const txn = transactions.find(t => t.hash === hash)
 
-  const renderEntry = (title: string, value: string) => (
-    <Row style={{ marginBottom: 12 }}>
-      <Text style={{ marginRight: 12, fontWeight: 600, width: 60 }}>{title}:</Text>
-      <Text style={{ overflowWrap: 'break-word' }} mono>{value}</Text>
-    </Row>
+  const renderField = (title: string, value: string) => (
+    <Field name={title}>
+      <Text mono breakWord>{value}</Text>
+    </Field>
   )
 
   if (!txn) {
@@ -36,31 +37,44 @@ const TransactionView = () => {
   return (
     <Container className='transaction-view'>
       <h2>Transaction</h2>
-      <Col className="transaction">
-        <Row style={{ marginBottom: 12 }}>
-          <Text style={{ marginRight: 12, fontWeight: 600, width: 60 }}>Hash:</Text>
-          <Link target="_blank" urlPrefix="/apps/uqbar-explorer" href={`/tx/${removeDots(txn.hash)}`}>
-            <Text style={{ overflowWrap: 'break-word' }} mono>{removeDots(txn.hash)}</Text>
-          </Link>
-          <CopyIcon text={txn.hash} />
-        </Row>
-        {renderEntry('From', removeDots(txn.from))}
-        {renderEntry('To', removeDots(txn.to))}
-        <Row style={{ justifyContent: 'space-between', marginBottom: 12 }}>
-          <Row>
-            <Text style={{ marginRight: 12, fontWeight: 600, width: 60 }}>Status:</Text>
-            <Text mono>{getStatus(txn.status)}</Text>
-          </Row>
-          {txn.created && <Text mono>{txn.created.toDateString()}</Text>}
-        </Row>
-        {renderEntry('Town', removeDots(txn.town))}
-        {renderEntry('Nonce', txn.nonce.toString())}
-        {renderEntry('Rate', txn.rate.toString())}
-        {renderEntry('Budget', txn.budget.toString())}
-        <Col style={{ marginBottom: 12 }}>
-          <Text style={{ marginRight: 12, fontWeight: 600, width: 60 }}>Args:</Text>
-          <Text style={{ overflowWrap: 'break-word' }} mono>{JSON.stringify(txn.args)}</Text>
-        </Col>
+      <Col className='transaction'>
+        <Entry>
+          <Field name='Hash:'>
+            <Link target='_blank' urlPrefix='/apps/uqbar-explorer' href={`/tx/${removeDots(txn.hash)}`}>
+              <Text style={{ overflowWrap: 'break-word' }} mono>{removeDots(txn.hash)}</Text>
+            </Link>
+            <CopyIcon text={txn.hash} />
+          </Field>
+        </Entry>
+        <Entry>
+          {renderField('From:', removeDots(txn.from))}
+          {renderField('To:', removeDots(txn.to))}
+        </Entry>
+        <Entry>
+          <Field name='Status:'>
+            <Row>
+              <Text mono>{getStatus(txn.status)}</Text>
+              {txn.created && <Text mono>{txn.created.toDateString()}</Text>}
+            </Row>
+          </Field>
+        </Entry>
+        <Entry>
+          {renderField('Town:', removeDots(txn.town))}
+        </Entry>
+        <Entry>
+        {renderField('Nonce:', txn.nonce.toString())}
+        </Entry>
+        <Entry>
+          {renderField('Rate:', txn.rate.toString())}
+          {renderField('Budget:', txn.budget.toString())}
+        </Entry>
+        <Entry>
+          <Field name='Args:'>
+            <Col style={{ marginBottom: 12 }}>
+              <Text style={{ overflowWrap: 'break-word' }} mono breakWord>{JSON.stringify(txn.args)}</Text>
+            </Col>
+          </Field>
+        </Entry>
       </Col>
     </Container>
   )

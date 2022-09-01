@@ -4,4 +4,12 @@
   &.mono {
     font-family: monospace, monospace;
   }
+
+  &.break {
+    word-break: break-all;
+  }
+
+  &.bold {
+    font-weight: 600;
+  }
 }
