@@ -14,7 +14,7 @@ const Entry: React.FC<EntryProps> = ({ className = '', children, title, divide =
   return (
     <>
       <Col className={`entry ${divide ? 'divide' : ''} ${className}`} {...rest}>
-        <h3>{title}</h3>
+        {title && <h3>{title}</h3>}
         {children}
       </Col>
       { divide && <Divider />}
