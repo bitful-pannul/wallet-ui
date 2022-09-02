@@ -35,23 +35,19 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({
   return (
     <div {...props} className={`account-balance ${props.className || ''}`}>
       {showAddress && (
-        <>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <Col>
-              <h4 style={{ marginBottom: 0 }}>Account</h4>
-              <Row style={{ alignItems: 'center', marginBottom: 12 }}>
-                <h4 style={{ fontFamily: 'monospace, monospace', margin: 0, cursor: 'pointer' }} onClick={() => navigate(`/accounts/${pubKey}`)}>
-                  {displayPubKey(pubKey)}
-                </h4>
-                <CopyIcon text={removeDots(pubKey)} />
-              </Row>
-            </Col>
-            <Button variant='dark small' style={{ marginTop: 8 }} onClick={() => setShowCustomModal(true)}>
-              Custom Txn
-            </Button>
-          </Row>
-          <Line style={{ marginBottom: '8px' }} />
-        </>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Col>
+            <Row style={{ alignItems: 'center' }}>
+              <h4 style={{ fontFamily: 'monospace, monospace', margin: 0, cursor: 'pointer' }} onClick={() => navigate(`/accounts/${pubKey}`)}>
+                {displayPubKey(pubKey)}
+              </h4>
+              <CopyIcon text={removeDots(pubKey)} />
+            </Row>
+          </Col>
+          <Button variant='dark small' style={{ marginTop: 8 }} onClick={() => setShowCustomModal(true)}>
+            Custom Txn
+          </Button>
+        </Row>
       )}
       {balances.length ? (
         balances.map(b => (

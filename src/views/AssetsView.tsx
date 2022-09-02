@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import AccountBalance from '../components/assets/AccountBalance'
+import Entry from '../components/form/Entry'
+import PageHeader from '../components/page/PageHeader'
 import SendModal from '../components/popups/SendModal'
 import Col from '../components/spacing/Col'
 import Container from '../components/spacing/Container'
@@ -25,21 +27,20 @@ const AssetsView = () => {
 
   return (
     <Container className='assets-view'>
-      <Row style={{ maxWidth: 600, justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Assets</h2>
-        <Row>
-          <label style={{ marginRight: 8 }}>Address:</label>
-          <select className='address-selector' value={selectedAddress} onChange={selectAddress}>
-            <option>{PLACEHOLDER}</option>
-            {accounts.map(({ address, rawAddress }) => (
-              <option value={rawAddress} key={address}>
-                {displayPubKey(address)}
-              </option>
-            ))}
-          </select>
-        </Row>
-      </Row>
-      <Col>
+      <PageHeader title='Assets' >
+          <Row style={{marginLeft: 'auto'}}>
+            <label style={{ marginRight: 8 }}>Address:</label>
+            <select className='address-selector' value={selectedAddress} onChange={selectAddress}>
+              <option>{PLACEHOLDER}</option>
+              {accounts.map(({ address, rawAddress }) => (
+                <option value={rawAddress} key={address}>
+                  {displayPubKey(address)}
+                </option>
+              ))}
+            </select>
+          </Row>
+      </PageHeader>
+      <Entry title='Accounts'>
         {(!accountsList.length && !loadingText) && (
           <Text style={{ marginTop: 16 }}>You do not have any Uqbar accounts yet.</Text>
         )}
@@ -53,7 +54,7 @@ const AssetsView = () => {
             balances={Object.values(assets[a]).filter(({ data }) => metadata[data.metadata])}
           />
         ))}
-      </Col>
+      </Entry>
       <SendModal
         show={Boolean(id)}
         id={id}

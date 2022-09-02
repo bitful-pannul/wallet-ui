@@ -13,11 +13,12 @@
 
   .close {
     position: absolute;
-    top: 3px;
-    right: 8px;
+    top: 0.5em;
+    right: 0.5em;
     font-size: 18px;
     font-weight: 200;
     cursor: pointer;
+    transform: rotate(45deg);
   }
 
   .content {

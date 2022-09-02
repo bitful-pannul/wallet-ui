@@ -1,7 +1,8 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import Entry from '../components/form/Entry'
 import Field from '../components/form/Field'
+import BackLink from '../components/nav/BackLink'
 import Link from '../components/nav/Link'
 import Col from '../components/spacing/Col'
 import Container from '../components/spacing/Container'
@@ -29,7 +30,7 @@ const TransactionView = () => {
     return (
       <Container className='transaction-view'>
         <h3>Transaction not found</h3>
-        <Text>Please go back.</Text>
+        <BackLink />
       </Container>
     )
   }
@@ -52,10 +53,8 @@ const TransactionView = () => {
         </Entry>
         <Entry>
           <Field name='Status:'>
-            <Row>
-              <Text mono>{getStatus(txn.status)}</Text>
-              {txn.created && <Text mono>{txn.created.toDateString()}</Text>}
-            </Row>
+            <Text mono>{getStatus(txn.status)}</Text>
+            {txn.created && <Text mono style={{ marginLeft:'auto'}}>{txn.created.toDateString()}</Text>}
           </Field>
         </Entry>
         <Entry>
@@ -76,6 +75,7 @@ const TransactionView = () => {
           </Field>
         </Entry>
       </Col>
+      <BackLink/> 
     </Container>
   )
 }
