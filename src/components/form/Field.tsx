@@ -12,7 +12,9 @@ const Field : React.FC<FieldProps> = ({ className = '', children, name, ...rest 
   return (
     <Row className={`field ${className}`} {...rest}>
       <Text bold className='label'>{name}</Text>
-      {children}
+      <Row className='content'>
+        {children}
+      </Row>
     </Row>
   )
 }

@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import AccountDisplay from '../components/accounts/AccountDisplay'
 import Button from '../components/form/Button'
+import Entry from '../components/form/Entry'
 import Form from '../components/form/Form'
 import Input from '../components/form/Input'
 import TextArea from '../components/form/TextArea'
+import PageHeader from '../components/page/PageHeader'
 import Modal from '../components/popups/Modal'
 import Col from '../components/spacing/Col'
 import Container from '../components/spacing/Container'
@@ -105,36 +107,39 @@ const AccountsView = () => {
 
   return (
     <Container className='accounts-view'>
-      <h3>Hot Wallets</h3>
-      {accounts.map(a => (
-        <AccountDisplay key={a.address} account={a} />
-      ))}
-      {accounts.length > 0 && (
-        <>
-          <Button onClick={showSeed} style={{ marginBottom: 16, width: 200 }}>
-            Display Seed Phrase
-          </Button>
-          <Button onClick={() => setAddAddressType('hot')} style={{ marginBottom: 16, width: 200 }}>
+      <PageHeader title='Accounts' />
+      <Entry title='Hot Wallets' >
+        {accounts.map(a => (
+          <AccountDisplay key={a.address} account={a} />
+          ))}
+        {accounts.length > 0 && (
+          <>
+            <Button onClick={showSeed} style={{ marginBottom: 16, width: 200 }}>
+              Display Seed Phrase
+            </Button>
+            <Button onClick={() => setAddAddressType('hot')} style={{ marginBottom: 16, width: 200 }}>
+              Derive New Address
+            </Button>
+          </>
+        )}
+        <Button onClick={() => setShowCreate(true)} style={{ width: 200 }}>
+          + New Wallet
+        </Button>
+      </Entry>
+      <Entry title='Hardware Wallets'>
+        {importedAccounts.map(a => (
+          <AccountDisplay key={a.address} account={a} />
+          ))}
+        {importedAccounts.length > 0 && (
+          <Button onClick={() => setAddAddressType(hardwareWalletTypes[0])} style={{ marginBottom: 16, width: 200 }}>
             Derive New Address
           </Button>
-        </>
-      )}
-      <Button onClick={() => setShowCreate(true)} style={{ width: 200 }}>
-        + New Wallet
-      </Button>
-      <Divider style={{ margin: '40px 0 16px' }} />
-      <h3>Hardware Wallets</h3>
-      {importedAccounts.map(a => (
-        <AccountDisplay key={a.address} account={a} />
-      ))}
-      {importedAccounts.length > 0 && (
-        <Button onClick={() => setAddAddressType(hardwareWalletTypes[0])} style={{ marginBottom: 16, width: 200 }}>
-          Derive New Address
+        )}
+        <Button onClick={() => setShowImport(true)} style={{ width: 200 }}>
+          + Connect
         </Button>
-      )}
-      <Button onClick={() => setShowImport(true)} style={{ width: 200 }}>
-        + Connect
-      </Button>
+      </Entry>
+
       <Modal show={Boolean(seedData)} hide={() => setSeed(null)} style={{ minHeight: 160, minWidth: 300 }}>
         <Col style={{ justifyContent: 'center', height: '100%', width: '300px' }}>
           <h4 style={{ margin: '0 0 8px' }}>Seed:</h4>

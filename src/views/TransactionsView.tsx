@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import Entry from '../components/form/Entry'
+import BackLink from '../components/nav/BackLink'
+import PageHeader from '../components/page/PageHeader'
 import Col from '../components/spacing/Col'
 import Container from '../components/spacing/Container'
 import Row from '../components/spacing/Row'
@@ -40,46 +43,40 @@ const TransactionsView = () => {
 
   return (
     <Container className='transactions-view'>
-      <Col className="header">
-        <Row style={{ maxWidth: 600, justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: '16px 0' }}>Transaction History</h2>
-          <Row>
-            <label style={{ marginRight: 8 }}>Address:</label>
-            <select className='address-selector' value={selectedAddress} onChange={selectAddress}>
-              <option>{PLACEHOLDER}</option>
-              {accounts.map(({ address, rawAddress }) => (
-                <option value={rawAddress} key={address}>
-                  {displayPubKey(address)}
-                </option>
-              ))}
-            </select>
-          </Row>
+      <PageHeader title='Transaction History' className='header'>
+        <Row style={{marginLeft: 'auto'}}>
+          <label style={{ marginRight: 8 }}>Address:</label>
+          <select className='address-selector' value={selectedAddress} onChange={selectAddress}>
+            <option>{PLACEHOLDER}</option>
+            {accounts.map(({ address, rawAddress }) => (
+              <option value={rawAddress} key={address}>
+                {displayPubKey(address)}
+              </option>
+            ))}
+          </select>
         </Row>
-      </Col>
-      <h3>Pending</h3>
-      <Col>
+      </PageHeader>
+      <Entry title='Pending'>
         {pending.length ? (
           pending.map(txn => <TransactionShort key={txn.hash} txn={txn} />)
         ) : (
           <Text>None</Text>
         )}
-      </Col>
-      <h3>Rejected</h3>
-      <Col>
+      </Entry>
+      <Entry title='Rejected'>
         {rejected.length ? (
           rejected.map(txn => <TransactionShort key={txn.hash} txn={txn} />)
         ) : (
           <Text>None</Text>
         )}
-      </Col>
-      <h3>Completed</h3>
-      <Col>
+      </Entry>
+      <Entry title='Completed'>
         {finished.length ? (
           finished.map(txn => <TransactionShort key={txn.hash} txn={txn} />)
         ) : (
           <Text>None</Text>
         )}
-      </Col>
+      </Entry>
     </Container>
   )
 }

@@ -12,14 +12,13 @@ const Navbar = () => {
   const isMobile = isMobileCheck()
   const { pathname } = useWalletStore()
 
-  console.log('PATHNAME: ',pathname, process.env.PUBLIC_URL)
   return (
     <Row className='navbar'>
       <Row>
-        <div className="nav-link logo">
+        <Link href='/' className="nav-link logo">
           <img src={logo} alt="Uqbar Logo" />
-        </div>
-        <Link className={`nav-link ${(pathname === '/' || pathname == process.env.PUBLIC_URL || pathname.includes('/wallet')) ? 'selected' : ''}`} href="/">
+        </Link>
+        <Link className={`nav-link ${(pathname === '/' || pathname.match('/wallet/?$')) ? 'selected' : ''}`} href="/">
           {isMobile ? <FaWallet  /> : 'Assets'}
         </Link>
         <Link className={`nav-link ${pathname.includes('/accounts') ? 'selected' : ''}`} href="/accounts">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FaCaretRight, FaCaretDown } from 'react-icons/fa';
+import { FaCaretRight, FaCaretDown, FaCoins, FaPortrait } from 'react-icons/fa';
 import useWalletStore from '../../store/walletStore';
 import { Token } from '../../types/Token'
 import { abbreviateHex } from '../../utils/format';
@@ -39,11 +39,12 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
   }
 
   return (
-    <Col {...props} className={`token-display ${props.className || ''}`}>
-      <Row style={{ justifyContent: 'space-between' }}>
-        <Row onClick={() => setOpen(!open)} style={{ cursor: 'pointer', flexBasis: '70%'  }}>
+    <Col {...props} onClick={() => !open && setOpen(true)} className={`token-display ${props.className || ''} ${open ? 'open' : ''}`}>
+      <Row className='token-display-header' onClick={() => setOpen(!open)}>
+        <Row style={{  flexBasis: '70%'  }}>
           <Row style={{ padding: '2px 4px' }}>
-            {open ? <FaCaretDown /> : <FaCaretRight />}
+            <FaCaretDown className='arrow' /> 
+            {isToken? <FaCoins /> : <FaPortrait /> }
           </Row>
           <Text bold className='token-name'>{(isToken ? tokenMetadata?.data?.symbol : tokenMetadata?.data?.name) || abbreviateHex(contract)}</Text>
         </Row>
@@ -58,31 +59,29 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
           </Button>
         </Row>
       </Row>
-      {open && (
-        <Col style={{ paddingLeft: 24, paddingTop: 8 }}>
-          <Divider />
-          {isToken && tokenMetadata?.data?.name && (
-            <Entry>
-              <Field name='Name:'>
-                <Text mono>{tokenMetadata?.data?.name}</Text>
-              </Field>
-            </Entry>
-          )}
+      <Col className='details'>
+        <Divider />
+        {isToken && tokenMetadata?.data?.name && (
           <Entry>
-            <Field name='Contract:'>
-              <Text breakWord mono>{contract}</Text>
-              <CopyIcon text={contract} />
+            <Field name='Name:'>
+              <Text mono>{tokenMetadata?.data?.name}</Text>
             </Field>
           </Entry>
-          <Entry>
-            <Field name='Grain:'>
-              <Text breakWord mono>{id}</Text>
-              <CopyIcon text={id} />
-            </Field>
-          </Entry>
-          {!isToken && <NftImage nftInfo={data} />}
-        </Col>
-      )}
+        )}
+        <Entry>
+          <Field name='Contract:'>
+            <Text breakWord mono>{contract}</Text>
+            <CopyIcon text={contract} />
+          </Field>
+        </Entry>
+        <Entry>
+          <Field name='Grain:'>
+            <Text breakWord mono>{id}</Text>
+            <CopyIcon text={id} />
+          </Field>
+        </Entry>
+        {!isToken && <NftImage nftInfo={data} />}
+      </Col>
     </Col>
   )
 }
