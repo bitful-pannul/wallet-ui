@@ -44,7 +44,7 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({
               <CopyIcon text={removeDots(pubKey)} />
             </Row>
           </Col>
-          <Button variant='dark small' style={{ marginTop: 8 }} onClick={() => setShowCustomModal(true)}>
+          <Button dark small style={{ marginTop: 8 }} onClick={() => setShowCustomModal(true)}>
             Custom Txn
           </Button>
         </Row>
@@ -56,7 +56,7 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({
       ) : (
         <Text>There are no assets under this account.</Text>
       )}
-      <SendModal from={pubKey} formType='custom' show={showCustomModal} hide={() => setShowCustomModal(false)} children={null}/>
+      <SendModal title='Send (custom)' from={pubKey} formType='custom' show={showCustomModal} hide={() => setShowCustomModal(false)} children={null}/>
     </div>
   )
 }

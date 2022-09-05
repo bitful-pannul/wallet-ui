@@ -23,11 +23,13 @@ interface SendModalProps extends ModalProps {
   from?: string
   nftId?: number
   formType: SendType
+  title: string
 }
 
 const SendModal = ({
   id = '',
   from = '',
+  title = 'Send',
   nftId,
   show,
   formType,
@@ -64,8 +66,12 @@ const SendModal = ({
   }
 
   return (
-    <Modal show={show} hide={hideModal} className='send-view'>
-      <h4 style={{ marginTop: 0 }}>Send</h4>
+    <Modal 
+      title={title} 
+      show={show} 
+      hide={hideModal} 
+      className='send-view'
+    >
       {submitted ? (
         <Col className='submission-confirmation'>
           <h4 style={{ marginTop: 0, marginBottom: 16 }}>Transaction {txn?.status === 0 ? 'Complete' : 'Sent'}!</h4>

@@ -59,16 +59,16 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
   }
 
   return (
-    <Form className="send-raw-transaction-form" onSubmit={submit}>
+    <Form className='send-raw-transaction-form' onSubmit={submit}>
       <Input
-        label="From:"
+        label='From:'
         containerStyle={{ marginTop: 12, width: '100%' }}
         value={removeDots(from)}
         style={{ width: 'calc(100% - 24px)' }}
         disabled
       />
       <Input
-        label="To:"
+        label='To:'
         containerStyle={{ marginTop: 12, width: '100%' }}
         placeholder='Destination address (@ux)'
         value={destination}
@@ -76,7 +76,7 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
         style={{ width: 'calc(100% - 24px)' }}
       />
       <Input
-        label="Town:"
+        label='Town:'
         containerStyle={{ marginTop: 12, width: '100%' }}
         placeholder='Town (@ux)'
         value={town}
@@ -84,7 +84,7 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
         style={{ width: 'calc(100% - 24px)' }}
       />
       <TextArea
-        label="Custom Action:"
+        label='Custom Action:'
         containerStyle={{ marginTop: 12, width: '100%' }}
         style={{ width: 'calc(100% - 10px)' }}
         placeholder='[%give 0xdead 1 0x1.beef `0x1.dead]'
@@ -93,23 +93,23 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
       />
       <Row style={{ justifyContent: 'space-between' }}>
         <Input
-          label="Gas Price:"
+          label='Gas Price:'
           containerStyle={{ marginTop: 12 }}
           style={{ width: 'calc(100% - 22px)' }}
           value={rate}
-          placeholder="Gas price"
+          placeholder='Gas price'
           onChange={(e: any) => setGasPrice(e.target.value.replace(/[^0-9.]/g, ''))}
         />
         <Input
-          label="Budget:"
+          label='Budget:'
           containerStyle={{ marginTop: 12, marginLeft: 8 }}
           style={{ width: 'calc(100% - 22px)' }}
           value={bud}
-          placeholder="Budget"
+          placeholder='Budget'
           onChange={(e: any) => setBudget(e.target.value.replace(/[^0-9.]/g, ''))}
         />
       </Row>
-      <Button style={{ width: '100%', margin: '16px 0px 8px' }} type="submit" variant='dark' onClick={submit}>
+      <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark onClick={submit}>
         Send
       </Button>
     </Form>

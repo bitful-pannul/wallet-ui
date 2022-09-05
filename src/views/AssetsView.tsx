@@ -56,6 +56,7 @@ const AssetsView = () => {
         ))}
       </Entry>
       <SendModal
+        title={'Send' + (nftId !== undefined ? ' NFT' : ' Tokens')}
         show={Boolean(id)}
         id={id}
         nftId={nftId}

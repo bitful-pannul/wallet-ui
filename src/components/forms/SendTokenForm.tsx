@@ -132,7 +132,7 @@ const SendTokenForm = ({
   const tokenMetadata = selected && metadata[selected.data.metadata]
 
   return (
-    <Form className="send-token-form" onSubmit={submit}>
+    <Form className='send-token-form' onSubmit={submit}>
       {!isNft && (
         <Col>
           <Text style={{ margin: '8px 12px 0px 0px', fontSize: 14 }}>Token: </Text>
@@ -147,7 +147,7 @@ const SendTokenForm = ({
         </Col>
       )}
       <Input
-        label="To:"
+        label='To:'
         placeholder='Destination address'
         style={{ width: 'calc(100% - 24px)' }}
         containerStyle={{ marginTop: 12, width: '100%' }}
@@ -156,8 +156,8 @@ const SendTokenForm = ({
         required //delete line 81 & 83
       />
       {!isNft && <Input
-        label="Amount:"
-        placeholder="Amount"
+        label='Amount:'
+        placeholder='Amount'
         style={{ width: 'calc(100% - 24px)' }}
         containerStyle={{ marginTop: 12, width: '100%' }}
         value={amount}
@@ -166,23 +166,23 @@ const SendTokenForm = ({
       />}
       <Row style={{ justifyContent: 'space-between' }}>
         <Input
-          label="Gas Price:"
-          placeholder="Gas price"
+          label='Gas Price:'
+          placeholder='Gas price'
           style={{ width: 'calc(100% - 22px)' }}
           value={rate}
           onChange={(e: any) => setGasPrice(e.target.value.replace(/[^0-9.]/g, ''))}
           required // delete line 86 & 87
         />
         <Input
-          label="Budget:"
-          placeholder="Budget"
+          label='Budget:'
+          placeholder='Budget'
           style={{ width: 'calc(100% - 22px)' }}
           value={bud}
           onChange={(e: any) => setBudget(e.target.value.replace(/[^0-9.]/g, ''))}
           required // delete line 86 & 87
         />
       </Row>
-      <Button style={{ width: '100%', margin: '16px 0px 8px' }} type="submit" variant='dark' onClick={submit}>
+      <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark onClick={submit}>
         Send
       </Button>
     </Form>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FaTrash } from 'react-icons/fa';
+import {  FaRegTrashAlt,  } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import useWalletStore from '../../store/walletStore';
 import { HotWallet, HardwareWallet } from '../../types/Accounts';
@@ -34,35 +34,38 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (newNick !== nick) {
+      if (newNick && newNick !== nick) {
         editNickname(rawAddress, newNick)
       }
     }, SAVE_NICK_DELAY)
     return () => clearTimeout(delayDebounceFn)
   }, [newNick]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const hardware = account as HardwareWallet
+
   return (
     <Col {...props} className={`account-display ${props.className || ''}`}>
       <Row style={{ justifyContent: 'space-between' }}>
         <Row>
+          {hardware && hardware.type && <Text style={{marginRight: '1em'}}>{hardware.type}</Text>}
           <Input
             className='nick-input'
-            style={{ fontWeight: 600, marginRight: 16, width: 120 }}
+            style={{ fontWeight: 600, marginRight: '1em', width: '10em'  }}
             onChange={(e: any) => setNewNick(e.target.value)}
             value={newNick}
-          />
+            />
           <Text mono style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => navigate(`/accounts/${address}`)}>{displayPubKey(address)}</Text>
           <CopyIcon text={address} />
         </Row>
         <Row>
-          <Row className="icon" onClick={(e) => {
+          <Row className='icon' onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            if ('rawAddress' in account) {
+            if (window.confirm('Really delete this account?') && 'rawAddress' in account) {
               deleteAccount(rawAddress)
             }
           }}>
-            <FaTrash />
+            <FaRegTrashAlt  />
           </Row>
         </Row>
       </Row>

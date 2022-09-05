@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import { FaExclamationTriangle } from 'react-icons/fa'
 import AccountDisplay from '../components/accounts/AccountDisplay'
 import Button from '../components/form/Button'
 import Entry from '../components/form/Entry'
@@ -10,6 +11,7 @@ import Modal from '../components/popups/Modal'
 import Col from '../components/spacing/Col'
 import Container from '../components/spacing/Container'
 import Divider from '../components/spacing/Divider'
+import Row from '../components/spacing/Row'
 import Text from '../components/text/Text'
 import useWalletStore from '../store/walletStore'
 import { DerivedAddressType, HardwareWalletType, Seed } from '../types/Accounts'
@@ -102,6 +104,8 @@ const AccountsView = () => {
     clearForm()
   }
 
+  const isFirefox = (typeof (window as any).InstallTrigger !== 'undefined') 
+
   const hardwareWalletTypes: HardwareWalletType[] =
     importedAccounts.reduce((acc, { type }) => !acc.includes(type) ? acc.concat([type]) : acc, [] as HardwareWalletType[])
 
@@ -109,40 +113,50 @@ const AccountsView = () => {
     <Container className='accounts-view'>
       <PageHeader title='Accounts' />
       <Entry title='Hot Wallets' >
+        <Text mb1>
+          WARNING: HOT WALLETS ARE NOT SECURE. ALL YOUR OTHER URBIT APPS CAN READ YOUR HOT WALLET PRIVATE KEYS.
+        </Text>
         {accounts.map(a => (
           <AccountDisplay key={a.address} account={a} />
           ))}
-        {accounts.length > 0 && (
-          <>
-            <Button onClick={showSeed} style={{ marginBottom: 16, width: 200 }}>
-              Display Seed Phrase
-            </Button>
-            <Button onClick={() => setAddAddressType('hot')} style={{ marginBottom: 16, width: 200 }}>
-              Derive New Address
-            </Button>
-          </>
-        )}
-        <Button onClick={() => setShowCreate(true)} style={{ width: 200 }}>
-          + New Wallet
-        </Button>
+        <Row>
+          {accounts.length > 0 && (
+            <>
+              <Button onClick={showSeed} mr1 wide >
+                Display Seed Phrase
+              </Button>
+              <Button onClick={() => setAddAddressType('hot')} mr1 wide >
+                Derive New Address
+              </Button>
+            </>
+          )}
+          <Button onClick={() => setShowCreate(true)} mr1 wide>
+            + New Wallet
+          </Button>
+        </Row>
       </Entry>
       <Entry title='Hardware Wallets'>
         {importedAccounts.map(a => (
           <AccountDisplay key={a.address} account={a} />
           ))}
-        {importedAccounts.length > 0 && (
-          <Button onClick={() => setAddAddressType(hardwareWalletTypes[0])} style={{ marginBottom: 16, width: 200 }}>
-            Derive New Address
+        <Row>
+          {importedAccounts.length > 0 && (
+            <Button onClick={() => setAddAddressType(hardwareWalletTypes[0])} mr1 wide >
+              Derive New Address
+            </Button>
+          )}
+          <Button onClick={() => setShowImport(true)} mr1 wide>
+            + Connect
           </Button>
-        )}
-        <Button onClick={() => setShowImport(true)} style={{ width: 200 }}>
-          + Connect
-        </Button>
+        </Row>
       </Entry>
 
-      <Modal show={Boolean(seedData)} hide={() => setSeed(null)} style={{ minHeight: 160, minWidth: 300 }}>
+      <Modal
+        title='Seed:'
+        show={Boolean(seedData)} 
+        hide={() => setSeed(null)}
+      >
         <Col style={{ justifyContent: 'center', height: '100%', width: '300px' }}>
-          <h4 style={{ margin: '0 0 8px' }}>Seed:</h4>
           <Text mono>{seedData?.mnemonic}</Text>
           {seedData?.password && (
             <>
@@ -152,18 +166,25 @@ const AccountsView = () => {
           )}
         </Col>
       </Modal>
-      <Modal show={showCreate} hide={() => setShowCreate(false)} style={{ minHeight: 160, minWidth: 300 }}>
+      <Modal 
+        title='Add Wallet'
+        show={showCreate} 
+        hide={() => setShowCreate(false)}
+      >
         <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-          <Button  style={{ minWidth: 280, marginBottom: 24 }} onClick={() => setShowAddWallet('create')}>Create New Wallet</Button>
-          <Button  style={{ minWidth: 280 }} onClick={() => setShowAddWallet('restore')}>Restore Wallet From Seed</Button>
+          <Button xwide style={{  marginBottom: 24 }} onClick={() => setShowAddWallet('create')}>Create New Wallet</Button>
+          <Button xwide onClick={() => setShowAddWallet('restore')}>Restore Wallet From Seed</Button>
         </Col>
       </Modal>
-      <Modal show={Boolean(showAddWallet)} hide={() => setShowAddWallet(undefined)} style={{ minHeight: 160, minWidth: 300 }}>
+      <Modal 
+        title={(showAddWallet === 'create' ? 'Create' : 'Restore') + ' Wallet'}
+        show={Boolean(showAddWallet)} 
+        hide={() => setShowAddWallet(undefined)}
+      >
         <Form style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: 'calc(100% - 32px)', background: 'white' }} onSubmit={create}>
-          <h3 style={{ marginTop: 0 }}>{showAddWallet === 'create' ? 'Create' : 'Restore'} Wallet</h3>
           <Input
             onChange={(e: any) => setNick(e.target.value)}
-            placeholder="Nickname"
+            placeholder='Nickname'
             style={{ width: 'calc(100% - 20px)' }}
             containerStyle={{ width: '100%', marginBottom: 16 }}
             value={nick}
@@ -173,34 +194,47 @@ const AccountsView = () => {
           />
           {showAddWallet === 'restore' && (<TextArea
             onChange={(e: any) => setMnemonic(e.target.value)}
-            placeholder="Enter seed phrase"
+            placeholder='Enter seed phrase'
             containerStyle={{ width: '100%', marginBottom: 16 }}
             style={{ width: 'calc(100% - 8px)', height: 80 }}
           />)}
           <Input
             onChange={(e: any) => setPassword(e.target.value)}
-            placeholder="Enter password"
+            placeholder='Enter password'
             style={{ width: 'calc(100% - 20px)', marginBottom: 16 }}
             containerStyle={{ width: '100%' }}
-            type="password"
+            type='password'
             value={password}
             minLength={8}
             required
           />
-          <Button style={{ minWidth: 120 }} type="submit" variant='dark'>
+          <Button mr1 wide type='submit' dark>
             {showAddWallet === 'create' ? 'Create' : 'Restore'}
           </Button>
         </Form>
       </Modal>
-      <Modal show={showImport} hide={() => setShowImport(false)} style={{ minHeight: 160, minWidth: 300 }}>
+      <Modal
+        title='Connect Hardware Wallet'
+        show={showImport} 
+        hide={() => setShowImport(false)}
+      >
         <Col style={{ justifyContent: 'space-evenly', alignItems: 'center', height: '100%', width: '100%' }}>
-        <Button style={{ minWidth: 120 }} onClick={() => {
+          {isFirefox && <Col style={{alignItems:'center', marginBottom:'1em'}}>
+            <FaExclamationTriangle style={{ fontSize: 'xx-large', color: 'goldenrod' }} /> 
+            <Text>
+              Hardware wallets may not work in Firefox. 
+            </Text>
+            <Text>
+              Please try a different browser if you encounter issues.
+            </Text>
+          </Col>}
+          <Button mb1 wide onClick={() => {
             setShowImport(false)
             setImportType('ledger')
           }}>
             Connect Ledger
           </Button>
-          <Button style={{ minWidth: 120 }} onClick={() => {
+          <Button wide onClick={() => {
             setShowImport(false)
             setImportType('trezor')
           }}>
@@ -208,15 +242,15 @@ const AccountsView = () => {
           </Button>
         </Col>
       </Modal>
-      <Modal show={Boolean(importType)}
+      <Modal
+        title='Set Nickname' 
+        show={Boolean(importType)}
         hide={() => {
           setShowImport(true)
           setImportType(null)
         }}
-        style={{ minHeight: 160, minWidth: 300 }}
       >
         <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-          <h4 style={{ marginTop: 0 }}>Set Nickname</h4>
           <Input
             onChange={(e: any) => setNick(e.target.value)}
             placeholder={`Nickname, i.e. ${capitalize(importType || '')} primary`}
@@ -224,14 +258,17 @@ const AccountsView = () => {
             containerStyle={{ width: '100%', marginBottom: 24 }}
             value={nick}
           />
-          <Button style={{ minWidth: 120 }} onClick={doImport} variant="dark">
+          <Button onClick={doImport} dark mr1 wide>
             Connect
           </Button>
         </Col>
       </Modal>
-      <Modal show={Boolean(addAddressType)} hide={clearForm}>
+      <Modal 
+        title='Derive New Address' 
+        show={Boolean(addAddressType)} 
+        hide={clearForm}
+      >
         <Form style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: 300, maxWidth: '100%', background: 'white' }} onSubmit={addAddress}>
-          <h3 style={{ margin: '0 0 12px' }}>Derive New Address</h3>
           {(addHardwareAddress) && (
             <select className='hardware-type' value={addAddressType} onChange={(e) => setAddAddressType(e.target.value as HardwareWalletType)}>
               {hardwareWalletTypes.map(hwt => (
@@ -243,7 +280,7 @@ const AccountsView = () => {
           )}
           <Input
             onChange={(e: any) => setNick(e.target.value)}
-            placeholder="Nickname"
+            placeholder='Nickname'
             style={{ width: 'calc(100% - 20px)' }}
             containerStyle={{ width: '100%', marginBottom: 16 }}
             value={nick}
@@ -258,7 +295,7 @@ const AccountsView = () => {
             value={hdpath}
             required={Boolean(addHardwareAddress)}
           />
-          <Button type="submit" variant="dark" style={{ minWidth: 120 }}>Derive</Button>
+          <Button type='submit' dark mr1 wide>Derive</Button>
         </Form>
       </Modal>
     </Container>

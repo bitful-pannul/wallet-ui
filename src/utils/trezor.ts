@@ -28,9 +28,9 @@ export const getTrezorAddress = async (path?: string) => {
         alert('Could not login to Trezor.')
         return ''
     }
-
+    
     const result = await TrezorConnect.ethereumGetAddress({
-        path: path || "m/44'/60'/0'/0"
+        path: path || "m/44'/60'/0'/0/0"
     })
 
     if (result.success) {
