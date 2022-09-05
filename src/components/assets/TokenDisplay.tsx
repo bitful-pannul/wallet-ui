@@ -54,7 +54,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
             ) : (
             <Text># {data.id || ''}</Text>
           )}
-          <Button onClick={selectToken} style={{ marginLeft: 16 }} variant="dark small">
+          <Button onClick={selectToken} style={{ marginLeft: 16 }} dark small>
             Transfer
           </Button>
         </Row>

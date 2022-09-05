@@ -29,4 +29,12 @@ button.button {
     padding: 4px 8px;
     font-size: 14px;
   }
+
+  &.wide {
+    min-width: 10em;
+  }
+
+  &.xwide {
+    min-width: 20em;
+  }
 }

@@ -11,12 +11,19 @@
     cursor: pointer;
   }
 
-  .nick-input {
-    background: inherit;
-    border: none;
-    
-    input {
-      background: inherit
+    .nick-input {
+      border-color: transparent;
+      border-width: 1px;
+      border-bottom: 3px solid colors.$uq-purple;
+      border-radius: 6px;
+
+      &:focus, &:active {
+        border-color: colors.$uq-pink;
+        outline: none;
+      }
+      
+      input {
+        background: inherit
     }
   }
 }

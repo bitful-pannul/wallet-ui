@@ -7,6 +7,7 @@ interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   bold?: boolean,
   oneLine?: boolean,
   large?: boolean,
+  mb1?: boolean,
 }
 
 const Text: React.FC<TextProps> = ({
@@ -15,10 +16,11 @@ const Text: React.FC<TextProps> = ({
   breakWord,
   oneLine,
   large,
+  mb1,
   ...props
 }) => {
   return (
-    <span {...props} className={`text ${props.className || ''} ${mono ? 'mono' : ''} ${breakWord ? 'break' : ''} ${oneLine? 'one-line' :''} ${bold ? 'bold' : ''} ${large ? 'large' : ''}`} >
+    <span {...props} className={`text ${props.className || ''} ${mono ? 'mono' : ''} ${breakWord ? 'break' : ''} ${oneLine? 'one-line' :''} ${bold ? 'bold' : ''} ${large ? 'large' : ''} ${mb1 ? 'mb1' : ''}`} >
       {props.children}
     </span>
   )
