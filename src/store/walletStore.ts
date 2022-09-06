@@ -158,7 +158,7 @@ const useWalletStore = create<WalletStore>(
         get().getAccounts()
       } catch (error) {
         console.warn('ERROR DERIVING ADDRESS:', error)
-        window.alert('There was an error deriving the address, please check the HD path and try again.')
+        alert('There was an error deriving the address, please check the HD path and try again.')
       }
       set({ loadingText: null })
     },

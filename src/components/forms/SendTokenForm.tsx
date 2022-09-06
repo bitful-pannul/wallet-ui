@@ -13,6 +13,7 @@ import { removeDots } from '../../utils/format'
 
 import './SendTokenForm.scss'
 import Col from '../spacing/Col'
+import Modal from '../popups/Modal'
 
 interface SendTokenFormProps {
   formType: 'tokens' | 'nft'
@@ -47,6 +48,7 @@ const SendTokenForm = ({
   const [rate, setGasPrice] = useState('')
   const [bud, setBudget] = useState('')
   const [amount, setAmount] = useState('')
+  const [alertMessage, setAlertMessage] = useState('')
   
   const clearForm = () => {
     setSelected(undefined)
@@ -78,20 +80,20 @@ const SendTokenForm = ({
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!isNft && (!amount || !Number(amount))) {
-      alert('You must enter an amount')
+      setAlertMessage('Please enter an amount.')
     } else if (selected?.data?.balance && Number(amount) > selected?.data?.balance) {
-      alert(`You do not have that many tokens. You have ${selected.data?.balance} tokens.`)
+      setAlertMessage(`You do not have that many tokens. You have ${selected.data?.balance} tokens.`)
     } else if (!selected) {
-      alert('You must select a \'from\' account')
+      setAlertMessage('Please select a \'from\' account.')
     } else if (!destination) {
       // TODO: validate the destination address
-      alert('You must specify a destination address')
-    // } else if (removeDots(destination) === removeDots(selected.holder)) {
-    //   alert('Destination cannot be the same as the origin')
+      setAlertMessage('Please specify a destination address.')
     } else if (Number(rate) < 1 || Number(bud) < Number(rate)) {
-      alert('You must specify a gas price and budget')
+      setAlertMessage('Please specify a gas price and budget.')
+    // } else if (removeDots(destination) === removeDots(selected.holder)) {
+    //   setAlertMessage('Destination cannot be the same as the origin')
     // } else if (!accounts.find(a => a.rawAddress === selected.holder) && !importedAccounts.find(a => a.rawAddress === selected.holder)) {
-    //   alert('You do not have this account, did you remove a hardware wallet account?')
+    //   setAlertMessage('You do not have this account, did you remove a hardware wallet account?')
     } else {
       const payload = {
         from: selected.holder,
@@ -121,7 +123,7 @@ const SendTokenForm = ({
           console.log('sig', 3, sig)
           await submitSignedHash(hash, ethHash, sig)
         } else {
-          alert('There was an error signing the transaction with Ledger.')
+          setAlertMessage('There was an error signing the transaction with Ledger.')
         }
       }
 
@@ -185,6 +187,12 @@ const SendTokenForm = ({
       <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark onClick={submit}>
         Send
       </Button>
+      <Modal title='Warning' show={Boolean(alertMessage)} hide={() => setAlertMessage('')}>
+        <Text mb1>{alertMessage}</Text>
+        <Row reverse>
+          <Button dark wide onClick={() => setAlertMessage('')}>OK</Button>
+        </Row>
+      </Modal>
     </Form>
   )
 }

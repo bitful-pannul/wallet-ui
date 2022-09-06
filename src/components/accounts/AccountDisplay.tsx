@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import useWalletStore from '../../store/walletStore';
 import { HotWallet, HardwareWallet } from '../../types/Accounts';
 import { displayPubKey } from '../../utils/account';
+import Button from '../form/Button';
 import Input from '../form/Input';
+import Modal from '../popups/Modal';
 import Col from '../spacing/Col';
 import Row from '../spacing/Row'
 import Text from '../text/Text';
@@ -27,7 +29,8 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
   const navigate = useNavigate()
   const { deleteAccount, editNickname } = useWalletStore()
   const [newNick, setNewNick] = useState(nick)
-
+  const [accountToDelete, setAccountToDelete] = useState<string | undefined>(undefined)
+  
   useEffect(() => {
     setNewNick(nick)
   }, [nick])
@@ -61,8 +64,8 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
           <Row className='icon' onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (window.confirm('Really delete this account?') && 'rawAddress' in account) {
-              deleteAccount(rawAddress)
+            if (Boolean(rawAddress)){
+              setAccountToDelete(rawAddress)
             }
           }}>
             <FaRegTrashAlt  />
@@ -80,6 +83,17 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
           ))}
         </Col>
       )}
+      <Modal title='Delete Account' show={Boolean(accountToDelete)} hide={() => setAccountToDelete(undefined)}> 
+        <Text>Are you sure you want to delete this account?</Text>
+        <Text mb1 mono>{accountToDelete}</Text>
+        <Row evenly>
+          <Button wide dark onClick={() => {
+            deleteAccount(rawAddress)
+            setAccountToDelete(undefined)
+          }}>Yes, delete it</Button>
+          <Button wide onClick={() => setAccountToDelete(undefined)}>No, cancel</Button>
+        </Row>
+      </Modal>
     </Col>
   )
 }
