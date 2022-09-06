@@ -6,8 +6,11 @@ import Row from '../spacing/Row'
 import useWalletStore from '../../store/walletStore'
 import { removeDots } from '../../utils/format'
 import TextArea from '../form/TextArea'
+import Modal from '../popups/Modal'
+import Text from '../../components/text/Text'
 
 import './SendTokenForm.scss'
+
 
 interface SendCustomTransactionFormProps {
   from: string
@@ -22,6 +25,7 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
   const [rate, setGasPrice] = useState('')
   const [bud, setBudget] = useState('')
   const [town, setTown] = useState('')
+  const [alertMessage, setAlertMessage] = useState('')
   
   const clearForm = () => {
     setDestination('')
@@ -35,13 +39,13 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
     e.preventDefault()
     if (!destination) {
       // TODO: validate the destination address
-      alert('You must specify a destination address')
+      setAlertMessage('Please specify a destination address.')
     } else if (!town) {
-      alert('You must specify a town')
+      setAlertMessage('Please specify a town.')
     } else if (!data) {
-      alert('You must have a custom action')
+      setAlertMessage('Please have a custom action.')
     } else if (Number(rate) < 1 || Number(bud) < Number(rate)) {
-      alert('You must specify a gas price and budget')
+      setAlertMessage('Please specify a gas price and budget.')
     } else {
       const payload = {
         from,
@@ -112,6 +116,12 @@ const SendCustomTransactionForm = ({ from ,setSubmitted }: SendCustomTransaction
       <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark onClick={submit}>
         Send
       </Button>
+      <Modal title='Warning' show={Boolean(alertMessage)} hide={() => setAlertMessage('')}>
+        <Text mb1>{alertMessage}</Text>
+        <Row reverse>
+          <Button dark wide onClick={() => setAlertMessage('')}>OK</Button>
+        </Row>
+      </Modal>
     </Form>
   )
 }

@@ -31,6 +31,7 @@ const AccountsView = () => {
   const [nick, setNick] = useState('')
   const [hdpath, setHdpath] = useState('')
   const [importType, setImportType] = useState<HardwareWalletType | null>(null)
+  const [alertMessage, setAlertMessage] = useState('')
 
   const addHardwareAddress = addAddressType && addAddressType !== 'hot'
 
@@ -45,6 +46,7 @@ const AccountsView = () => {
   }, [showImport, showAddWallet, addAddressType])
 
   const showSeed = useCallback(async () => {
+    // TODO replace with confirm modal
     if (window.confirm('Are you sure you want to display your seed phrase? Anyone viewing this will have access to your account.')) {
       const seed = await getSeed()
       setSeed(seed)
@@ -58,27 +60,29 @@ const AccountsView = () => {
     setAddAddressType(null)
   }, [setNick, setHdpath, setPassword, setAddAddressType])
 
-  const create = useCallback(async (e) => {
+  const onCreate = useCallback(async (e) => {
     e.preventDefault()
-    if (window.confirm('Please make sure you have backed up your seed phrase and password. This will overwrite your existing account(s), are you sure?')) {
-      if (showAddWallet === 'restore') {
-        if (!mnemonic) {
-          return alert('Mnemonic is required')
+    // TODO replace with confirm modal
+    if (window.confirm('Please make sure you have backed up your seed phrase and password. This will overwrite your existing account(s), are you sure?'))
+    {
+        if (showAddWallet === 'restore') {
+          if (!mnemonic) {
+            return setAlertMessage('Please enter a mnemonic.')
+          } else {
+            await restoreAccount(mnemonic, password, nick)
+          }
         } else {
-          restoreAccount(mnemonic, password, nick)
+          await createAccount(password, nick)
         }
-      } else {
-        createAccount(password, nick)
-      }
-      setShowAddWallet(undefined)
-      setShowCreate(false)
-      clearForm()
+        setShowAddWallet(undefined)
+        setShowCreate(false)
+        clearForm()
     }
   }, [mnemonic, password, nick, showAddWallet, createAccount, restoreAccount, clearForm])
 
   const doImport = useCallback(() => {
     if (!nick) {
-      alert('Nickname is required')
+      setAlertMessage('Please enter a nickname.')
     } else {
       if (importType) {
         importAccount(importType, nick)
@@ -95,7 +99,7 @@ const AccountsView = () => {
     e.preventDefault()
     if (addHardwareAddress) {
       if (!hdpath) {
-        return alert('You must supply an HD path')
+        return setAlertMessage('Please supply an HD path.')
       }
       deriveNewAddress(hdpath, nick, addAddressType)
     } else if (addAddressType) {
@@ -181,7 +185,7 @@ const AccountsView = () => {
         show={Boolean(showAddWallet)} 
         hide={() => setShowAddWallet(undefined)}
       >
-        <Form style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: 'calc(100% - 32px)', background: 'white' }} onSubmit={create}>
+        <Form style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: 'calc(100% - 32px)', background: 'white' }} onSubmit={onCreate}>
           <Input
             onChange={(e: any) => setNick(e.target.value)}
             placeholder='Nickname'
@@ -297,6 +301,12 @@ const AccountsView = () => {
           />
           <Button type='submit' dark mr1 wide>Derive</Button>
         </Form>
+      </Modal>
+      <Modal title='Warning' show={Boolean(alertMessage)} hide={() => setAlertMessage('')}>
+        <Text mb1>{alertMessage}</Text>
+        <Row reverse>
+          <Button dark wide onClick={() => setAlertMessage('')}>OK</Button>
+        </Row>
       </Modal>
     </Container>
   )
