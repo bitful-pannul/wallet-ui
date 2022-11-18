@@ -2,17 +2,20 @@ import React from 'react'
 import Col from '../spacing/Col'
 import './TextArea.scss'
 
-interface TextAreaProps extends React.HTMLAttributes<HTMLTextAreaElement> {
+interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   ref?: any
-  value?: string
   label?: string
   containerStyle?: React.CSSProperties
 }
 
-const TextArea: React.FC<TextAreaProps> = ({ label, containerStyle, ...props }: TextAreaProps) => {
+const TextArea: React.FC<TextAreaProps> = ({
+  label,
+  containerStyle,
+  ...props
+}) => {
   return (
-    <Col className="text-area-container" style={containerStyle}>
-      {!!label && <label style={{ fontSize: 14, marginBottom: 4 }}>{label}</label>}
+    <Col className="input-container" style={containerStyle}>
+      {!!label && <label style={{ fontSize: 14, marginBottom: 0 }}>{label}</label>}
       <textarea {...props} className={`text-area ${props.className || ''}`} />
     </Col>
   )

@@ -1,0 +1,22 @@
+.hex {
+  width: 100%; 
+
+  &.colors {
+    .color-dot {
+      border: 3px solid;
+      border-radius: 999px;
+
+      outline: 1px solid black;
+
+      height: 1em;
+      min-height: 1em;
+      width: 1em;
+      min-width: 1em;
+      
+      margin: 0.5em;
+
+      align-self: flex-start;
+    }
+  }
+
+}

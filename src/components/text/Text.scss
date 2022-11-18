@@ -5,18 +5,22 @@
     font-family: monospace, monospace;
   }
 
-  &.one-line {
+  &.one-line, &.oneLine {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  &.break {
+  &.breakAll {
     word-break: break-all;
   }
 
   &.large {
     font-size: x-large;
+  }
+
+  &.small {
+    font-size: 0.9em;
   }
 
   &.bold {

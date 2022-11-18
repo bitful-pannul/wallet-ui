@@ -1,0 +1,30 @@
+@use '../../styles/colors.scss' as colors;
+
+.field {
+  &.center > .label {
+    align-self: center;
+  }
+  
+  .label {
+    min-width: 6rem;
+    align-self: baseline;
+    margin-right: 1em;
+  }
+
+  .content {
+    flex-basis: 100%;
+    word-break: break-all;
+
+    &.mh300{
+      max-height: 300px;
+    }
+
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    &.monospace {
+      font-family: monospace;
+    }
+  }
+}

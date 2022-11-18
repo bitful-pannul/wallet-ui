@@ -1,6 +1,12 @@
 @use '../../styles/colors.scss' as colors;
 
 button.button {
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+
+
   color: black;
   background: white;
   width: fit-content;
@@ -36,5 +42,34 @@ button.button {
 
   &.xwide {
     min-width: 20em;
+  }
+
+  &.fullWidth {
+    width: 100%;
+  }
+  
+  &.unstyled {
+    color: inherit;
+    background: inherit;
+    padding: 0;
+    border: none;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  &.expander {
+    margin-right: 8px;
+    margin-top: 2px;
+    align-self: flex-start;
+  }
+
+  &[disabled]{
+    background-color: colors.$light-gray;
+    outline: 1px dashed black;
+    color:black;
+    pointer-events: none;
+    border: 1px solid transparent;
   }
 }
