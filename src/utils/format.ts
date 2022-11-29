@@ -1,8 +1,8 @@
 export const removeDots = (str: string) => (str || '').replace(/\./g, '')
 
-export const formatHash = (hash: string) => `${removeDots(hash).slice(0, 10)}...${removeDots(hash).slice(-8)}`
+export const formatHash = (hash: string) => `${removeDots(hash).slice(0, 10)}…${removeDots(hash).slice(-8)}`
 
-export const truncateString = (str: string) => `${removeDots(str).slice(0, 4)}...${removeDots(str).slice(-4)}`
+export const truncateString = (str: string) => `${removeDots(str).slice(0, 4)}…${removeDots(str).slice(-4)}`
 
 export const addHexDots = (hex: string) => {
   const clearLead = removeDots(hex.replace('0x', '').toLowerCase())
@@ -59,4 +59,4 @@ export const capitalize = (word?: string) => !word ? word : word[0].toUpperCase(
 
 export const addHexPrefix = (str: string) => `0x${str.replace(/^0x/i, '')}`
 
-export const abbreviateHex = (hash: string, start: number = 4, end: number = 4) => `${removeDots(hash).slice(0, start)}...${removeDots(hash).slice(-end)}`
+export const abbreviateHex = (hash: string, start: number = 4, end: number = 4) => `${removeDots(hash).slice(0, start)}…${removeDots(hash).slice(-end)}`
