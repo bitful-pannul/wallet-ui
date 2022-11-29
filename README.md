@@ -6,9 +6,9 @@ This package is meant to be used in a React app.
 
 ## useWalletStore
 
-The `useWalletStore` hook will import the store and the `init` function will initiate subscriptions and load accounts, assets, transactions, and token metadata.
+The `useWalletStore` hook will import the store and the `initWallet` function will initiate subscriptions and load accounts, assets, transactions, and token metadata.
 
-You can choose to not load all info by passing options `{ assets: false, transactions: false }` to `init`. The `assets` option includes the metadata subscription.
+You can choose to not load all info by passing options `{ assets: false, transactions: false }` to `initWallet`. The `assets` option includes the metadata subscription.
 
 ### Generating and Signing Transactions
 
