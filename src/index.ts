@@ -46,8 +46,13 @@ import NftImage from './components/NftImage'
 import SendModal from './components/SendModal'
 import TokenDisplay from './components/TokenDisplay'
 import TransactionShort from './components/TransactionShort'
+import AccountSelector from './components/wallet-inset/AccountSelector'
+import WalletInset from './components/wallet-inset/WalletInset'
+import HexNum from './components/text/HexNum'
 
 import { groupTransactions } from './utils/transactions'
+
+import { ZIGS_CONTRACT_DEV, DEFAULT_TOWN_DEV } from './utils/constants'
 
 export {
   useWalletStore,
@@ -86,6 +91,12 @@ export {
   SendModal,
   TokenDisplay,
   TransactionShort,
+  AccountSelector,
+  WalletInset,
+  HexNum,
 
   groupTransactions,
+
+  ZIGS_CONTRACT_DEV,
+  DEFAULT_TOWN_DEV,
 }

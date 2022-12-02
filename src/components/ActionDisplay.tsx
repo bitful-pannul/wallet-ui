@@ -7,11 +7,12 @@ interface ActionDisplayProps {
 }
 
 export const ActionDisplay = ({ action }: ActionDisplayProps) => {
+  console.log('ACTION', action)
   if (typeof action === 'string') {
     return <Row>Action: {action}</Row>
   }
 
-  const actionTitle = Object.keys(action)[0]
+  const actionTitle = Object.keys(action || {})[0] || 'unknown'
 
   return (
     <Col>
@@ -19,7 +20,7 @@ export const ActionDisplay = ({ action }: ActionDisplayProps) => {
         <Row style={{ fontWeight: 'bold' }}>Action:</Row>
         <Row style={{ marginLeft: 8 }}>{actionTitle}</Row>
       </Row>
-      {Object.keys(action[actionTitle]).map(field => (
+      {Boolean(action && action[actionTitle]) && Object.keys(action[actionTitle]).map(field => (
         <Col style={{ marginLeft: 8 }} key={field}>
           <Row style={{ fontWeight: 'bold' }}>{field}:</Row>
           <Row style={{ wordBreak: 'break-word' }}>{action[actionTitle][field]}</Row>

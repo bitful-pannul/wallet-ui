@@ -12,7 +12,7 @@ import { addHexDots } from "../utils/format"
 import { WALLET_STORAGE_VERSION } from "../utils/constants"
 import { Assets } from "../types/Assets"
 import { generateSendTokenPayload } from "../utils/wallet"
-import { processTransactions } from "../utils/transactions"
+import { parseRawTransaction, processTransactions } from "../utils/transactions"
 
 const pokeWithAlert = async (json: any) => {
   try {
@@ -26,12 +26,15 @@ const pokeWithAlert = async (json: any) => {
 interface InitOptions {
   assets?: boolean
   transactions?: boolean
+  onReceiveTransaction?: (txn: Transaction) => void
 }
 
 export interface WalletStore {
   loadingText: string | null,
+  insetView?: string,
   accounts: HotWallet[],
   importedAccounts: HardwareWallet[],
+  selectedAccount?: HotWallet | HardwareWallet,
   metadata: TokenMetadataStore,
   assets: Assets,
   selectedTown: number,
@@ -40,7 +43,9 @@ export interface WalletStore {
   mostRecentTransaction?: Transaction,
   initWallet: (options: InitOptions) => Promise<void>,
   setLoading: (loadingText: string | null) => void,
+  setInsetView: (insetView?: string) => void,
   getAccounts: () => Promise<void>,
+  setSelectedAccount: (selectedAccount: HotWallet | HardwareWallet) => void,
   getTransactions: () => Promise<void>,
   createAccount: (password: string, nick: string) => Promise<void>,
   deriveNewAddress: (hdpath: string, nick: string, type?: HardwareWalletType) => Promise<void>,
@@ -72,7 +77,7 @@ export const useWalletStore = create<WalletStore>(
     selectedTown: 0,
     transactions: [],
     unsignedTransactions: {},
-    initWallet: async ({ assets = true, transactions = true }: InitOptions) => {
+    initWallet: async ({ assets = true, transactions = true, onReceiveTransaction }: InitOptions) => {
       const { getAccounts, getTransactions, getUnsignedTransactions } = get()
       
       set({ loadingText: 'Loading...' })
@@ -85,7 +90,7 @@ export const useWalletStore = create<WalletStore>(
         if (transactions) {
           getTransactions()
           getUnsignedTransactions()
-          api.subscribe(createSubscription('wallet', '/tx-updates', handleTxnUpdate(get, set)))
+          api.subscribe(createSubscription('wallet', '/tx-updates', handleTxnUpdate(get, set, onReceiveTransaction)))
         }
         await getAccounts()
       } catch (error) {
@@ -94,7 +99,9 @@ export const useWalletStore = create<WalletStore>(
 
       set({ loadingText: null })
     },
+    setSelectedAccount: (selectedAccount?: HotWallet | HardwareWallet) => set({ selectedAccount }),
     setLoading: (loadingText: string | null) => set({ loadingText }),
+    setInsetView: (insetView?: string) => set({ insetView }),
     getAccounts: async () => {
       const accountData = await api.scry<{[key: string]: RawAccount}>({ app: 'wallet', path: '/accounts' }) || {}
       const allAccounts = Object.values(accountData).map(processAccount).sort((a, b) => a.nick.localeCompare(b.nick))
@@ -109,11 +116,14 @@ export const useWalletStore = create<WalletStore>(
         return { accounts, importedAccounts }
       }, { accounts: [] as HotWallet[], importedAccounts: [] as HardwareWallet[] })
 
-
       set({ accounts, importedAccounts, loadingText: null })
+
+      if (!get().selectedAccount) set({ selectedAccount: (accounts as any[]).concat(importedAccounts)[0] })
     },
     getTransactions: async () => {
       const result = await api.scry<any>({ app: 'wallet', path: `/transactions` })
+      console.log('TXNS:', result)
+
       const rawTransactions = processTransactions(result)
       const transactions = rawTransactions.sort((a, b) => a.nonce - b.nonce)
       console.log({ transactions })
@@ -248,7 +258,7 @@ export const useWalletStore = create<WalletStore>(
     },
     getUnsignedTransactions: async () => {
       const { accounts, importedAccounts } = get()
-      const unsigned = await Promise.all(
+      const unsigned: any = await Promise.all(
         accounts
           .map(({ rawAddress }) => rawAddress)
           .concat(importedAccounts.map(({ rawAddress }) => rawAddress))
@@ -256,10 +266,10 @@ export const useWalletStore = create<WalletStore>(
       )
       const unsignedMap = unsigned.reduce((acc: Transactions, cur: Transactions) => ({ ...acc, ...cur }), {})
       const unsignedTransactions = Object.keys(unsignedMap).reduce((acc, hash) => {
-        acc[hash] = { ...unsignedMap[hash], hash }
+        acc[hash] = parseRawTransaction(unsignedMap[hash])
         return acc
       }, {} as Transactions)
-
+      
       set({ unsignedTransactions })
       return unsignedTransactions
     },

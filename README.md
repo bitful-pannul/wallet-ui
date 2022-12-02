@@ -55,4 +55,4 @@ New transactions are valided on the ship and saved in `unsignedTransactions`. Th
 
 ## Development
 
-Clone this repo, update the dependency in the downstream repo to a relative dependency, run `yarn run dev` from this repo.
+Clone this repo, run `yarn link`, then run `yarn link "@uqbar/wallet-ui` in the downstream repo, run `yarn run dev` from this repo.

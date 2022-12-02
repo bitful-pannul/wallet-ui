@@ -19,11 +19,13 @@ import './TokenDisplay.scss'
 interface TokenDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   token: Token
   selectToken: (tokenId: string, nftIndex?: number) => void
+  small?: boolean
 }
 
 const TokenDisplay: React.FC<TokenDisplayProps> = ({
   token,
   selectToken,
+  small = false,
   ...props
 }) => {
   const { metadata } = useWalletStore()
@@ -34,7 +36,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
   const isToken = token.token_type === 'token'
 
   return (
-    <Col {...props} onClick={() => !open && setOpen(true)} className={`token-display ${props.className || ''} ${open ? 'open' : ''}`}>
+    <Col {...props} onClick={() => !open && setOpen(true)} className={`token-display ${props.className || ''} ${open ? 'open' : ''} ${small ? 'small' : ''}`}>
       <Row className='token-display-header' onClick={() => setOpen(!open)}>
         <Row style={{  flexBasis: '70%'  }}>
           <Row style={{ padding: '2px 4px' }}>
@@ -51,7 +53,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
           )}
         </Row>
         <Button onClick={(e) => {e.stopPropagation();selectToken(id, data.id)}} style={{ marginLeft: 16 }} dark small>
-          Transfer
+          Send
         </Button>
       </Row>
       <Col className='details'>
@@ -71,18 +73,18 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
           </Entry>
         )}
         <Entry>
-          <Field name='Contract:'>
+          <Field name='Contract:' style={small ? { flexDirection: 'column' } : {}}>
             <HexNum copy mono num={contract} />
           </Field>
         </Entry>
         <Entry>
-          <Field name='Item:'>
+          <Field name='Item:' style={small ? { flexDirection: 'column' } : {}}>
             <HexNum copy mono num={id} />
           </Field>
         </Entry>
         {!isToken && token.data.properties && (
           <Entry>
-            <Field name='Properties:'>
+            <Field name='Properties:' style={small ? { flexDirection: 'column' } : {}}>
               <Row style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
                 <Col style={{ marginRight: 16 }}>
                   {Object.keys(token.data.properties).map((prop) => (

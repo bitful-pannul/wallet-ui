@@ -8,7 +8,7 @@ import { useWalletStore } from '../../store/walletStore'
 import { Token } from '../../types/Token'
 import { displayTokenAmount } from '../../utils/number'
 import { displayPubKey } from '../../utils/account'
-import { addHexDots, removeDots } from '../../utils/format'
+import { abbreviateHex, addHexDots, removeDots } from '../../utils/format'
 import Col from '../spacing/Col'
 import CopyIcon from '../text/CopyIcon'
 import TextArea from './TextArea'
@@ -17,8 +17,11 @@ import { ActionDisplay } from '../ActionDisplay'
 import Loader from '../popups/Loader'
 import { TransactionArgs } from '../../types/Transaction'
 import { signWithHardwareWallet } from '../../utils/hardware-wallet'
+import CustomLink from '../nav/Link'
+import { getStatus } from '../../utils/constants'
 
 import './SendTransactionForm.scss'
+import Pill from '../text/Pill'
 
 export interface SendFormValues { to: string; rate: string; bud: string; amount: string; contract: string; town: string; action: string; }
 export type SendFormField = 'to' | 'rate' | 'bud' | 'amount' | 'contract' | 'town' | 'action'
@@ -27,36 +30,37 @@ export type SendFormType = 'tokens' | 'nft' | 'custom';
 export const BLANK_FORM_VALUES = { to: '', rate: '1', bud: '1000000', amount: '', contract: '', town: '', action: '' }
 
 interface SendTransactionFormProps {
-  setSubmitted: (submitted: boolean) => void
   setFormValues: (values: SendFormValues) => void
   setFormValue: (key: SendFormField, value: string) => void
   onSubmit?: () => void
+  onDone: () => void
   formValues: SendFormValues
   id: string
   unsignedTransactionHash?: string
-  nftId?: number
+  nftIndex?: number
   from?: string
   formType?: SendFormType
 }
 
 const SendTransactionForm = ({
-  setSubmitted,
   setFormValues,
   setFormValue,
   onSubmit,
+  onDone,
   formValues,
   id,
   unsignedTransactionHash,
-  nftId,
+  nftIndex,
   from,
   formType,
 }: SendTransactionFormProps) => {
   const {
-    assets, metadata, importedAccounts, unsignedTransactions,
+    assets, metadata, importedAccounts, unsignedTransactions, mostRecentTransaction: txn,
     sendTokens, sendNft, submitSignedHash, setMostRecentTransaction, getUnsignedTransactions, sendCustomTransaction
   } = useWalletStore()
 
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const isNft = useMemo(() => formType === 'nft', [formType])
   const isCustom = useMemo(() => formType === 'custom', [formType])
@@ -69,7 +73,7 @@ const SendTransactionForm = ({
   )
 
   const [selectedToken, setSelected] =
-    useState<Token | undefined>(assetsList.find(a => a.id === id && (!isNft || a.data.id === Number(nftId))))
+    useState<Token | undefined>(assetsList.find(a => a.id === id && (!isNft || a.data.id === Number(nftIndex))))
   
   const [pendingHash, setPendingHash] = useState<string | undefined>(unsignedTransactionHash)
 
@@ -80,7 +84,7 @@ const SendTransactionForm = ({
 
   useEffect(() => {
     if (selectedToken === undefined && id) {
-      setSelected(assetsList.find(a => a.id === id && (nftId === undefined || Number(nftId) === a.data.id)))
+      setSelected(assetsList.find(a => a.id === id && (nftIndex === undefined || Number(nftIndex) === a.data.id)))
     }
   }, [assetsList, id]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -141,8 +145,8 @@ const SendTransactionForm = ({
         setLoading(true)
 
         const contract = removeDots(unsignedTransactions[pendingHash].contract.slice(2))
-        const to = (unsignedTransactions[pendingHash] as any).action?.give?.to ||
-          (unsignedTransactions[pendingHash] as any).action?.['give-nft']?.to ||
+        const to = (unsignedTransactions[pendingHash] as any)?.action?.give?.to ||
+          (unsignedTransactions[pendingHash] as any)?.action?.['give-nft']?.to ||
           `0x${contract}${contract}`
 
         const sigResult = await signWithHardwareWallet(
@@ -156,8 +160,10 @@ const SendTransactionForm = ({
       }
   
       try {
+        setMostRecentTransaction(undefined)
         await submitSignedHash(fromAddress, hardwareHash || pendingHash!, Number(rate), Number(bud.replace(/\./g, '')), ethHash, sig)
         clearForm()
+        setPendingHash(undefined)
         setSubmitted(true)
         onSubmit && onSubmit()
       } catch (err) {
@@ -167,7 +173,7 @@ const SendTransactionForm = ({
         setLoading(false)
       }
     }
-  }, [unsignedTransactions, rate, bud, importedAccounts, pendingHash, onSubmit, clearForm, submitSignedHash, setLoading, setSubmitted])
+  }, [unsignedTransactions, rate, bud, importedAccounts, pendingHash, onSubmit, clearForm, submitSignedHash, setLoading, setSubmitted, setPendingHash])
 
   const tokenDisplay = isNft ? (
     <Col>
@@ -181,9 +187,42 @@ const SendTransactionForm = ({
     </Col>
   )
 
-  if (pendingHash) {
-    const pendingAction = unsignedTransactions[pendingHash].action as TransactionArgs
-    const giveAction = pendingAction.give || pendingAction['give-nft']
+  if (submitted) {
+    return (
+      <Col className='submission-confirmation'>
+        <h4 style={{ marginTop: 0, marginBottom: 16 }}>Transaction {txn?.status === 0 ? 'Complete' : 'Sent'}!</h4>
+        {txn ? (
+          <>
+            <Row style={{ marginBottom: 8 }}>
+              <Text style={{ marginRight: 18 }} bold>Hash: </Text>
+              <CustomLink style={{ maxWidth: 'calc(100% - 100px)', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} href={`/transactions/${txn.hash}`}>
+                <Text mono bold>{abbreviateHex(txn.hash)}</Text>
+              </CustomLink>
+              <CopyIcon text={txn.hash} />
+            </Row>
+            <Row style={{ marginLeft: -4 }}>
+              <Pill label={'Nonce'} value={''+txn.nonce} />
+            </Row>
+            <Row style={{ margin: '8px 0 8px -4px' }}>
+              <Pill label={'Status'} value={getStatus(txn.status)} />
+            </Row>
+            <div style={{ margin: '8px auto 16px', height: 24 }}>
+              {(txn.status === 100 || txn.status === 101) && <Loader dark />}
+            </div>
+          </>
+        ) : (
+          <Text style={{ marginBottom: 16 }}>
+            Your transaction should show up here in a few seconds. If it does not, please go to
+            <CustomLink href="/transactions" style={{ marginLeft: 4 }}>History</CustomLink>
+            .
+          </Text>
+        )}
+        <Button style={{ alignSelf: 'center' }} variant='dark' onClick={onDone}>Done</Button>
+      </Col>
+    )
+  } else if (pendingHash) {
+    const pendingAction = unsignedTransactions[pendingHash]?.action as TransactionArgs
+    const giveAction = pendingAction?.give || (pendingAction && pendingAction['give-nft'])
     const showToAddress = Boolean(to || (tokenMetadata?.data?.symbol && giveAction.to))
     const showAmount = Boolean(!isNft && (amount || (tokenMetadata?.data?.symbol && giveAction.amount)))
 

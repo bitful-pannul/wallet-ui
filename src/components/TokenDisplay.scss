@@ -41,8 +41,6 @@
     }
   }
 
-  
-
   .token-display-header {
     cursor: pointer;
     justify-content: space-between;
@@ -58,4 +56,13 @@
     transition: all 0.1s;
   }
 
+  &.small {
+    margin: 0;
+    border-radius: 0;
+    font-size: 14px;
+
+    .token-name {
+      font-size: 14px;
+    }
+  }
 }

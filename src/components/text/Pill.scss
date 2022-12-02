@@ -23,6 +23,9 @@
     border-bottom-right-radius: 999px;
 
     background-color: white;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 

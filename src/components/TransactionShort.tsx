@@ -16,41 +16,48 @@ import Pill from './text/Pill';
 interface TransactionShortProps extends React.HTMLAttributes<HTMLDivElement> {
   txn: Transaction
   selectHash: (hash: string) => void
-  isUnsigned?: boolean
+  vertical?: boolean
 }
 
 const TransactionShort: React.FC<TransactionShortProps> = ({
   txn,
   selectHash,
-  isUnsigned = false,
+  vertical = false,
   ...props
 }) => {
   const { deleteUnsignedTransaction } = useWalletStore()
 
+  const unsigned = Number(txn.status) === 100
+
   return (
-      <Col {...props} className={`transaction-short ${props.className || ''}`}>
-        <Row between>
-          <Row>
-            <Link href={`/transactions/${txn.hash}`}>
-              <HexNum mono num={txn.hash} displayNum={abbreviateHex(txn.hash)} />
-            </Link>
-            <CopyIcon text={txn.hash} />
+      <Col {...props} className={`transaction-short ${props.className || ''} ${vertical ? 'vertical' : ''}`}>
+        <Row between style={{ flexDirection: vertical ? 'column' : undefined }}>
+          <Row style={vertical ? { flexDirection: 'column', alignItems: 'flex-start' } : {}}>
+            <Row>
+              <Link href={`/transactions/${txn.hash}`}>
+                <HexNum mono num={txn.hash} displayNum={abbreviateHex(txn.hash)} />
+              </Link>
+              <CopyIcon text={txn.hash} />
+            </Row>
+            {vertical && <div style={{ height: 8 }} />}
             <Pill label={'Nonce'} value={''+txn.nonce} />
+            {vertical && <div style={{ height: 8 }} />}
             <Pill label={'Status'} value={getStatus(txn.status)} />
-            {txn.created ? <Pill label='Created' 
-              value={(typeof txn.created === 'string') ? txn.created
-              : moment(txn.created).format()} /> 
-            : <></>}
+            {Boolean(txn.created) && <>
+              {vertical && <div style={{ height: 8 }} />}
+              <Pill label='Created'  value={(typeof txn.created === 'string') ? txn.created : moment(txn.created).format()} /> 
+            </>}
           </Row>
+          {vertical && unsigned && <div style={{ height: 8 }} />}
           <Row>
-            {isUnsigned && (
-              <Button style={{ marginLeft: 8, justifySelf: 'flex-end' }} small 
+            {unsigned && (
+              <Button style={{ marginLeft: unsigned ? 0 : 8, justifySelf: 'flex-end' }} small 
                 onClick={() => selectHash(txn.hash)} dark
               >
                 Sign & Submit
               </Button>
             )}
-            {isUnsigned && (
+            {unsigned && (
               <Button style={{ marginLeft: 8, justifySelf: 'flex-end' }} small 
                 onClick={() => window.confirm('Are you sure you want to delete this transaction?') 
                   && deleteUnsignedTransaction(txn.from, txn.hash)}

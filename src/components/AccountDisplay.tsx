@@ -14,8 +14,6 @@ import Link from './nav/Link'
 
 import './AccountDisplay.scss'
 
-const SAVE_NICK_DELAY = 1000
-
 interface AccountDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   account: HotWallet | HardwareWallet
   full?: boolean
@@ -43,7 +41,7 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
         setNickSaved(true)
         setTimeout(() => setNickSaved(false), ONE_SECOND * 2)
       }
-    }, SAVE_NICK_DELAY)
+    }, ONE_SECOND)
     return () => clearTimeout(delayDebounceFn)
   }, [newNick]) // eslint-disable-line react-hooks/exhaustive-deps
 

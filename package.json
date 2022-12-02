@@ -25,7 +25,7 @@
     "clean": "rm -rf dist",
     "copy-files": "copyfiles -u 1 src/**/*.scss src/**/**/*.scss dist/",
     "dev": "tsc --watch",
-    "build": "npm run clean && tsc && cp package.json README.md ./dist && yarn copy-files",
+    "build": "yarn run clean && tsc && cp package.json README.md ./dist && yarn copy-files",
     "publish": "npm publish --access public"
   },
   "eslintConfig": {

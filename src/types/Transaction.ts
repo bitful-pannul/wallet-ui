@@ -5,22 +5,27 @@ export interface TransactionArgs {
 }
 
 export interface RawTransaction {
-  transaction: {
-    status: string,
-    contract: string,
-    budget: string,
-    from: string,
-    rate: string,
-    action: TransactionArgs | string,
-    nonce: string,
-    town: string,
-    hash: string
-  },
+  status: string,
+  contract: string,
+  budget: string,
+  from: string,
+  rate: string,
+  action: TransactionArgs | string,
+  nonce: string,
+  town: string,
+  hash: string
   output: {
     errorcode: "0",
     gas: "79.760"
   }
-  status: string | null
+}
+
+export interface RawTransactionWithOutput {
+  transaction: RawTransaction
+  output: {
+    errorcode: string
+    gas: string
+  }
 }
 
 export interface Transaction {

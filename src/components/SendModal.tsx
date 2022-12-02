@@ -18,7 +18,7 @@ import './SendModal.scss'
 interface SendModalProps extends ModalProps {
   id?: string
   from?: string
-  nftId?: number
+  nftIndex?: number
   formType?: SendFormType
   show: boolean
   title: string
@@ -30,7 +30,7 @@ interface SendModalProps extends ModalProps {
 const SendModal = ({
   id = '',
   from = '',
-  nftId,
+  nftIndex,
   show,
   formType,
   title,
@@ -39,7 +39,6 @@ const SendModal = ({
   hide,
 }: SendModalProps) => {
   const { mostRecentTransaction: txn } = useWalletStore()
-  const [submitted, setSubmitted] = useState(false)
   const [formValues, setFormValues] = useState(BLANK_FORM_VALUES)
 
   useEffect(() => {
@@ -54,9 +53,8 @@ const SendModal = ({
 
   const hideModal = useCallback(() => {
     hide();
-    setSubmitted(false);
     setFormValues(BLANK_FORM_VALUES)
-  }, [hide, setSubmitted, setFormValues])
+  }, [hide, setFormValues])
 
   return (
     <Modal 
@@ -66,36 +64,7 @@ const SendModal = ({
       style={{ width: '40%', minWidth: 350 }}
       className='send-view'
     >
-      {submitted ? (
-        <Col className='submission-confirmation'>
-          <h4 style={{ marginTop: 0, marginBottom: 16 }}>Transaction {txn?.status === 0 ? 'Complete' : 'Sent'}!</h4>
-          {txn ? (
-            <>
-              <Row style={{ marginBottom: 8 }}>
-                <Text style={{ marginRight: 18 }}>Hash: </Text>
-                <Link style={{ maxWidth: 'calc(100% - 100px)', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} href={`/transactions/${txn.hash}`}>
-                  <Text mono>{abbreviateHex(txn.hash)}</Text>
-                </Link>
-                <CopyIcon text={txn.hash} />
-              </Row>
-              <Row style={{ marginBottom: 16 }}>
-                <Text style={{ marginRight: 9 }}>Status: </Text>
-                {(txn.status === 100 || txn.status === 101) && <Loader style={{ marginRight: 16 }} />}
-                <Text mono>{getStatus(txn.status)}</Text>
-              </Row>
-            </>
-          ) : (
-            <Text style={{ marginBottom: 16 }}>
-              Your transaction should show up here in a few seconds. If it does not, please go to
-              <Link href="/transactions" style={{ marginLeft: 4 }}>History</Link>
-              .
-            </Text>
-          )}
-          <Button style={{ alignSelf: 'center' }} onClick={hideModal}>Done</Button>
-        </Col>
-      ) : (
-        <SendTransactionForm {...{ setSubmitted, id, nftId, formType, from, formValues, setFormValue, setFormValues, onSubmit, unsignedTransactionHash }} />
-      )}
+      <SendTransactionForm {...{ id, nftIndex, formType, from, formValues, setFormValue, setFormValues, onDone: hide, onSubmit, unsignedTransactionHash }} />
     </Modal>
   )
 }
