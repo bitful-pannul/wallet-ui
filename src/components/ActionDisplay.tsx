@@ -15,7 +15,7 @@ export const ActionDisplay = ({ action }: ActionDisplayProps) => {
   const actionTitle = Object.keys(action || {})[0] || 'unknown'
 
   return (
-    <Col>
+    <Col style={{ maxHeight: '50vh', overflow: 'auto' }}>
       <Row>
         <Row style={{ fontWeight: 'bold' }}>Action:</Row>
         <Row style={{ marginLeft: 8 }}>{actionTitle}</Row>
