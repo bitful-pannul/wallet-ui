@@ -41,6 +41,7 @@ export interface WalletStore {
   transactions: Transaction[],
   unsignedTransactions: Transactions,
   mostRecentTransaction?: Transaction,
+  walletTitleBase: string,
   initWallet: (options: InitOptions) => Promise<void>,
   setLoading: (loadingText: string | null) => void,
   setInsetView: (insetView?: string) => void,
@@ -77,6 +78,7 @@ export const useWalletStore = create<WalletStore>(
     selectedTown: 0,
     transactions: [],
     unsignedTransactions: {},
+    walletTitleBase: 'Wallet:',
     initWallet: async ({ assets = true, transactions = true, onReceiveTransaction }: InitOptions) => {
       const { getAccounts, getTransactions, getUnsignedTransactions } = get()
       
