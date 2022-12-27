@@ -94,7 +94,7 @@ const SendTransactionForm = ({
     e.preventDefault()
     if (selectedToken?.data?.balance && Number(amount) * Math.pow(10, tokenMetadata?.data?.decimals || 1) > +selectedToken?.data?.balance) {
       alert(`You do not have that many tokens. You have ${selectedToken.data?.balance} tokens.`)
-    } else if (!selectedToken && !from) {
+    } else if (selectedToken && !from && !isNft) {
       alert('You must select a \'from\' account')
     } else {
       setMostRecentTransaction(undefined)
