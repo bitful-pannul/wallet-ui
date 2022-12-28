@@ -26,6 +26,7 @@ const pokeWithAlert = async (json: any) => {
 interface InitOptions {
   assets?: boolean
   transactions?: boolean
+  prompt?: boolean
   onReceiveTransaction?: (txn: Transaction) => void
 }
 
@@ -42,8 +43,10 @@ export interface WalletStore {
   unsignedTransactions: Transactions,
   mostRecentTransaction?: Transaction,
   walletTitleBase: string,
+  promptInstall: boolean,
   initWallet: (options: InitOptions) => Promise<void>,
   setLoading: (loadingText: string | null) => void,
+  setPromptInstall: (promptInstall: boolean) => void,
   setInsetView: (insetView?: string) => void,
   getAccounts: () => Promise<void>,
   setSelectedAccount: (selectedAccount: HotWallet | HardwareWallet) => void,
@@ -79,10 +82,19 @@ export const useWalletStore = create<WalletStore>(
     transactions: [],
     unsignedTransactions: {},
     walletTitleBase: 'Wallet:',
-    initWallet: async ({ assets = true, transactions = true, onReceiveTransaction }: InitOptions) => {
+    promptInstall: false,
+    initWallet: async ({ assets = true, transactions = true, prompt = false, onReceiveTransaction }: InitOptions) => {
       const { getAccounts, getTransactions, getUnsignedTransactions } = get()
-      
+
       set({ loadingText: 'Loading...' })
+
+      if (prompt) {
+        try {
+          await api.scry<{[key: string]: RawAccount}>({ app: 'wallet', path: '/accounts' })
+        } catch (err) {
+          return set({ promptInstall: true, loadingText: null })
+        }
+      }
 
       try {
         if (assets) {
@@ -101,6 +113,7 @@ export const useWalletStore = create<WalletStore>(
 
       set({ loadingText: null })
     },
+    setPromptInstall: (promptInstall: boolean) => set({ promptInstall }),
     setSelectedAccount: (selectedAccount?: HotWallet | HardwareWallet) => set({ selectedAccount }),
     setLoading: (loadingText: string | null) => set({ loadingText }),
     setInsetView: (insetView?: string) => set({ insetView }),
@@ -124,11 +137,8 @@ export const useWalletStore = create<WalletStore>(
     },
     getTransactions: async () => {
       const result = await api.scry<any>({ app: 'wallet', path: `/transactions` })
-      console.log('TXNS:', result)
-
       const rawTransactions = processTransactions(result)
       const transactions = rawTransactions.sort((a, b) => a.nonce - b.nonce)
-      console.log({ transactions })
       set({ transactions })
     },
     createAccount: async (password: string, nick: string) => {

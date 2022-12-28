@@ -71,6 +71,8 @@ export const useMockData = process.env.NODE_ENV === 'development' && Boolean(pro
 export const ONE_SECOND = 1000
 export const THIRTY_SECONDS = 30 * ONE_SECOND
 
-export const DEFAULT_TOWN_DEV = '0x0'
 export const DEFAULT_TOWN_TEST = '0x0'
-export const ZIGS_CONTRACT_DEV = '0x74.6361.7274.6e6f.632d.7367.697a'
+export const ZIGS_CONTRACT = '0x74.6361.7274.6e6f.632d.7367.697a'
+
+export const ZIG_HOST = '~dister-dozzod-bacdun'
+export const ZIG_APP = 'zig'

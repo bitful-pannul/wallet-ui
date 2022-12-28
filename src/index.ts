@@ -52,7 +52,7 @@ import HexNum from './components/text/HexNum'
 
 import { groupTransactions } from './utils/transactions'
 
-import { ZIGS_CONTRACT_DEV, DEFAULT_TOWN_DEV } from './utils/constants'
+import { ZIGS_CONTRACT, DEFAULT_TOWN_TEST } from './utils/constants'
 
 export {
   useWalletStore,
@@ -97,6 +97,6 @@ export {
 
   groupTransactions,
 
-  ZIGS_CONTRACT_DEV,
-  DEFAULT_TOWN_DEV,
+  ZIGS_CONTRACT,
+  DEFAULT_TOWN_TEST,
 }

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaArrowRight, FaHistory, FaRegTrashAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight, FaHistory, FaRegTrashAlt } from 'react-icons/fa';
 import Text from '../text/Text';
 import Col from '../spacing/Col';
 import CopyIcon from '../text/CopyIcon';
 import Button from '../form/Button';
 import Row from '../spacing/Row';
 import { displayTokenAmount } from '../../utils/number';
-import { ONE_SECOND, ZIGS_CONTRACT_DEV } from '../../utils/constants';
+import { ZIGS_CONTRACT } from '../../utils/constants';
 import { removeDots } from '../../utils/format';
 import { displayPubKey } from '../../utils/account';
 import { useWalletStore } from '../../store/walletStore';
@@ -19,7 +19,6 @@ import HexIcon from '../text/HexIcon';
 import Loader from '../popups/Loader';
 
 import './WalletInset.scss'
-import usePrevious from '../../utils/hooks';
 
 interface WalletInsetProps extends React.HTMLAttributes<HTMLDivElement> {
   selectedAccount: HotWallet | HardwareWallet
@@ -73,7 +72,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
   const zigsBalance = useMemo(
     () => Object.values(assets[rawAddress] || {})
       .reduce((zigsBalance, token) => 
-        zigsBalance + (token.contract === ZIGS_CONTRACT_DEV ? +removeDots(String(token.data.balance || '0')) : 0)
+        zigsBalance + (token.contract === ZIGS_CONTRACT ? +removeDots(String(token.data.balance || '0')) : 0)
       , 0),
     [assets, rawAddress]
   )
@@ -89,15 +88,20 @@ const WalletInset: React.FC<WalletInsetProps> = ({
 
   const renderHeader = () => (
     <Row className='detail-header'>
-      <Text bold style={{ padding: 4, marginTop: 4 }}>{
-        insetView === 'accounts' ? 'Select Address' :
-        insetView === 'assets' ? 'Account Assets' :
-        insetView === 'confirm-most-recent' ? 'Confirm Transaction' :
-        insetView?.includes('send-') ? 'Send Transaction' :
-        insetView === 'unsigned' ? 'Unsigned Transactions' :
-        'Transactions'
-      }</Text>
-      <div className='close-button' onClick={goBack}>&#215;</div>
+      <Row>
+        <div onClick={goBack} style={{ padding: 4, cursor: 'pointer', marginBottom: -6 }}>
+          <FaArrowLeft />
+        </div>
+        <Text bold style={{ padding: 4, marginTop: 4 }}>{
+          insetView === 'accounts' ? 'Select Address' :
+          insetView === 'assets' ? 'Account Assets' :
+          insetView === 'confirm-most-recent' ? 'Confirm Transaction' :
+          insetView?.includes('send-') ? 'Send Transaction' :
+          insetView === 'unsigned' ? 'Unsigned Transactions' :
+          'Transactions'
+        }</Text>
+      </Row>
+      <div className='close-button' onClick={() => setInsetView()}>&#215;</div>
     </Row>
   )
 
@@ -118,10 +122,9 @@ const WalletInset: React.FC<WalletInsetProps> = ({
         Object.values(assets[rawAddress]).map(t => (
         <Row key={t.id}>
           <TokenDisplay token={t} small selectToken={(tokenId, nftIndex) => {
-            goBack()
-            setFormType(nftIndex ? 'nft' : 'tokens')
             setTokenId(tokenId)
             setNftIndex(nftIndex)
+            setInsetView(`send-${nftIndex ? 'nft' : 'tokens'}`)
           }} />
         </Row>
       ))
@@ -138,10 +141,13 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     ) :
     insetView === 'unsigned' ? (
       !Object.keys(unsignedTransactions).length ? <Text style={{ margin: 12 }}>No transactions</Text> :
-        Object.values(unsignedTransactions).map(t => <TransactionShort key={t.hash} txn={t} selectHash={() => null} vertical />)
+        Object.values(unsignedTransactions).map(t => <TransactionShort key={t.hash} external txn={t} selectHash={(hash: string) => {
+          setUnsignedTransactionHash(hash)
+          setInsetView('send-custom')
+        }} vertical />)
     ) : (
       !transactions.length ? <Text style={{ margin: 12 }}>No transactions</Text> :
-          transactions.map(t => <TransactionShort key={t.hash} txn={t} selectHash={() => null} vertical />)
+        transactions.map(t => <TransactionShort key={t.hash} external txn={t} selectHash={() => null} vertical />)
     )
 
     return (

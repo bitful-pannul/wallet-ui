@@ -12,17 +12,20 @@ import { useWalletStore } from '../store/walletStore';
 import HexNum from './text/HexNum';
 import Row from './spacing/Row';
 import Pill from './text/Pill';
+import CustomLink from './nav/Link';
 
 interface TransactionShortProps extends React.HTMLAttributes<HTMLDivElement> {
   txn: Transaction
   selectHash: (hash: string) => void
   vertical?: boolean
+  external?: boolean
 }
 
 const TransactionShort: React.FC<TransactionShortProps> = ({
   txn,
   selectHash,
   vertical = false,
+  external = false,
   ...props
 }) => {
   const { deleteUnsignedTransaction } = useWalletStore()
@@ -34,9 +37,9 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
         <Row between style={{ flexDirection: vertical ? 'column' : undefined }}>
           <Row style={vertical ? { flexDirection: 'column', alignItems: 'flex-start' } : {}}>
             <Row>
-              <Link href={`/transactions/${txn.hash}`}>
+              <CustomLink external={external} href={`${external ? '/apps/ziggurat/wallet' : ''}/transactions/${txn.hash}`}>
                 <HexNum mono num={txn.hash} displayNum={abbreviateHex(txn.hash)} />
-              </Link>
+              </CustomLink>
               <CopyIcon text={txn.hash} />
             </Row>
             {vertical && <div style={{ height: 8 }} />}

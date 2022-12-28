@@ -1,6 +1,6 @@
 {
   "name": "@uqbar/wallet-ui",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -9,12 +9,14 @@
     "@trezor/connect": "^9.0.0",
     "@trezor/connect-web": "^9.0.0",
     "@types/node": "^16.7.13",
-    "@urbit/http-api": "^2.1.0",
+    "@urbit/http-api": "^2.1.1",
+    "@urbit/api": "^2.1.1",
     "buffer": "^6.0.3",
     "classnames": "^2.3.2",
     "core-js": "^3.22.2",
     "ethers": "^5.6.4",
     "ipfs-core": "^0.14.3",
+    "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "react-icons": "^4.3.1",
     "typescript": "^4.9.3",

@@ -5,6 +5,7 @@
   margin: 16px 0px;
   background: colors.$light-gray;
   border-radius: 4px;
+  max-width: 100%;
 
   &:hover{
     background: linear-gradient(-45deg, colors.$uq-pink, colors.$uq-lightpurple);

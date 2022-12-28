@@ -16,7 +16,7 @@ const LoadingOverlay = ({
 
   return (
     <Col className="loading-overlay">
-      <Col className={`${text ? 'solid' : ''}`}>
+      <Col className={`${text ? 'solid' : ''}`} style={{ height: 'fit-content', minHeight: 160 }}>
         {!!text && <Col className="loader-text">{text}</Col>}
         <Loader />
       </Col>
