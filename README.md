@@ -4,11 +4,15 @@ Contains the API, components, and store for the uqbar wallet.
 
 This package is meant to be used in a React app.
 
-## useWalletStore
+## Importing and Using the Wallet Inset
 
 The `useWalletStore` hook will import the store and the `initWallet` function will initiate subscriptions and load accounts, assets, transactions, and token metadata.
 
 You can choose to not load all info by passing options `{ assets: false, transactions: false }` to `initWallet`. The `assets` option includes the metadata subscription.
+
+The `initWallet` function can also check if the app is installed and install from the distro ship with `initWallet({ prompt: true })`.
+
+The `AccountSelector` component is used to embed the Uqbar wallet in a React app. The `onSelectAccount` function fires whenever the user changes accounts and receives the selected `Account` object. Usually you would want to use the `rawAddress` (Hoon hexadecimal format) or `address` (just text with dots stripped) property.
 
 ### Generating and Signing Transactions
 
