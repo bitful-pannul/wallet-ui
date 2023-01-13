@@ -1,0 +1,22 @@
+.account-selector {
+  position: relative;
+}
+.account-selector .selector {
+  padding: 2px 12px 2px 6px;
+  position: relative;
+}
+.account-selector .inset-background {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+.account-selector .inset-container {
+  position: absolute;
+  width: 280px;
+  top: 38px;
+  right: 0;
+  z-index: 101;
+}

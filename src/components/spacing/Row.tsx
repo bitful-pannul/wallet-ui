@@ -1,5 +1,5 @@
 import React from 'react'
-import './Row.scss'
+import './Row.css'
 import classNames from 'classnames'
 
 interface RowProps extends React.HTMLAttributes<HTMLDivElement> {

@@ -1,0 +1,21 @@
+.field.center > .label {
+  align-self: center;
+}
+.field .label {
+  min-width: 6rem;
+  align-self: baseline;
+  margin-right: 1em;
+}
+.field .content {
+  flex-basis: 100%;
+  word-break: break-all;
+}
+.field .content.mh300 {
+  max-height: 300px;
+}
+.field .content::-webkit-scrollbar {
+  width: 0px;
+}
+.field .content.monospace {
+  font-family: monospace;
+}

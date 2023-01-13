@@ -1,0 +1,14 @@
+.entry {
+  padding: 12px 0;
+  width: 100%;
+}
+.entry h1, .entry h2, .entry h3, .entry h4, .entry h5, .entry h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+.entry:not(.divide) {
+  padding-bottom: 0;
+}
+.entry .field {
+  margin-left: 1em;
+}

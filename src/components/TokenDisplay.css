@@ -1,0 +1,55 @@
+.token-display {
+  padding: 8px 12px 8px 8px;
+  margin: 16px 0px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  max-width: 100%;
+}
+.token-display:hover {
+  background: linear-gradient(-45deg, #dd7c8a, #c7cafa);
+  animation: gradient 15s linear infinite;
+  background-size: 400% 400%;
+}
+.token-display svg:not(.arrow) {
+  margin-left: 0.5em;
+}
+.token-display .token-name {
+  padding-left: 0.5em;
+  margin-right: 0.5em;
+}
+.token-display .token-name::selection {
+  background-color: transparent;
+}
+.token-display:not(.open) {
+  cursor: pointer;
+}
+.token-display:not(.open) .arrow {
+  transform: rotate(-90deg);
+}
+.token-display:not(.open) .details {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+.token-display .token-display-header {
+  cursor: pointer;
+  justify-content: space-between;
+}
+.token-display .token-display-header svg {
+  transition: all 0.1s;
+}
+.token-display .details {
+  padding-left: 24px;
+  padding-top: 8px;
+  transition: all 0.1s;
+}
+.token-display.small {
+  margin: 0;
+  border-radius: 0;
+  font-size: 14px;
+}
+.token-display.small .token-name {
+  font-size: 14px;
+}

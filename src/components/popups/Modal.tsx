@@ -3,7 +3,7 @@ import { FaPlus } from 'react-icons/fa'
 import Text from '../../components/text/Text'
 import Col from '../spacing/Col'
 
-import './Modal.scss'
+import './Modal.css'
 
 export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   show: boolean

@@ -1,6 +1,6 @@
 import React from 'react'
 import Col from '../spacing/Col'
-import './Input.scss'
+import './Input.css'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string

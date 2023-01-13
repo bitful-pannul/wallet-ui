@@ -1,0 +1,26 @@
+.send-view .assets {
+  font-family: monospace monospace;
+}
+.send-view .form-container {
+  width: 100%;
+  max-width: 400px;
+}
+.send-view .form-container .form-selector {
+  background-color: rgba(0, 0, 0, 0.03);
+  width: fit-content;
+}
+.send-view .form-container .form-selector .selector {
+  background: white;
+}
+.send-view .form-container .form-selector .selector span {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+.send-view .form-container .form-selector .selector .inactive {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.send-view .form-container .form-selector .selector .active {
+  background-color: rgba(0, 0, 0, 0.1);
+}

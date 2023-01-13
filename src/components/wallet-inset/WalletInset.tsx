@@ -18,7 +18,7 @@ import HexNum from '../text/HexNum';
 import HexIcon from '../text/HexIcon';
 import Loader from '../popups/Loader';
 
-import './WalletInset.scss'
+import './WalletInset.css'
 
 interface WalletInsetProps extends React.HTMLAttributes<HTMLDivElement> {
   selectedAccount: HotWallet | HardwareWallet

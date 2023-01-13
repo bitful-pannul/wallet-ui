@@ -6,7 +6,7 @@ import { abbreviateHex } from '../utils/format';
 import Link from './nav/Link';
 import Col from './spacing/Col';
 import CopyIcon from './text/CopyIcon';
-import './TransactionShort.scss'
+import './TransactionShort.css'
 import Button from './form/Button';
 import { useWalletStore } from '../store/walletStore';
 import HexNum from './text/HexNum';

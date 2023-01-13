@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import './Link.scss'
+import './Link.css'
 
 interface CustomLinkProps extends React.HTMLAttributes<HTMLAnchorElement> {
   href: string;

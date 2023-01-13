@@ -1,5 +1,5 @@
 import React from 'react'
-import './Form.scss'
+import './Form.css'
 
 interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
 }

@@ -12,7 +12,7 @@ import { ONE_SECOND, PUBLIC_URL } from '../utils/constants';
 import HexNum from './text/HexNum';
 import Link from './nav/Link'
 
-import './AccountDisplay.scss'
+import './AccountDisplay.css'
 
 interface AccountDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   account: HotWallet | HardwareWallet

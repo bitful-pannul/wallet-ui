@@ -5,7 +5,7 @@ import CopyIcon from './CopyIcon'
 import Row from '../spacing/Row'
 import Text from './Text'
 
-import './HexNum.scss'
+import './HexNum.css'
 import HexIcon from './HexIcon'
 
 interface HexNumProps extends React.HTMLAttributes<HTMLSpanElement> {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './Tooltip.scss'
+import './Tooltip.css'
 interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
   tip: string
   right?: boolean

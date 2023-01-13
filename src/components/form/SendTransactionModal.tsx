@@ -13,7 +13,7 @@ import { useWalletStore } from '../../store/walletStore'
 import { watchTabClose } from '../../utils/nav'
 import CustomLink from '../nav/Link'
  
-import './SendTransactionModal.scss'
+import './SendTransactionModal.css'
 
 interface SendTransactionModalProps extends ModalProps {
   id?: string

@@ -1,0 +1,27 @@
+.account-display {
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+.account-display .icon {
+  padding: 4px;
+  cursor: pointer;
+}
+.account-display .nick-input {
+  border-color: transparent;
+  border-width: 1px;
+  border-bottom: 3px solid #727bf2;
+  border-radius: 6px;
+}
+.account-display .nick-input:focus, .account-display .nick-input:active {
+  border-color: #dd7c8a;
+  outline: none;
+}
+.account-display .nick-input.nick-saved:focus, .account-display .nick-input.nick-saved:active {
+  border-color: #3acfc0;
+  outline: none;
+}
+.account-display .nick-input input {
+  background: inherit;
+}

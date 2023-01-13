@@ -4,6 +4,8 @@ Contains the API, components, and store for the uqbar wallet.
 
 This package is meant to be used in a React app.
 
+NOTE: In order to use this library, you must import a global/polyfill for the Buffer dependency. The Ledger library requires a global Buffer to work properly. Please contact ~fabnev-hinmur if you unsure about implementation.
+
 ## Importing and Using the Wallet Inset
 
 The `useWalletStore` hook will import the store and the `initWallet` function will initiate subscriptions and load accounts, assets, transactions, and token metadata.

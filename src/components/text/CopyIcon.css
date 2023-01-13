@@ -1,0 +1,7 @@
+.copy-icon .icon {
+  padding: 4px;
+  cursor: pointer;
+}
+.copy-icon .icon:hover {
+  transform: scale(1.1);
+}

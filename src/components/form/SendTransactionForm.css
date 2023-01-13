@@ -1,18 +1,13 @@
-@use '../../styles/colors.scss' as colors;
-
 form.form.send-transaction-form {
   border-top-left-radius: 0;
   min-width: 280px;
   width: calc(100% - 32px);
   min-height: 267px;
   border-radius: 4px;
-
-  .assets {
-    font-family: monospace monospace;
-  }
-  
 }
-
+form.form.send-transaction-form .assets {
+  font-family: monospace monospace;
+}
 .submission-confirmation {
   height: 100%;
   padding: 16px;

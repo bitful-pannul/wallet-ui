@@ -2,7 +2,7 @@ import classNames from 'classnames'
 import React from 'react'
 import Row from '../spacing/Row'
 import Text from '../text/Text'
-import './Pill.scss'
+import './Pill.css'
 
 interface PillProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string

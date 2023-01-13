@@ -1,5 +1,5 @@
 import React from 'react'
-import './Loader.scss'
+import './Loader.css'
 
 export interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
   dark?: boolean

@@ -1,0 +1,32 @@
+.link {
+  cursor: pointer;
+  color: #5761ef;
+  text-decoration: none;
+}
+.link:visited {
+  color: #5761ef;
+}
+.link:active {
+  color: #cd3c52;
+}
+.link:hover {
+  text-decoration: underline;
+}
+.link.button {
+  background: white;
+  width: fit-content;
+  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid black;
+  color: black;
+  text-decoration: none;
+}
+.link.button:hover {
+  background-color: #c7cafa;
+  color: black;
+}
+.link.button.dark {
+  color: white;
+  background: black;
+}

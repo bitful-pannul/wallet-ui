@@ -14,7 +14,7 @@ import Entry from './spacing/Entry';
 import HexNum from './text/HexNum';
 import { removeDots } from '../utils/format';
 
-import './TokenDisplay.scss'
+import './TokenDisplay.css'
 
 interface TokenDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   token: Token

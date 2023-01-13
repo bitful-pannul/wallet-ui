@@ -1,7 +1,7 @@
 import Col from '../spacing/Col';
 import Loader from './Loader';
 
-import './LoadingOverlay.scss';
+import './LoadingOverlay.css';
 
 const LoadingOverlay = ({
   loading,

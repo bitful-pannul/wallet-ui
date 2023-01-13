@@ -1,5 +1,5 @@
 import React from 'react'
-import './Text.scss'
+import './Text.css'
 import classNames from 'classnames'
 
 interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {

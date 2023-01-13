@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { FaCheckCircle, FaCopy, FaRegCheckCircle, FaRegCopy } from 'react-icons/fa';
 import Row from '../spacing/Row'
 import Text from '../text/Text';
-import './CopyIcon.scss'
+import './CopyIcon.css'
 
 interface CopyIconProps extends React.HTMLAttributes<HTMLDivElement> {
   text: string

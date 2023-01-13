@@ -1,5 +1,5 @@
 import React from 'react'
-import './Divider.scss'
+import './Divider.css'
 
 interface DividerProps extends React.HTMLAttributes<HTMLDivElement> {
 

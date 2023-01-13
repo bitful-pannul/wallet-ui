@@ -1,5 +1,5 @@
 import React from 'react'
-import './Col.scss'
+import './Col.css'
 
 interface ColProps extends React.HTMLAttributes<HTMLDivElement> {
   innerRef?: any

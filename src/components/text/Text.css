@@ -1,0 +1,23 @@
+.text {
+  line-height: 1.33333;
+}
+.text.mono {
+  font-family: monospace, monospace;
+}
+.text.one-line, .text.oneLine {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.text.breakAll {
+  word-break: break-all;
+}
+.text.large {
+  font-size: x-large;
+}
+.text.small {
+  font-size: 0.9em;
+}
+.text.bold {
+  font-weight: 600;
+}

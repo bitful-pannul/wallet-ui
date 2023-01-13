@@ -1,0 +1,59 @@
+.dropdown {
+  font-size: 14px;
+  position: relative;
+}
+.dropdown .close-background {
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+.dropdown .selector {
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 8px;
+  min-width: 84px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.dropdown .selector svg {
+  width: 16px;
+  height: 14px;
+}
+.dropdown .selector.open > svg {
+  transform: rotate(180deg);
+}
+.dropdown.unstyled .selector {
+  background-color: inherit;
+}
+.dropdown.accounts-dropdown .selector {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.dropdown .content-border {
+  border: 3px solid rgba(0, 0, 0, 0.03);
+  position: absolute;
+  top: 36px;
+  right: 0;
+  border-radius: 4px;
+  z-index: 2;
+}
+.dropdown .content-border .dropdown-content {
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  max-height: 400px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 0.5em;
+}
+.dropdown .content-border .dropdown-content::-webkit-scrollbar {
+  display: none;
+}

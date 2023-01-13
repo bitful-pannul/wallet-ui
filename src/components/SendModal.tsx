@@ -4,7 +4,7 @@ import Modal, { ModalProps } from './popups/Modal'
 import { useWalletStore } from '../store/walletStore'
 import { watchTabClose } from '../utils/nav'
  
-import './SendModal.scss'
+import './SendModal.css'
 
 interface SendModalProps extends ModalProps {
   id?: string

@@ -1,0 +1,22 @@
+.pill {
+  margin: 0 0.25em;
+}
+.pill .label {
+  padding: 0.25em 0.5em;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+}
+.pill .label.turq {
+  background-color: #3acfc0;
+}
+.pill .label.pink {
+  background-color: #cd3c52;
+}
+.pill .value {
+  padding: 0.25em 0.5em;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  background-color: white;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

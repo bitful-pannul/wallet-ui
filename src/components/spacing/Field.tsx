@@ -2,7 +2,7 @@ import classNames from 'classnames'
 import React from 'react'
 import Row from '../spacing/Row'
 import Text from '../text/Text'
-import './Field.scss'
+import './Field.css'
 
 interface FieldProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string,

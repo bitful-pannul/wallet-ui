@@ -1,6 +1,6 @@
 // React.HTMLProps<HTMLButtonElement>
 import React from 'react'
-import './Button.scss'
+import './Button.css'
 import classNames from 'classnames'
 
 export type ButtonVariant = 'dark' | 'unstyled' | undefined

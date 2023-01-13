@@ -1,6 +1,6 @@
 import React from 'react'
 import Col from '../spacing/Col'
-import './TextArea.scss'
+import './TextArea.css'
 
 interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   ref?: any

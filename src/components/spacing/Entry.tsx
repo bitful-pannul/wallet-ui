@@ -2,7 +2,7 @@ import React from 'react'
 import Col from '../spacing/Col';
 import Divider from '../spacing/Divider';
 import Row from '../spacing/Row';
-import './Entry.scss'
+import './Entry.css'
 
 interface EntryProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string

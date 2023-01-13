@@ -2,7 +2,7 @@ import React from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import Col from '../spacing/Col';
 
-import './Dropdown.scss';
+import './Dropdown.css';
 
 export interface DropdownProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string | React.ReactNode;

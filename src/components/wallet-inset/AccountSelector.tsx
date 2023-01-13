@@ -14,7 +14,7 @@ import Col from '../spacing/Col';
 import LoadingOverlay from '../popups/LoadingOverlay';
 import api from '../../api';
 
-import './AccountSelector.scss'
+import './AccountSelector.css'
 
 interface AccountSelectorProps extends React.HTMLAttributes<HTMLDivElement> {
   onSelectAccount?: (account: HotWallet | HardwareWallet) => void
