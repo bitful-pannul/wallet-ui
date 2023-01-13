@@ -138,7 +138,7 @@ export const useWalletStore = create<WalletStore>(
     getTransactions: async () => {
       const result = await api.scry<any>({ app: 'wallet', path: `/transactions` })
       const rawTransactions = processTransactions(result)
-      const transactions = rawTransactions.sort((a, b) => a.nonce - b.nonce)
+      const transactions = rawTransactions.sort((a, b) => b.nonce - a.nonce)
       set({ transactions })
     },
     createAccount: async (password: string, nick: string) => {

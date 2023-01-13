@@ -8,7 +8,7 @@ import { useWalletStore } from '../../store/walletStore'
 import { Token } from '../../types/Token'
 import { displayTokenAmount } from '../../utils/number'
 import { displayPubKey } from '../../utils/account'
-import { abbreviateHex, addHexDots, removeDots } from '../../utils/format'
+import { abbreviateHex, addHexDots, removeDots, addDecimalDots } from '../../utils/format'
 import Col from '../spacing/Col'
 import CopyIcon from '../text/CopyIcon'
 import TextArea from './TextArea'
@@ -18,7 +18,7 @@ import Loader from '../popups/Loader'
 import { TransactionArgs } from '../../types/Transaction'
 import { signWithHardwareWallet } from '../../utils/hardware-wallet'
 import CustomLink from '../nav/Link'
-import { getStatus } from '../../utils/constants'
+import { DEFAULT_TXN_COST, getStatus } from '../../utils/constants'
 import Pill from '../text/Pill'
 
 import './SendTransactionForm.css'
@@ -55,7 +55,7 @@ const SendTransactionForm = ({
   formType,
 }: SendTransactionFormProps) => {
   const {
-    assets, metadata, importedAccounts, unsignedTransactions, mostRecentTransaction: txn,
+    assets, metadata, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, selectedAccount,
     sendTokens, sendNft, submitSignedHash, setMostRecentTransaction, getUnsignedTransactions, sendCustomTransaction
   } = useWalletStore()
 
@@ -74,8 +74,10 @@ const SendTransactionForm = ({
 
   const [selectedToken, setSelected] =
     useState<Token | undefined>(assetsList.find(a => a.id === id && (!isNft || a.data.id === Number(nftIndex))))
-  
   const [pendingHash, setPendingHash] = useState<string | undefined>(unsignedTransactionHash)
+
+  const tokenBalance = useMemo(() => Number((selectedToken?.data.balance ?? '0').replace(/\./gi, '')), [selectedToken])
+  const amountDiff = useMemo(() => tokenBalance - (Number(amount) * Math.pow(10, 18) + DEFAULT_TXN_COST), [amount, tokenBalance])
 
   const clearForm = useCallback(() => {
     setSelected(undefined)
@@ -184,7 +186,7 @@ const SendTransactionForm = ({
   ) : (
     <Col>
       <Text style={{ margin: '8px 12px 0px 0px', fontSize: 14 }}>Token - Balance: </Text>
-      <Text mono style={{ margin: '8px 0' }}>{tokenMetadata?.data?.symbol || displayPubKey(selectedToken?.contract || '')} - {displayTokenAmount(+removeDots(String(selectedToken?.data?.balance!)), tokenMetadata?.data?.decimals || 1)}</Text>
+      <Text mono style={{ margin: '8px 0 0' }}>{tokenMetadata?.data?.symbol || displayPubKey(selectedToken?.contract || '')} - {displayTokenAmount(+removeDots(String(selectedToken?.data?.balance!)), tokenMetadata?.data?.decimals || 1)}</Text>
     </Col>
   )
 
@@ -239,12 +241,12 @@ const SendTransactionForm = ({
           <Input label='Amount:' style={{ width: '100%' }} containerStyle={{ marginTop: 12, width: '100%' }} value={amount || displayTokenAmount(+removeDots(''+giveAction.amount), tokenMetadata?.data.decimals || 1)} disabled />
         )}
         <Col>
-          <Row style={{ marginTop: 16, fontWeight: 'bold' }}>Hash: <CopyIcon text={pendingHash}/></Row>
-          <Row style={{ wordBreak: 'break-all' }}>{pendingHash}</Row>
+          <Row style={{ marginTop: 16, fontWeight: 'bold', fontSize: 14 }}>Hash: <CopyIcon text={pendingHash}/></Row>
+          <Row style={{ wordBreak: 'break-all', fontSize: 14 }}>{pendingHash}</Row>
         </Col>
         <Row between style={{ marginTop: 12 }}>
           <Input
-            label='Gas Price:'
+            label='Gas Price (bar):'
             placeholder='Gas price'
             containerStyle={{ width: 'calc(50% - 8px)' }}
             style={{ width: '100%' }}
@@ -317,17 +319,22 @@ const SendTransactionForm = ({
         containerStyle={{ marginTop: 12, width: '100%' }}
         value={to}
         onChange={(e: any) => setFormValue('to', e.target.value.replace(NON_HEX_REGEX, ''))}
-        required //delete line 81 & 83
+        required
       />
       {!isNft && <Input
-        label='Amount:'
+        label='Amount (10^18):'
         placeholder='Amount'
         style={{ width: '100%' }}
         containerStyle={{ marginTop: 12, width: '100%' }}
         value={amount}
         onChange={(e: any) => setFormValue('amount', e.target.value.replace(NON_NUM_REGEX, ''))}
-        required //delete line 75 & 76
+        required
       />}
+      {isNft || Number(amount) <= 0 || isNaN(Number(amount)) ? null : amountDiff < 0 ? (
+        <Text style={{ marginTop: 2, fontSize: 11, color: 'red' }}>Not enough assets: {displayTokenAmount(tokenBalance, 18, 18)}</Text>
+      ) : (
+        <Text style={{ marginTop: 2, fontSize: 11, color: '#444' }}>({addDecimalDots(Number(amount) * Math.pow(10, 18))})</Text>
+      )}
       {loading ? (
         <Loader style={{ alignSelf: 'center', justifySelf: 'center' }} dark />
       ) : (

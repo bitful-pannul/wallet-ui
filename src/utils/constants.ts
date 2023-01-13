@@ -25,6 +25,8 @@ export const ORIGIN = window.location.origin
 export const BASENAME = '/apps/ziggurat'
 export const WEBTERM_PATH = '/apps/webterm'
 
+export const DEFAULT_TXN_COST = 0.000000000001000000
+
 export const STATUS_CODES : { [key: number] : string } = {
   // 100: 'transaction pending in wallet',
   // 101: 'transaction submitted to sequencer',
