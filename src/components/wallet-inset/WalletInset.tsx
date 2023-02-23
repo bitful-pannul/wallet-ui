@@ -17,6 +17,7 @@ import TokenDisplay from '../TokenDisplay';
 import HexNum from '../text/HexNum';
 import HexIcon from '../text/HexIcon';
 import Loader from '../popups/Loader';
+import PendingTxnIndicator from './PendingTxnIndicator';
 
 import './WalletInset.css'
 
@@ -166,6 +167,8 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     )
   }
 
+  
+
   return (
     <Col {...props} className={`wallet-inset ${props.className || ''}`}>
       <Row className='main-header'>
@@ -189,7 +192,10 @@ const WalletInset: React.FC<WalletInsetProps> = ({
         <Row className='buttons'>
           <div className='lower-button' onClick={() => setInsetView('assets')}>Send</div>
           <div className='lower-button' onClick={() => setInsetView('send-custom')}>Custom</div>
-          <div className='lower-button' onClick={() => setInsetView('unsigned')}>Sign</div>
+          <div style={{ position: 'relative' }} className='lower-button' onClick={() => setInsetView('unsigned')}>
+            Sign
+            <PendingTxnIndicator />
+          </div>
           <div className='lower-button' onClick={() => setInsetView('transactions')}>
             <FaHistory />
           </div>

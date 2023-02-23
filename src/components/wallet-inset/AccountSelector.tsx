@@ -13,6 +13,7 @@ import Modal from '../popups/Modal';
 import Col from '../spacing/Col';
 import LoadingOverlay from '../popups/LoadingOverlay';
 import api from '../../api';
+import PendingTxnIndicator from './PendingTxnIndicator';
 
 import './AccountSelector.css'
 
@@ -27,7 +28,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
   ...props
 }) => {
   const { allies, addAlly, requestTreaty, installDocket } = useDocketState();
-  const { insetView, selectedAccount, promptInstall, loadingText,
+  const { insetView, selectedAccount, promptInstall, appInstalled, loadingText, unsignedTransactions,
     setInsetView, setSelectedAccount, setPromptInstall, setLoading } = useWalletStore()
 
   const selectAccount = useCallback((account: HotWallet | HardwareWallet) => {
@@ -73,6 +74,18 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
     )
   }
 
+  if (!appInstalled) {
+    return (
+      <Row {...props} className={`account-selector ${props.className || ''}`}>
+        <Button className='selector' onClick={() => setPromptInstall(true)}>
+          <Row style={{ padding: '6px 10px' }}>
+            Uqbar Wallet
+          </Row>
+        </Button>
+      </Row>
+    )
+  }
+
   if (!selectedAccount) {
     return (
       <Row {...props} className={`account-selector ${props.className || ''}`}>
@@ -86,14 +99,16 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
   }
 
   const { address } = selectedAccount
+  const pendingTxnCount = Object.keys(unsignedTransactions).length
 
   return (
     <Row {...props} className={`account-selector ${props.className || ''}`} >
-      <Button className='selector' onClick={() => setInsetView('main')}>
+      <Button className='selector' onClick={() => setInsetView(pendingTxnCount ? 'unsigned' : 'main')}>
         <Row>
           <HexIcon hexNum={address} />
           <Text mono bold>{displayPubKey(address)}</Text>
         </Row>
+        <PendingTxnIndicator />
       </Button>
       {Boolean(insetView) && (
         <>

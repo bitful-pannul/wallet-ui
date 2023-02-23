@@ -30,45 +30,48 @@ interface InitOptions {
   onReceiveTransaction?: (txn: Transaction) => void
 }
 
+export type InsetView = 'main' | 'confirm-most-recent' | 'accounts' | 'assets' | 'unsigned' | 'transactions' | 'send-custom' | 'send-nft' | 'send-tokens'
+
 export interface WalletStore {
-  loadingText: string | null,
-  insetView?: string,
-  accounts: HotWallet[],
-  importedAccounts: HardwareWallet[],
-  selectedAccount?: HotWallet | HardwareWallet,
-  metadata: TokenMetadataStore,
-  assets: Assets,
-  selectedTown: number,
-  transactions: Transaction[],
-  unsignedTransactions: Transactions,
-  mostRecentTransaction?: Transaction,
-  walletTitleBase: string,
-  promptInstall: boolean,
-  initWallet: (options: InitOptions) => Promise<void>,
-  setLoading: (loadingText: string | null) => void,
-  setPromptInstall: (promptInstall: boolean) => void,
-  setInsetView: (insetView?: string) => void,
-  getAccounts: () => Promise<void>,
-  setSelectedAccount: (selectedAccount: HotWallet | HardwareWallet) => void,
-  getTransactions: () => Promise<void>,
-  createAccount: (password: string, nick: string) => Promise<void>,
-  deriveNewAddress: (hdpath: string, nick: string, type?: HardwareWalletType) => Promise<void>,
-  trackAddress: (address: string, nick: string) => Promise<void>,
-  editNickname: (address: string, nick: string) => Promise<void>,
-  restoreAccount: (mnemonic: string, password: string, nick: string) => Promise<void>,
-  importAccount: (type: HardwareWalletType, nick: string) => Promise<void>,
-  deleteAccount: (address: string) => Promise<void>,
-  getSeed: () => Promise<Seed>,
-  setNode: (town: number, ship: string) => Promise<void>,
-  setIndexer: (ship: string) => Promise<void>,
-  sendTokens: (payload: SendTokenPayload) => Promise<void>,
-  sendNft: (payload: SendNftPayload) => Promise<void>,
-  sendCustomTransaction: (payload: SendCustomTransactionPayload) => Promise<void>,
-  getPendingHash: () => Promise<{ hash: string; txn: any; }>
-  deleteUnsignedTransaction: (address: string, hash: string) => Promise<void>
-  getUnsignedTransactions: () => Promise<{ [hash: string]: Transaction }>
-  submitSignedHash: (from: string, hash: string, rate: number, bud: number, ethHash?: string, sig?: { v: number; r: string; s: string; }) => Promise<void>
-  setMostRecentTransaction: (mostRecentTransaction?: Transaction) => void
+  loadingText: string | null;
+  insetView?: InsetView;
+  accounts: HotWallet[];
+  importedAccounts: HardwareWallet[];
+  selectedAccount?: HotWallet | HardwareWallet;
+  metadata: TokenMetadataStore;
+  assets: Assets;
+  selectedTown: number;
+  transactions: Transaction[];
+  unsignedTransactions: Transactions;
+  mostRecentTransaction?: Transaction;
+  walletTitleBase: string;
+  promptInstall: boolean;
+  appInstalled: boolean;
+  initWallet: (options: InitOptions) => Promise<void>;
+  setLoading: (loadingText: string | null) => void;
+  setPromptInstall: (promptInstall: boolean) => void;
+  setInsetView: (insetView?: InsetView) => void;
+  getAccounts: () => Promise<void>;
+  setSelectedAccount: (selectedAccount: HotWallet | HardwareWallet) => void;
+  getTransactions: () => Promise<void>;
+  createAccount: (password: string, nick: string) => Promise<void>;
+  deriveNewAddress: (hdpath: string, nick: string, type?: HardwareWalletType) => Promise<void>;
+  trackAddress: (address: string, nick: string) => Promise<void>;
+  editNickname: (address: string, nick: string) => Promise<void>;
+  restoreAccount: (mnemonic: string, password: string, nick: string) => Promise<void>;
+  importAccount: (type: HardwareWalletType, nick: string) => Promise<void>;
+  deleteAccount: (address: string) => Promise<void>;
+  getSeed: () => Promise<Seed>;
+  setNode: (town: number, ship: string) => Promise<void>;
+  setIndexer: (ship: string) => Promise<void>;
+  sendTokens: (payload: SendTokenPayload) => Promise<void>;
+  sendNft: (payload: SendNftPayload) => Promise<void>;
+  sendCustomTransaction: (payload: SendCustomTransactionPayload) => Promise<void>;
+  getPendingHash: () => Promise<{ hash: string; txn: any; }>;
+  deleteUnsignedTransaction: (address: string, hash: string) => Promise<void>;
+  getUnsignedTransactions: () => Promise<{ [hash: string]: Transaction }>;
+  submitSignedHash: (from: string, hash: string, rate: number, bud: number, ethHash?: string, sig?: { v: number; r: string; s: string; }) => Promise<void>;
+  setMostRecentTransaction: (mostRecentTransaction?: Transaction) => void;
 }
 
 export const useWalletStore = create<WalletStore>(
@@ -83,6 +86,7 @@ export const useWalletStore = create<WalletStore>(
     unsignedTransactions: {},
     walletTitleBase: 'Wallet:',
     promptInstall: false,
+    appInstalled: true,
     initWallet: async ({ assets = true, transactions = true, prompt = false, onReceiveTransaction }: InitOptions) => {
       const { getAccounts, getTransactions, getUnsignedTransactions } = get()
 
@@ -92,7 +96,7 @@ export const useWalletStore = create<WalletStore>(
         try {
           await api.scry<{[key: string]: RawAccount}>({ app: 'wallet', path: '/accounts' })
         } catch (err) {
-          return set({ promptInstall: true, loadingText: null })
+          return set({ promptInstall: true, appInstalled: false, loadingText: null })
         }
       }
 
@@ -116,7 +120,7 @@ export const useWalletStore = create<WalletStore>(
     setPromptInstall: (promptInstall: boolean) => set({ promptInstall }),
     setSelectedAccount: (selectedAccount?: HotWallet | HardwareWallet) => set({ selectedAccount }),
     setLoading: (loadingText: string | null) => set({ loadingText }),
-    setInsetView: (insetView?: string) => set({ insetView }),
+    setInsetView: (insetView?: InsetView) => set({ insetView }),
     getAccounts: async () => {
       const accountData = await api.scry<{[key: string]: RawAccount}>({ app: 'wallet', path: '/accounts' }) || {}
       const allAccounts = Object.values(accountData).map(processAccount).sort((a, b) => a.nick.localeCompare(b.nick))

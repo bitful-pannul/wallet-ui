@@ -19,6 +19,8 @@ interface TransactionShortProps extends React.HTMLAttributes<HTMLDivElement> {
   selectHash: (hash: string) => void
   vertical?: boolean
   external?: boolean
+  hideStatus?: boolean
+  hideNonce?: boolean
 }
 
 const TransactionShort: React.FC<TransactionShortProps> = ({
@@ -26,6 +28,8 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
   selectHash,
   vertical = false,
   external = false,
+  hideStatus = false,
+  hideNonce = false,
   ...props
 }) => {
   const { deleteUnsignedTransaction } = useWalletStore()
@@ -42,13 +46,15 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
               </CustomLink>
               <CopyIcon text={txn.hash} />
             </Row>
-            {vertical && <div style={{ height: 8 }} />}
-            <Pill label={'Nonce'} value={''+txn.nonce} />
-            {vertical && <div style={{ height: 8 }} />}
-            <Pill label={'Status'} value={getStatus(txn.status)} />
+            {!hideNonce && (
+              <Pill style={{ marginTop: 8 }} label={'Nonce'} value={''+txn.nonce} />
+            )}
+            {!hideStatus && (
+              <Pill style={{ marginTop: 8 }} label={'Status'} value={getStatus(txn.status)} />
+            )}
             {Boolean(txn.created) && <>
               {vertical && <div style={{ height: 8 }} />}
-              <Pill label='Created'  value={(typeof txn.created === 'string') ? txn.created : moment(txn.created).format()} /> 
+              <Pill label='Created' value={(typeof txn.created === 'string') ? txn.created : moment(txn.created).format()} /> 
             </>}
           </Row>
           {vertical && unsigned && <div style={{ height: 8 }} />}

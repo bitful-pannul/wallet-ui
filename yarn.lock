@@ -422,65 +422,75 @@
   dependencies:
     multiformats "^9.5.4"
 
-"@ledgerhq/cryptoassets@^6.27.1":
-  version "6.27.1"
-  resolved "https://registry.npmjs.org/@ledgerhq/cryptoassets/-/cryptoassets-6.27.1.tgz"
-  integrity sha512-kUsCATnxurYuAQ4dGBgaw+eUOGlX9IZvDPQlElrvb8/Kd2p6U5scpl5RX/YFnjkjGNmE4BhQioUslQGpNa3sZQ==
+"@ledgerhq/cryptoassets@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/cryptoassets/-/cryptoassets-9.0.0.tgz#cecb03984b3e90fe1202d6243760dfdd883d50bd"
+  integrity sha512-/C8NtrjXPR1O5YmhK2+hq1M8e25Qum2+GGv8G/xOpGKp15Vpbdqgnn8KlnDQJl7kB1eBx/ZrNwXcEJBavRyTPw==
   dependencies:
     invariant "2"
 
-"@ledgerhq/devices@^6.27.1":
-  version "6.27.1"
-  resolved "https://registry.npmjs.org/@ledgerhq/devices/-/devices-6.27.1.tgz"
-  integrity sha512-jX++oy89jtv7Dp2X6gwt3MMkoajel80JFWcdc0HCouwDsV1mVJ3SQdwl/bQU0zd8HI6KebvUP95QTwbQLLK/RQ==
+"@ledgerhq/devices@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-8.0.0.tgz#8fe9f9e442e28b7a20bcdf4c2eed06ce7b8f76ae"
+  integrity sha512-gSnRT0KPca+LIpaC6D/WZQjOAlSI5uCvK1dmxXtKhODLAj735rX5Z3SnGnLUavRCHNbUi44FzgvloF5BKTkh7A==
   dependencies:
-    "@ledgerhq/errors" "^6.10.0"
-    "@ledgerhq/logs" "^6.10.0"
+    "@ledgerhq/errors" "^6.12.3"
+    "@ledgerhq/logs" "^6.10.1"
     rxjs "6"
     semver "^7.3.5"
 
-"@ledgerhq/errors@^6.10.0":
-  version "6.10.0"
-  resolved "https://registry.npmjs.org/@ledgerhq/errors/-/errors-6.10.0.tgz"
-  integrity sha512-fQFnl2VIXh9Yd41lGjReCeK+Q2hwxQJvLZfqHnKqWapTz68NHOv5QcI0OHuZVNEbv0xhgdLhi5b65kgYeQSUVg==
+"@ledgerhq/errors@^6.12.3":
+  version "6.12.3"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-6.12.3.tgz#a610caae1eeeb7cb038525e5212fe03217dda683"
+  integrity sha512-djiMSgB/7hnK3aLR/c5ZMMivxjcI7o2+y3VKcsZZpydPoVf9+FXqeJPRfOwmJ0JxbQ//LinUfWpIfHew8LkaVw==
 
-"@ledgerhq/hw-app-eth@^6.27.1":
-  version "6.27.1"
-  resolved "https://registry.npmjs.org/@ledgerhq/hw-app-eth/-/hw-app-eth-6.27.1.tgz"
-  integrity sha512-5v9D00syMWMDM0k7xGOWTx3LFHNCfoKF+MysHVvWOdo9JEZj1ZAVKdmSW9sbegtIf3lQUfbXTK63BDKmE3xu6Q==
+"@ledgerhq/hw-app-eth@^6.27.10":
+  version "6.32.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-eth/-/hw-app-eth-6.32.0.tgz#35a3ec9b4c3ae7a426c84047cfc90e174b6abe6e"
+  integrity sha512-3s3rKyGKSkfk2unHWZUoZg99qUfRykFwbradVZGV7BcqnC0xoYuQsR15PAF7F6vvWXnnch1KzkrOwjjyiLuung==
   dependencies:
     "@ethersproject/abi" "^5.5.0"
     "@ethersproject/rlp" "^5.5.0"
-    "@ledgerhq/cryptoassets" "^6.27.1"
-    "@ledgerhq/errors" "^6.10.0"
-    "@ledgerhq/hw-transport" "^6.27.1"
-    "@ledgerhq/logs" "^6.10.0"
+    "@ledgerhq/cryptoassets" "^9.0.0"
+    "@ledgerhq/errors" "^6.12.3"
+    "@ledgerhq/hw-transport" "^6.28.1"
+    "@ledgerhq/hw-transport-mocker" "^6.27.12"
+    "@ledgerhq/logs" "^6.10.1"
     axios "^0.26.1"
-    bignumber.js "^9.0.2"
+    bignumber.js "^9.1.0"
+    crypto-js "^4.1.1"
 
-"@ledgerhq/hw-transport-webusb@^6.27.1":
-  version "6.27.1"
-  resolved "https://registry.npmjs.org/@ledgerhq/hw-transport-webusb/-/hw-transport-webusb-6.27.1.tgz"
-  integrity sha512-n0ygJSeRpznrUfwtbDCLQOM5mA23YT/ngYY8HU46dzsVJHrHQ4jwBNJU48iKB+a9GhHyPAUpPNlWGTogvoVUxg==
+"@ledgerhq/hw-transport-mocker@^6.27.12":
+  version "6.27.12"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-mocker/-/hw-transport-mocker-6.27.12.tgz#057045ffe305c22a9e5bf1831404ed0c74962d2a"
+  integrity sha512-sJu4gJibdxR2qvsrqhCG474g5KhD5Acnfgtb7jdFrMeHbIEgb+XMeNzBGICPdNByUKW1lLgWN/lV1yJyCcCJ8A==
   dependencies:
-    "@ledgerhq/devices" "^6.27.1"
-    "@ledgerhq/errors" "^6.10.0"
-    "@ledgerhq/hw-transport" "^6.27.1"
-    "@ledgerhq/logs" "^6.10.0"
+    "@ledgerhq/hw-transport" "^6.28.1"
+    "@ledgerhq/logs" "^6.10.1"
 
-"@ledgerhq/hw-transport@^6.27.1":
-  version "6.27.1"
-  resolved "https://registry.npmjs.org/@ledgerhq/hw-transport/-/hw-transport-6.27.1.tgz"
-  integrity sha512-hnE4/Fq1YzQI4PA1W0H8tCkI99R3UWDb3pJeZd6/Xs4Qw/q1uiQO+vNLC6KIPPhK0IajUfuI/P2jk0qWcMsuAQ==
+"@ledgerhq/hw-transport-webusb@^6.27.10":
+  version "6.27.12"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-webusb/-/hw-transport-webusb-6.27.12.tgz#96c9126161664f1c8736f76304309caf46433a7f"
+  integrity sha512-U96UWLZIurD9ifHlm77PAgBbvDCe99DAJk64O2SdR41WRF3WaRq/pjrzCq2UvvammdCd1p7nS4zbhlse0wZplg==
   dependencies:
-    "@ledgerhq/devices" "^6.27.1"
-    "@ledgerhq/errors" "^6.10.0"
+    "@ledgerhq/devices" "^8.0.0"
+    "@ledgerhq/errors" "^6.12.3"
+    "@ledgerhq/hw-transport" "^6.28.1"
+    "@ledgerhq/logs" "^6.10.1"
+
+"@ledgerhq/hw-transport@^6.28.1":
+  version "6.28.1"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-6.28.1.tgz#cb22fe9bc23af4682c30f2aac7fe6f7ab13ed65a"
+  integrity sha512-RaZe+abn0zBIz82cE9tp7Y7aZkHWWbEaE2yJpfxT8AhFz3fx+BU0kLYzuRN9fmA7vKueNJ1MTVUCY+Ex9/CHSQ==
+  dependencies:
+    "@ledgerhq/devices" "^8.0.0"
+    "@ledgerhq/errors" "^6.12.3"
     events "^3.3.0"
 
-"@ledgerhq/logs@^6.10.0":
-  version "6.10.0"
-  resolved "https://registry.npmjs.org/@ledgerhq/logs/-/logs-6.10.0.tgz"
-  integrity sha512-lLseUPEhSFUXYTKj6q7s2O3s2vW2ebgA11vMAlKodXGf5AFw4zUoEbTz9CoFOC9jS6xY4Qr8BmRnxP/odT4Uuw==
+"@ledgerhq/logs@^6.10.1":
+  version "6.10.1"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-6.10.1.tgz#5bd16082261d7364eabb511c788f00937dac588d"
+  integrity sha512-z+ILK8Q3y+nfUl43ctCPuR4Y2bIxk/ooCQFwZxhtci1EhAtMDzMAx2W25qx8G1PPL9UUOdnUax19+F0OjXoj4w==
 
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.3"
@@ -1083,7 +1093,7 @@ big-integer@^1.6.48:
   resolved "https://registry.npmjs.org/big-integer/-/big-integer-1.6.51.tgz"
   integrity sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==
 
-bignumber.js@^9.0.0, bignumber.js@^9.0.1, bignumber.js@^9.0.2, bignumber.js@^9.1.0:
+bignumber.js@^9.0.0, bignumber.js@^9.0.1, bignumber.js@^9.1.0:
   version "9.1.0"
   resolved "https://registry.npmjs.org/bignumber.js/-/bignumber.js-9.1.0.tgz"
   integrity sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A==
@@ -1398,6 +1408,11 @@ cross-spawn@^7.0.3:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
 
 csstype@^3.0.2:
   version "3.0.11"
