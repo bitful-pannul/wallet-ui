@@ -22,6 +22,7 @@ import { DEFAULT_TXN_COST, getStatus } from '../../utils/constants'
 import Pill from '../text/Pill'
 
 import './SendTransactionForm.css'
+import { isAddress } from 'ethers/lib/utils'
 
 export interface SendFormValues { to: string; rate: string; bud: string; amount: string; contract: string; town: string; action: string; }
 export type SendFormField = 'to' | 'rate' | 'bud' | 'amount' | 'contract' | 'town' | 'action'
@@ -94,7 +95,9 @@ const SendTransactionForm = ({
 
   const generateTransaction = async (e: FormEvent) => {
     e.preventDefault()
-    if (selectedToken?.data?.balance && Number(amount) * Math.pow(10, tokenMetadata?.data?.decimals || 1) > +selectedToken?.data?.balance) {
+    if (selectedToken && !isAddress(to.replace(/\./g, ''))) {
+      alert('Invalid address')
+    } else if (selectedToken?.data?.balance && Number(amount) * Math.pow(10, tokenMetadata?.data?.decimals || 1) > +selectedToken?.data?.balance) {
       alert(`You do not have that many tokens. You have ${selectedToken.data?.balance} tokens.`)
     } else if (selectedToken && !from && !isNft) {
       alert('You must select a \'from\' account')
@@ -210,7 +213,7 @@ const SendTransactionForm = ({
               <Pill label={'Status'} value={getStatus(txn.status)} />
             </Row>
             <div style={{ margin: '8px auto 16px', height: 24 }}>
-              {(txn.status === 100 || txn.status === 101) && <Loader dark />}
+              {(txn.status <= 102) && <Loader dark />}
             </div>
           </>
         ) : (

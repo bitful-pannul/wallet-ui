@@ -167,8 +167,6 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     )
   }
 
-  
-
   return (
     <Col {...props} className={`wallet-inset ${props.className || ''}`}>
       <Row className='main-header'>
@@ -183,6 +181,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
               {displayPubKey(address)}
             </Text>
             <CopyIcon text={rawAddress} />
+            <CopyIcon text={rawAddress} style={{ marginLeft: 8 }} eth />
           </Row>
         </Col>
         <Text bold style={{ fontSize: 20, marginTop: 16 }}>{displayTokenAmount(zigsBalance, 18, 8)} ZIG</Text>
