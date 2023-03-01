@@ -32,9 +32,10 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({
         <Col>
           <Row style={{ alignItems: 'center' }}>
             <h4 style={{ fontFamily: 'monospace, monospace', margin: 0, cursor: 'pointer', lineHeight: 1.5, whiteSpace: 'nowrap', textOverflow: 'ellipsis', }} onClick={() => selectPubkey(pubKey)}>
-              <HexNum num={pubKey}  displayNum={displayPubKey(pubKey)} />
+              <HexNum num={pubKey} displayNum={displayPubKey(pubKey)} />
             </h4>
             <CopyIcon text={addHexDots(pubKey)} />
+            <CopyIcon text={pubKey} style={{ marginLeft: 6 }} eth />
           </Row>
         </Col>
         <Button dark small style={{ marginTop: 8 }} onClick={() => setCustomFrom(pubKey)}>

@@ -65,6 +65,7 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
             </Row>
           </Link>
           <CopyIcon text={rawAddress} />
+          <CopyIcon text={rawAddress} eth style={{ marginLeft: 6 }} />
         </Row>
         <Row>
           <Row className='icon' onClick={(e) => {

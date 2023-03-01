@@ -34,7 +34,7 @@ const CopyIcon: React.FC<CopyIconProps> = ({
       {didCopy ? 
         iconOnly ? <FaRegCheckCircle />
         : <Text style={{ fontSize: 14 }}>Copied!</Text>
-      : (eth ? <FaEthereum className='icon' /> : <FaRegCopy className='icon' />)}
+      : (eth ? <FaEthereum className='copy' /> : <FaRegCopy className='copy' />)}
     </Row>
   )
 }

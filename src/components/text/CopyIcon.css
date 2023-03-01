@@ -1,6 +1,6 @@
-.copy-icon .icon {
+.copy-icon .copy {
   cursor: pointer;
 }
-.copy-icon .icon:hover {
+.copy-icon .copy:hover {
   transform: scale(1.1);
 }
