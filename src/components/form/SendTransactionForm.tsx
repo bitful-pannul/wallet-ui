@@ -18,11 +18,11 @@ import Loader from '../popups/Loader'
 import { TransactionArgs } from '../../types/Transaction'
 import { signWithHardwareWallet } from '../../utils/hardware-wallet'
 import CustomLink from '../nav/Link'
-import { DEFAULT_TXN_COST, getStatus } from '../../utils/constants'
+import { DEFAULT_TXN_COST, getStatus, PUBLIC_URL } from '../../utils/constants'
 import Pill from '../text/Pill'
+import { isAddress } from 'ethers/lib/utils'
 
 import './SendTransactionForm.css'
-import { isAddress } from 'ethers/lib/utils'
 
 export interface SendFormValues { to: string; rate: string; bud: string; amount: string; contract: string; town: string; action: string; }
 export type SendFormField = 'to' | 'rate' | 'bud' | 'amount' | 'contract' | 'town' | 'action'
@@ -99,8 +99,8 @@ const SendTransactionForm = ({
       alert('Invalid address')
     } else if (selectedToken?.data?.balance && Number(amount) * Math.pow(10, tokenMetadata?.data?.decimals || 1) > +selectedToken?.data?.balance) {
       alert(`You do not have that many tokens. You have ${selectedToken.data?.balance} tokens.`)
-    } else if (selectedToken && !from && !isNft) {
-      alert('You must select a \'from\' account')
+    } else if (!selectedToken && !from && !isNft) {
+      alert('You must select a "from" account')
     } else {
       setMostRecentTransaction(undefined)
       setLoading(true)
@@ -201,7 +201,7 @@ const SendTransactionForm = ({
           <>
             <Row style={{ marginBottom: 8 }}>
               <Text style={{ marginRight: 18 }} bold>Hash: </Text>
-              <CustomLink style={{ maxWidth: 'calc(100% - 100px)', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} href={`/transactions/${txn.hash}`}>
+              <CustomLink style={{ maxWidth: 'calc(100% - 100px)', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} href={`${PUBLIC_URL}/transactions/${txn.hash}`}>
                 <Text mono bold>{abbreviateHex(txn.hash)}</Text>
               </CustomLink>
               <CopyIcon text={txn.hash} />
@@ -219,7 +219,7 @@ const SendTransactionForm = ({
         ) : (
           <Text style={{ marginBottom: 16 }}>
             Your transaction should show up here in a few seconds. If it does not, please go to
-            <CustomLink href="/transactions" style={{ marginLeft: 4 }}>History</CustomLink>
+            <CustomLink href={`${PUBLIC_URL}/transactions/`} style={{ marginLeft: 4 }}>History</CustomLink>
             .
           </Text>
         )}

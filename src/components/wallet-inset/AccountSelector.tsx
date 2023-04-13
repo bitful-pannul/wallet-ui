@@ -7,7 +7,6 @@ import Button from '../form/Button';
 import Row from '../spacing/Row';
 import HexIcon from '../text/HexIcon';
 import Text from '../text/Text';
-import useDocketState from '../../store/docketStore';
 import { ONE_SECOND, ZIG_APP, ZIG_HOST } from '../../utils/constants';
 import Modal from '../popups/Modal';
 import Col from '../spacing/Col';
@@ -27,7 +26,6 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
   hideActions = false,
   ...props
 }) => {
-  const { allies, addAlly, requestTreaty, installDocket } = useDocketState();
   const { insetView, selectedAccount, promptInstall, appInstalled, loadingText, unsignedTransactions,
     setInsetView, setSelectedAccount, setPromptInstall, setLoading } = useWalletStore()
 
@@ -39,11 +37,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
   const installZiggurat = useCallback(async () => {
     setLoading('Installing Uqbar Suite and syncing the Uqbar chain, this could take up to 10 minutes...')
     try {
-      if (!allies[ZIG_HOST]) {
-        await addAlly(ZIG_HOST)
-      }
-      await requestTreaty(ZIG_HOST, ZIG_APP)
-      await installDocket(ZIG_HOST, ZIG_APP)
+      await api.poke({ app: 'hood', mark: 'kiln-install', json: { local: ZIG_APP, desk: ZIG_APP, ship: ZIG_HOST } })
       setPromptInstall(false)
 
       const interval = setInterval(async () => {

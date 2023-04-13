@@ -1,4 +1,4 @@
-export const PUBLIC_URL = '/apps/ziggurat'
+export const PUBLIC_URL = '/apps/uqbar'
 export const ZIGS_ACCOUNT_ID = '0x7606.5857.3281.e401.e302.1994.b290.0c32.a17b.cc89.c5d9.d78a.4b5e.4938.ee05.af06'
 export const MY_CONTRACT_ID = '0xfafa.fafa'
 export const METADATA_GRAIN_ID = '0xdada.dada'
@@ -22,7 +22,7 @@ export const INDEXER_STORAGE_VERSION = 2
 export const WALLET_STORAGE_VERSION = 2
 
 export const ORIGIN = window.location.origin
-export const BASENAME = '/apps/ziggurat'
+export const BASENAME = '/apps/uqbar'
 export const WEBTERM_PATH = '/apps/webterm'
 
 export const DEFAULT_TXN_COST = 0.000000000001000000
@@ -66,7 +66,6 @@ export const STATUS_CODES : { [key: number] : string } = {
   309: 'dedicated burn transaction failed',
 }
 
-
 export const STATUS_CODES_RAW : { [key: number] : string } = {
   0: 'successfully performed',
   1: 'bad signature',
@@ -87,8 +86,6 @@ export const getStatus = (status: number) => STATUS_CODES[status] || 'unknown'
 
 export const getRawStatus = (status: number) => STATUS_CODES_RAW[status] || 'unknown'
 
-export const useMockData = process.env.NODE_ENV === 'development' && Boolean(process.env.REACT_APP_MOCK_DATA)
-
 export const ONE_SECOND = 1000
 export const THIRTY_SECONDS = 30 * ONE_SECOND
 
@@ -97,3 +94,5 @@ export const ZIGS_CONTRACT = '0x74.6361.7274.6e6f.632d.7367.697a'
 
 export const ZIG_HOST = '~dister-dozzod-bacdun'
 export const ZIG_APP = 'zig'
+
+export const GOERLI_DEPOSIT_CONTRACT = '0xAB85B98aff89a7567aC364fB9Ab22fd1E8e6b403'

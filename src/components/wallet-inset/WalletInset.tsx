@@ -142,13 +142,13 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     ) :
     insetView === 'unsigned' ? (
       !Object.keys(unsignedTransactions).length ? <Text style={{ margin: 12 }}>No transactions</Text> :
-        Object.values(unsignedTransactions).map(t => <TransactionShort key={t.hash} external txn={t} selectHash={(hash: string) => {
+        Object.values(unsignedTransactions).map(t => <TransactionShort key={t.hash} txn={t} selectHash={(hash: string) => {
           setUnsignedTransactionHash(hash)
           setInsetView('send-custom')
         }} vertical />)
     ) : (
       !transactions.length ? <Text style={{ margin: 12 }}>No transactions</Text> :
-        transactions.map(t => <TransactionShort key={t.hash} external txn={t} selectHash={() => null} vertical />)
+        transactions.map(t => <TransactionShort key={t.hash} txn={t} selectHash={() => null} vertical />)
     )
 
     return (

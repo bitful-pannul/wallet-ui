@@ -10,7 +10,7 @@ import Text from './text/Text';
 import CopyIcon from './text/CopyIcon';
 import { ONE_SECOND, PUBLIC_URL } from '../utils/constants';
 import HexNum from './text/HexNum';
-import Link from './nav/Link'
+import CustomLink from './nav/Link'
 
 import './AccountDisplay.css'
 
@@ -58,12 +58,12 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
             onChange={(e: any) => setNewNick(e.target.value)}
             value={newNick}
           />
-          <Link external href={`${PUBLIC_URL}/indexer/address/${address}`}>
+          <CustomLink href={`${PUBLIC_URL}/indexer/address/${address}`}>
             <Row>
               <HexNum num={address} displayNum={displayPubKey(address)} mono bold />
               {!full && <FaArrowRight className='ml1' />}
             </Row>
-          </Link>
+          </CustomLink>
           <CopyIcon text={rawAddress} />
           <CopyIcon text={rawAddress} eth style={{ marginLeft: 6 }} />
         </Row>

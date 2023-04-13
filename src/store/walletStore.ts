@@ -9,10 +9,12 @@ import { TokenMetadataStore } from "../types/TokenMetadata"
 import { deriveLedgerAddress, getLedgerAddress } from "../utils/ledger"
 import { deriveTrezorAddress, getTrezorAddress } from "../utils/trezor"
 import { addHexDots } from "../utils/format"
-import { WALLET_STORAGE_VERSION } from "../utils/constants"
+import { GOERLI_DEPOSIT_CONTRACT, WALLET_STORAGE_VERSION } from "../utils/constants"
 import { Assets } from "../types/Assets"
 import { generateSendTokenPayload } from "../utils/wallet"
 import { parseRawTransaction, processTransactions } from "../utils/transactions"
+import { ethers } from "ethers"
+import { GOERLI_DEPOSIT_CONTRACT_ABI } from "../utils/deposit-contract-abi"
 
 const pokeWithAlert = async (json: any) => {
   try {
@@ -72,6 +74,9 @@ export interface WalletStore {
   getUnsignedTransactions: () => Promise<{ [hash: string]: Transaction }>;
   submitSignedHash: (from: string, hash: string, rate: number, bud: number, ethHash?: string, sig?: { v: number; r: string; s: string; }) => Promise<void>;
   setMostRecentTransaction: (mostRecentTransaction?: Transaction) => void;
+  zigFaucet: (address: string) => Promise<void>;
+  connectMetamask: () => Promise<string | undefined>;
+  depositEth: (amount: string, town: string, destination: string) => Promise<void>;
 }
 
 export const useWalletStore = create<WalletStore>(
@@ -290,14 +295,69 @@ export const useWalletStore = create<WalletStore>(
       return unsignedTransactions
     },
     submitSignedHash: async (from: string, hash: string, rate: number, bud: number, ethHash?: string, sig?: { v: number; r: string; s: string; }) => {
-      console.log('ETH HASH & SIG:', ethHash, sig)
       const json = ethHash && sig ?
         { 'submit-signed': { from, hash, gas: { rate, bud }, 'eth-hash': ethHash, sig } } :
         { 'submit': { from, hash, gas: { rate, bud } } }
       await api.poke({ app: 'wallet', mark: 'wallet-poke', json })
       get().getUnsignedTransactions()
     },
-    setMostRecentTransaction: (mostRecentTransaction?: Transaction) => set({ mostRecentTransaction })
+    setMostRecentTransaction: (mostRecentTransaction?: Transaction) => set({ mostRecentTransaction }),
+
+    zigFaucet: async (address: string) => {
+      try {
+        await api.poke({ app: 'uqbar', mark: 'uqbar-action', json: { 'open-faucet': { town: '0x0', 'send-to': address } } })
+      } catch (err) {
+        alert('An error occurred. Note that you can only request zigs from the faucet once per hour.')
+      }
+    },
+
+    connectMetamask: async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+          return accounts[0]
+        } catch {}
+      }
+    },
+    depositEth: async (amount: string, town: string, destination: string) => {
+      try {
+        // set({ loadingText: 'Generating transaction...' })
+        if (window.ethereum) {
+          await window.ethereum.request({ method: 'eth_requestAccounts' })
+
+          await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x5' }] });
+
+          if (window.ethereum?.selectedAddress) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const signer = provider.getSigner()
+            const depositContract = new ethers.Contract(GOERLI_DEPOSIT_CONTRACT, GOERLI_DEPOSIT_CONTRACT_ABI, signer)
+
+            try {
+              const txn = await depositContract.populateTransaction.depositEth(parseInt(town.replace('0x', ''), 16), destination)
+              const transactionRequest = {
+                ...txn,
+                value: ethers.utils.parseEther(amount),
+              }
+
+              const receipt = await signer.sendTransaction(transactionRequest)
+              alert('Your deposit has started, please check the status in your wallet. Hash: ' + receipt.hash)
+            } catch (err) {
+              console.warn(err)
+              alert('There was an error with the deposit, please check your wallet and try again.')
+            }
+          } else {
+            alert('Please connect one of your accounts and try again.')
+          }
+        } else {
+          alert('Please install MetaMask, Brave Wallet, or any browser-based Ethereum client and confirm you are on the Goerli network to continue.')
+        }
+      } catch (err) {
+        console.warn(err)
+        alert('There was an error, please try again.')
+      }
+
+      set({ loadingText: null })
+    },
   }),
   {
     name: `${(window as any).ship}-walletStore`,

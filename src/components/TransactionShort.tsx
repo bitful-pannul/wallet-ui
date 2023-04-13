@@ -1,7 +1,7 @@
 import React from 'react'
 import moment from 'moment';
 import { Transaction } from '../types/Transaction';
-import { getStatus } from '../utils/constants';
+import { getStatus, PUBLIC_URL } from '../utils/constants';
 import { abbreviateHex } from '../utils/format';
 import Link from './nav/Link';
 import Col from './spacing/Col';
@@ -18,7 +18,6 @@ interface TransactionShortProps extends React.HTMLAttributes<HTMLDivElement> {
   txn: Transaction
   selectHash: (hash: string) => void
   vertical?: boolean
-  external?: boolean
   hideStatus?: boolean
   hideNonce?: boolean
 }
@@ -27,7 +26,6 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
   txn,
   selectHash,
   vertical = false,
-  external = false,
   hideStatus = false,
   hideNonce = false,
   ...props
@@ -41,7 +39,7 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
         <Row between style={{ flexDirection: vertical ? 'column' : undefined }}>
           <Row style={vertical ? { flexDirection: 'column', alignItems: 'flex-start' } : {}}>
             <Row>
-              <CustomLink external={external} href={`${external ? '/apps/ziggurat/wallet' : ''}/transactions/${txn.hash}`}>
+              <CustomLink href={`${PUBLIC_URL}/transactions/${txn.hash}`}>
                 <HexNum mono num={txn.hash} displayNum={abbreviateHex(txn.hash)} />
               </CustomLink>
               <CopyIcon text={txn.hash} />

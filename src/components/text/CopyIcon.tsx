@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { MouseEvent, useCallback, useState } from 'react'
 import { FaRegCheckCircle, FaRegCopy, FaEthereum } from 'react-icons/fa';
 import Row from '../spacing/Row'
 import Text from '../text/Text';
@@ -20,7 +20,7 @@ const CopyIcon: React.FC<CopyIconProps> = ({
 }) => {
   const [didCopy, setDidCopy] = useState(false)
 
-  const onCopy = useCallback((e) => {
+  const onCopy = useCallback((e: MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     const textToCopy = eth ? text.replace(/\./g, '') : text
