@@ -61,7 +61,7 @@ export interface WalletStore {
   trackAddress: (address: string, nick: string) => Promise<void>;
   editNickname: (address: string, nick: string) => Promise<void>;
   restoreAccount: (mnemonic: string, password: string, nick: string) => Promise<void>;
-  importAccount: (type: HardwareWalletType, nick: string) => Promise<void>;
+  importAccount: (type: HardwareWalletType, nick: string, hdpath?: string) => Promise<void>;
   deleteAccount: (address: string) => Promise<void>;
   getSeed: () => Promise<Seed>;
   setNode: (town: number, ship: string) => Promise<void>;
@@ -205,16 +205,15 @@ export const useWalletStore = create<WalletStore>(
       await api.poke({ app: 'wallet', mark: 'wallet-poke', json: { 'import-seed': { mnemonic, password, nick } } })
       get().getAccounts()
     },
-    importAccount: async (type: HardwareWalletType, nick: string) => {
+    importAccount: async (type: HardwareWalletType, nick: string, hdpath = "44'/60'/0'/0/0") => {
       set({ loadingText: 'Importing...' })
 
       let importedAddress: string | undefined = ''
 
       if (type === 'ledger'){
-
-        importedAddress = await getLedgerAddress()
+        importedAddress = await getLedgerAddress(hdpath)
       } else if (type === 'trezor') {
-        importedAddress = await getTrezorAddress()
+        importedAddress = await getTrezorAddress(hdpath)
       }
 
       if (importedAddress) {

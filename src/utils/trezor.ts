@@ -16,7 +16,7 @@ TrezorConnect.init({
     console.error('TREZOR: ', err)
 });
 
-export const getTrezorAddress = async (path?: string) => {
+export const getTrezorAddress = async (path: string) => {
   try {
     // todo: make this secure via the method herein https://github.com/trezor/trezor-suite/blob/develop/docs/packages/connect/methods/requestLogin.md
     const login = await TrezorConnect.requestLogin({
