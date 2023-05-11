@@ -218,8 +218,8 @@ const SendTransactionForm = ({
           </>
         ) : (
           <Text style={{ marginBottom: 16 }}>
-            Your transaction should show up here in a few seconds. If it does not, please go to
-            <CustomLink href={`${PUBLIC_URL}/transactions/`} style={{ marginLeft: 4 }}>History</CustomLink>
+            <Text>Your transaction should show up here in a few seconds. If it does not, please go to </Text>
+            <CustomLink href={`${PUBLIC_URL}/transactions/`} style={{ marginLeft: 4 }}> History</CustomLink>
             .
           </Text>
         )}
@@ -325,7 +325,7 @@ const SendTransactionForm = ({
         required
       />
       {!isNft && <Input
-        label='Amount (10^18):'
+        label='Amount:'
         placeholder='Amount'
         style={{ width: '100%' }}
         containerStyle={{ marginTop: 12, width: '100%' }}
@@ -333,10 +333,8 @@ const SendTransactionForm = ({
         onChange={(e: any) => setFormValue('amount', e.target.value.replace(NON_NUM_REGEX, ''))}
         required
       />}
-      {isNft || Number(amount) <= 0 || isNaN(Number(amount)) ? null : amountDiff < 0 ? (
-        <Text style={{ marginTop: 2, fontSize: 11, color: 'red' }}>Not enough assets: {displayTokenAmount(tokenBalance, 18, 18)}</Text>
-      ) : (
-        <Text style={{ marginTop: 2, fontSize: 11, color: '#444' }}>({addDecimalDots(Number(amount) * Math.pow(10, 18))})</Text>
+      {isNft || Number(amount) <= 0 || isNaN(Number(amount)) ? null : amountDiff < 0 && (
+        <Text style={{ marginTop: 2, fontSize: 11, color: 'red' }}>Not enough assets: {displayTokenAmount(tokenBalance, tokenMetadata?.data.decimals || 18, tokenMetadata?.data.decimals || 18)}</Text>
       )}
       {loading ? (
         <Loader style={{ alignSelf: 'center', justifySelf: 'center' }} dark />

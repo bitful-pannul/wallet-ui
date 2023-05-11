@@ -184,7 +184,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
             <CopyIcon text={rawAddress} style={{ marginLeft: 8 }} eth />
           </Row>
         </Col>
-        <Text bold style={{ fontSize: 20, marginTop: 16 }}>{displayTokenAmount(zigsBalance, 18, 8)} ZIG</Text>
+        <Text bold style={{ fontSize: 20, marginTop: 16 }}>{displayTokenAmount(zigsBalance, 18, 12)} ZIG</Text>
         <Button variant='unstyled' className='assets-button' onClick={() => setInsetView('assets')}>View account assets</Button>
       </Col>
       {!hideActions && (

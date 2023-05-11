@@ -47,7 +47,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
             {(isToken ? tokenMetadata?.data?.symbol : tokenMetadata?.data?.name) || <HexNum num={contract} />} -
           </Text>
           {isToken ? (
-            <Text>{displayTokenAmount(balance, tokenMetadata?.data?.decimals || 1, open ? tokenMetadata?.data?.decimals || 8 : 8)}</Text>
+            <Text>{displayTokenAmount(balance, tokenMetadata?.data?.decimals || 1, open ? tokenMetadata?.data?.decimals || 12 : 12)}</Text>
             ) : (
             <Text># {data.id || ''}</Text>
           )}

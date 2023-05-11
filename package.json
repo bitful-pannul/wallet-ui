@@ -1,6 +1,6 @@
 {
   "name": "@uqbar/wallet-ui",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -15,6 +15,7 @@
     "core-js": "^3.22.2",
     "ethers": "^5.6.4",
     "intl": "^1.2.5",
+    "ipfs-core": "^0.18.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "react-icons": "^4.8.0",

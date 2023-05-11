@@ -10,7 +10,7 @@ function roundDownSignificantDigits(number: number, decimals: number) {
   return (Math.floor(number * Math.pow(10, decimals)) / Math.pow(10, decimals));
 }
 
-export const formatAmount = (amount: number, maxDigits: number = 8) =>
+export const formatAmount = (amount: number, maxDigits: number = 12) =>
   new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 1,
     maximumFractionDigits: maxDigits,
@@ -23,6 +23,8 @@ export const genRanHex = (size: number) => [...Array(size)].map(() => Math.floor
 export const genRanNum = (size: number) => Math.ceil(Math.random() * 9).toString() + [...Array(size - 1)].map(() => Math.floor(Math.random() * 10).toString()).join('');
 
 export const numToUd = (num: string | number) => Number(num).toLocaleString('de-DE')
+
+export const fromUd = (amount?: string) => amount ? Number(amount.replace(/\./g, '')) : 0
 
 export const displayTokenAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
   formatAmount(amount / Math.pow(10, decimals || 1), decimalPlaces)

@@ -45,10 +45,10 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
               <CopyIcon text={txn.hash} />
             </Row>
             {!hideNonce && (
-              <Pill style={{ marginTop: 8 }} label={'Nonce'} value={''+txn.nonce} />
+              <Pill style={{ marginTop: vertical ? 8 : 0 }} label={'Nonce'} value={''+txn.nonce} />
             )}
             {!hideStatus && (
-              <Pill style={{ marginTop: 8 }} label={'Status'} value={getStatus(txn.status)} />
+              <Pill style={{ marginTop: vertical ? 8 : 0 }} label={'Status'} value={getStatus(txn.status)} />
             )}
             {Boolean(txn.created) && <>
               {vertical && <div style={{ height: 8 }} />}
