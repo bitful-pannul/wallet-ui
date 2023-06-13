@@ -260,13 +260,15 @@ export const useWalletStore = create<WalletStore>(
       get().getUnsignedTransactions()
     },
     getUnsignedTransactions: async (api?: Urbit) => {
+      const apiToUse = api || get().api
+      if (!apiToUse) return
       const { legacyAccounts, encryptedAccounts, importedAccounts } = get()
       const unsigned: any = await Promise.all(
         legacyAccounts
           .map(({ rawAddress }) => rawAddress)
           .concat(importedAccounts.map(({ rawAddress }) => rawAddress))
           .concat(encryptedAccounts.map(({ rawAddress }) => rawAddress))
-          .map(address => (api || get().api)?.scry<Transactions>({ app: 'wallet', path: `/pending/${address}` }))
+          .map(address => apiToUse.scry<Transactions>({ app: 'wallet', path: `/pending/${address}` }))
       )
       const unsignedMap = unsigned.reduce((acc: Transactions, cur: Transactions) => ({ ...acc, ...cur }), {})
       const unsignedTransactions = Object.keys(unsignedMap).reduce((acc, hash) => {

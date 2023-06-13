@@ -60,7 +60,7 @@ export interface WalletStore {
   sendCustomTransaction: (payload: SendCustomTransactionPayload) => Promise<void>;
   getPendingHash: () => Promise<{ hash: string; txn: any; } | void>;
   deleteUnsignedTransaction: (address: string, hash: string) => Promise<void>;
-  getUnsignedTransactions: (api?: Urbit) => Promise<{ [hash: string]: Transaction }>;
+  getUnsignedTransactions: (api?: Urbit) => Promise<{ [hash: string]: Transaction } | void>;
   signHotTransaction: (message: string, privateKey: string) => Promise<string>;
   submitSignedHash: (from: string, hash: string, rate: number, bud: number, ethHash?: string, sig?: { v: number; r: string; s: string; }) => Promise<void>;
   setMostRecentTransaction: (mostRecentTransaction?: Transaction) => void;

@@ -178,11 +178,15 @@ const SendTransactionForm = ({
       }
 
       const unsigned = await getUnsignedTransactions()
-      const mostRecentPendingHash = Object.keys(unsigned)
-        .filter(hash => unsigned[hash].from === (selectedToken?.holder || from))
-        .sort((a, b) => unsigned[a].nonce - unsigned[b].nonce)[0]
-      
-      setPendingHash(mostRecentPendingHash)
+      if (!unsigned) {
+        setError('There was an issue with the transaction, please refresh the page and try again')
+      } else {
+        const mostRecentPendingHash = Object.keys(unsigned)
+          .filter(hash => unsigned[hash].from === (selectedToken?.holder || from))
+          .sort((a, b) => unsigned[a].nonce - unsigned[b].nonce)[0]
+        
+        setPendingHash(mostRecentPendingHash)
+      }
       setLoading(false)
     }
   }
@@ -294,7 +298,7 @@ const SendTransactionForm = ({
         <Form onSubmit={connectEncrypted}>
           <h4 style={{ marginBottom: 4 }}>Log in to account:</h4>
           <Text style={{ marginBottom: 16, wordBreak: 'break-all' }} mono>{from}</Text>
-          <Input label='Please enter your password:' value={password} onChange={e => setPassword(e.target.value)} autoFocus />
+          <Input label='Please enter your password:' value={password} onChange={e => setPassword(e.target.value)} autoFocus type='password' />
           {Boolean(error) && <Text style={{ marginTop: 8, color: 'red' }}>{error}</Text>}
           <Button style={{ marginTop: '1em' }} type='submit'>Load Wallet</Button>
         </Form>
