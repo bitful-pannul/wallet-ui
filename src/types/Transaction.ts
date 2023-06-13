@@ -49,3 +49,5 @@ export interface Transaction {
 export interface Transactions {
   [hash: string]: Transaction
 }
+
+export interface SortedTransactions { pending: Transaction[]; finished: Transaction[]; rejected: Transaction[] }

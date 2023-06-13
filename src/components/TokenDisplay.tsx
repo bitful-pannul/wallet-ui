@@ -38,21 +38,21 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({
   return (
     <Col {...props} onClick={() => !open && setOpen(true)} className={`token-display ${props.className || ''} ${open ? 'open' : ''} ${small ? 'small' : ''}`}>
       <Row className='token-display-header' onClick={() => setOpen(!open)}>
-        <Row style={{  flexBasis: '70%'  }}>
+        <Row style={{  flexBasis: '70%', maxWidth: '70%' }}>
           <Row style={{ padding: '2px 4px' }}>
             <FaCaretDown className='arrow' /> 
             {isToken? <FaCoins /> : <FaPortrait /> }
           </Row>
           <Text bold className='token-name'>
             {(isToken ? tokenMetadata?.data?.symbol : tokenMetadata?.data?.name) || <HexNum num={contract} />} -
+            {isToken ? (
+              <Text style={{ marginLeft: 4 }}>{displayTokenAmount(balance, tokenMetadata?.data?.decimals || 1, open ? tokenMetadata?.data?.decimals || 12 : 12)}</Text>
+              ) : (
+              <Text style={{ marginLeft: 4 }}># {data.id || ''}</Text>
+            )}
           </Text>
-          {isToken ? (
-            <Text>{displayTokenAmount(balance, tokenMetadata?.data?.decimals || 1, open ? tokenMetadata?.data?.decimals || 12 : 12)}</Text>
-            ) : (
-            <Text># {data.id || ''}</Text>
-          )}
         </Row>
-        <Button onClick={(e) => {e.stopPropagation();selectToken(id, data.id)}} style={{ marginLeft: 16 }} dark small>
+        <Button onClick={(e: any) => {e.stopPropagation();selectToken(id, data.id)}} style={{ marginLeft: 16 }} dark small>
           Send
         </Button>
       </Row>

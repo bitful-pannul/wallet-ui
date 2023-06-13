@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import SendTransactionForm, { BLANK_FORM_VALUES, SendFormField, SendFormType } from './form/SendTransactionForm'
+import SendTransactionForm from './form/SendTransactionForm'
 import Modal, { ModalProps } from './popups/Modal'
 import { useWalletStore } from '../store/walletStore'
 import { watchTabClose } from '../utils/nav'
+import { BLANK_FORM_VALUES } from '../utils/constants'
+import { SendFormField, SendFormType } from '../types/Forms'
  
 import './SendModal.css'
 

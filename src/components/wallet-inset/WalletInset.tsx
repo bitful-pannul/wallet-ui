@@ -1,29 +1,33 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaArrowLeft, FaArrowRight, FaHistory, FaRegTrashAlt } from 'react-icons/fa';
+import { useConnect } from '@web3modal/sign-react';
+
 import Text from '../text/Text';
 import Col from '../spacing/Col';
 import CopyIcon from '../text/CopyIcon';
 import Button from '../form/Button';
 import Row from '../spacing/Row';
 import { displayTokenAmount } from '../../utils/number';
-import { ZIGS_CONTRACT } from '../../utils/constants';
+import { BLANK_FORM_VALUES, BROWSER_WALLET_TYPES, UQBAR_NETWORK_HEX, ZIGS_CONTRACT } from '../../utils/constants';
 import { removeDots } from '../../utils/format';
-import { displayPubKey } from '../../utils/account';
+import { displayPubKey, getWalletIcon } from '../../utils/account';
 import { useWalletStore } from '../../store/walletStore';
-import { HardwareWallet, HotWallet } from '../../types/Accounts';
-import SendTransactionForm, { BLANK_FORM_VALUES, SendFormField, SendFormType } from '../form/SendTransactionForm';
+import { AnyWallet, EncryptedWallet, ImportedWallet, LegacyHotWallet, WalletType } from '../../types/Accounts';
+import SendTransactionForm from '../form/SendTransactionForm';
 import TransactionShort from '../TransactionShort';
 import TokenDisplay from '../TokenDisplay';
 import HexNum from '../text/HexNum';
 import HexIcon from '../text/HexIcon';
 import Loader from '../popups/Loader';
 import PendingTxnIndicator from './PendingTxnIndicator';
+import Input from '../form/Input';
+import { SendFormField, SendFormType } from '../../types/Forms';
 
 import './WalletInset.css'
 
 interface WalletInsetProps extends React.HTMLAttributes<HTMLDivElement> {
-  selectedAccount: HotWallet | HardwareWallet
-  onSelectAccount: (account: HotWallet | HardwareWallet) => void
+  selectedAccount: AnyWallet
+  onSelectAccount: (account: AnyWallet) => void
   hideActions?: boolean
 }
 
@@ -33,9 +37,20 @@ const WalletInset: React.FC<WalletInsetProps> = ({
   hideActions = false,
   ...props
 }) => {
-  const { insetView, accounts, importedAccounts, assets, transactions, mostRecentTransaction: txn, unsignedTransactions,
-    deleteAccount, setInsetView } = useWalletStore()
-  const allAccounts = useMemo(() => (accounts as any[]).concat(importedAccounts), [accounts, importedAccounts])
+  const { insetView, legacyAccounts, encryptedAccounts, importedAccounts, assets, transactions, mostRecentTransaction: txn, unsignedTransactions, connectedAddress,
+    deleteAccount, setInsetView, connectBrowserWallet, importAccount, set } = useWalletStore()
+
+  const { connect, data, error: wcError, loading } = useConnect({
+    requiredNamespaces: {
+      eip155: {
+        methods: ['personal_sign'],
+        chains: ['eip155:1', 'eip155:5'],
+        events: ['chainChanged', 'accountsChanged']
+      }
+    }
+  })
+
+  const allAccounts = useMemo(() => [...legacyAccounts, ...encryptedAccounts, ...importedAccounts], [legacyAccounts, encryptedAccounts, importedAccounts])
 
   const { address, nick, rawAddress } = selectedAccount
 
@@ -45,6 +60,11 @@ const WalletInset: React.FC<WalletInsetProps> = ({
   const [from, setFrom] =  useState(address)
   const [formType, setFormType] = useState<SendFormType | undefined>()
   const [unsignedTransactionHash, setUnsignedTransactionHash] = useState<string | undefined>()
+  const [showConnect, setShowConnect] = useState(false)
+  const [showImport, setShowImport] = useState(false)
+  const [importType, setImportType] = useState<WalletType | null>(null)
+  const [newNick, setNewNick] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => setFrom(address), [address])
 
@@ -64,6 +84,42 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     }
   }, [insetView, unsignedTransactions, txn])
 
+  useEffect(() => {
+    if (importType) {
+      if (BROWSER_WALLET_TYPES.includes(importType)) {
+        connectBrowserWallet(importType).then(address => {
+          if (address && importedAccounts.find(a => a.address === address?.toLowerCase())) {
+            setImportType(null)
+            setShowImport(false)
+          } else if (address) {
+            setShowImport(true)
+          }
+          setShowConnect(false)
+        })
+      } else if (importType === 'walletconnect') {
+        connect()
+          .then(data => {
+            // console.log('WALLETCONNECT: ', data)
+            // TODO: give user the option to select one of these addresses rather than just using the first one
+            const address = data.namespaces.eip155.accounts[0].replace(/eip155\:[0-9]+?\:/, '').toLowerCase()
+            set({ connectedAddress: address, connectedType: importType, wcTopic: data.topic })
+            if (!importedAccounts.find(a => a.address === address?.toLowerCase())) {
+              setShowImport(true)
+            } else {
+              setImportType(null)
+              setShowImport(false)
+            }
+            setShowConnect(false)
+          })
+          .catch(err => {
+            console.error(err)
+            setImportType(null)
+            setShowImport(false)
+          })
+      }
+    }
+  }, [importType])
+
   const setFormValue = useCallback((key: SendFormField, value: string) => {
     const newValues = { ...formValues }
     newValues[key] = value
@@ -79,13 +135,30 @@ const WalletInset: React.FC<WalletInsetProps> = ({
   )
   
   const goBack = useCallback(() => {
-    if (Boolean(formType)) {
-      setFormValues(BLANK_FORM_VALUES)
+    if (showConnect) {
+      setShowConnect(false)
+    } else {
+      if (Boolean(formType)) {
+        setFormValues(BLANK_FORM_VALUES)
+      }
+  
+      setInsetView('main')
+      setFormType(undefined)
     }
+  }, [formType, showConnect])
 
-    setInsetView('main')
-    setFormType(undefined)
-  }, [formType])
+  const doImport = useCallback(async () => {
+    if (!newNick) {
+      return setError('Please enter a nickname')
+    }
+    if (importType) {
+      await importAccount({ address: connectedAddress ? connectedAddress : undefined, nick: newNick, type: importType })
+      setNewNick('')
+      setImportType(null)
+      setShowConnect(false)
+      setShowImport(false)
+    }
+  }, [connectedAddress, newNick, importType, importAccount])
 
   const renderHeader = () => (
     <Row className='detail-header'>
@@ -94,7 +167,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
           <FaArrowLeft />
         </div>
         <Text bold style={{ padding: 4, marginTop: 4 }}>{
-          insetView === 'accounts' ? 'Select Address' :
+          insetView === 'accounts' ? showConnect ? 'Connect Account' : 'Select Address' :
           insetView === 'assets' ? 'Account Assets' :
           insetView === 'confirm-most-recent' ? 'Confirm Transaction' :
           insetView?.includes('send-') ? 'Send Transaction' :
@@ -106,18 +179,74 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     </Row>
   )
 
+  const importButtonStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '90%' }
+  const disableImport = useMemo(() => BROWSER_WALLET_TYPES.includes(importType || '') && !connectedAddress, [importType, connectedAddress])
+
   const renderContent = () => {
-    const content = insetView === 'accounts' ? allAccounts.map(a => (
-      <Row className='account' key={a.rawAddress}>
-        <Col style={{ alignItems: 'flex-start' }} onClick={() => { onSelectAccount(a); goBack(); }}>
-          <Text style={{ marginLeft: 32 }} bold>{a.nick}</Text>
-          <HexNum num={a.address} displayNum={displayPubKey(a.address)} copyText={a.rawAddress} copy />
+    const content = insetView === 'accounts' ? <Col>
+      {showConnect ? (
+        <>
+          <Col style={{ justifyContent: 'space-evenly', alignItems: 'center', height: '100%', width: '100%' }}>
+            <Text style={{ fontSize: 14, margin: '1em 0.5em' }}>Select your account type to continue:</Text>
+            <Button small mb1 style={importButtonStyle} onClick={() => setImportType('metamask')}>
+              Metamask
+              {getWalletIcon('metamask')}
+            </Button>
+            <Button small mb1 style={importButtonStyle} onClick={() => setImportType('brave')}>
+              Brave
+              {getWalletIcon('brave')}
+            </Button>
+            <Button small mb1 style={importButtonStyle} onClick={() => setImportType('other-browser')}>
+              Other Browser Wallet
+              {getWalletIcon('other-browser')}
+            </Button>
+            <Button small mb1 style={importButtonStyle} onClick={() => setImportType('walletconnect')}>
+              WalletConnect
+              {getWalletIcon('walletconnect')}
+            </Button>
+          </Col>
+        </>
+      ) : showImport ? (
+        <Col style={{ justifyContent: 'center', alignItems: 'center', height: '100%', width: '90%', margin: '1em 5% 0' }}>
+          {Boolean(connectedAddress) && 
+          <>
+            <Text style={{ marginBottom: 4, wordBreak: 'break-all' }}>Please enter a nickname for</Text>
+            <Text style={{ marginBottom: 16, wordBreak: 'break-all' }} mono>{connectedAddress}</Text>
+          </>}
+          <Input
+            label='Nickname'
+            onChange={(e: any) => { setNewNick(e.target.value) ; setError('') }}
+            placeholder={`i.e. Browser primary`}
+            style={{ width: '100%' }}
+            containerStyle={{ width: '100%', marginBottom: '1em' }}
+            value={newNick}
+            required
+          />
+          {Boolean(error) && <Text style={{ color: 'red', marginBottom: 16 }}>{error}</Text>}
+          <Button small onClick={doImport} disabled={disableImport} dark style={{ width: '100%', marginBottom: '1em' }}>
+            Import
+          </Button>
+          <Button small onClick={() => { setImportType(null); setShowImport(false); setShowConnect(false) }} dark style={{ width: '100%' }}>
+            No Thanks
+          </Button>
         </Col>
-        <Col className='delete'>
-          <FaRegTrashAlt onClick={e => { e.stopPropagation(); deleteAccount(a.address) }} />
-        </Col>
-      </Row>
-    )) :
+      ) : (
+        <>
+          {allAccounts.map(a => (
+            <Row className='account' key={a.rawAddress}>
+              <Col style={{ alignItems: 'flex-start' }} onClick={() => { onSelectAccount(a); goBack(); }}>
+                <Text style={{ marginLeft: 32 }} bold>{a.nick}</Text>
+                <HexNum num={a.address} displayNum={displayPubKey(a.address)} copyText={a.rawAddress} copy />
+              </Col>
+              <Col className='delete'>
+                <FaRegTrashAlt onClick={e => { e.stopPropagation(); deleteAccount(a.address) }} />
+              </Col>
+            </Row>
+          ))}
+          <Button small style={{ margin: '1em auto' }} onClick={() => setShowConnect(true)}>Connect Account</Button>
+        </>
+      )}
+    </Col> :
     insetView === 'assets' ? (
       !assets[rawAddress] ? <Text style={{ margin: '0 12px' }}>No assets</Text> :
         Object.values(assets[rawAddress]).map(t => (

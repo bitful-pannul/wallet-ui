@@ -1,7 +1,7 @@
 // React.HTMLProps<HTMLButtonElement>
 import React from 'react'
-import './Button.css'
 import classNames from 'classnames'
+import './Button.css'
 
 export type ButtonVariant = 'dark' | 'unstyled' | undefined
 
@@ -20,7 +20,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   expander?: boolean
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<any> = ({
   variant,
   icon,
   iconOnly = false,
@@ -44,7 +44,7 @@ const Button: React.FC<ButtonProps> = ({
         dark, small, wide, xwide, fullWidth, mr1, mt1, mb1, expander, iconOnly
       })} ${props.className || ''}`}
       type={type || "button"}
-      style={{ ...style, justifyContent: 'space-evenly' }}
+      style={{ justifyContent: 'space-evenly', ...style }}
     >
       {icon}
       {!iconOnly && props.children}

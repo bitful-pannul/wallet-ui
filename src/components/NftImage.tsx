@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TokenData } from '../types/Token'
-import { ipfsConnection } from '../utils/ipfs'
+// import { ipfsConnection } from '../utils/ipfs'
 import Loader from './popups/Loader'
 import Row from './spacing/Row'
 import Text from './text/Text'
@@ -15,27 +15,27 @@ const NftImage: React.FC<NftImageProps> = ({ nftInfo, style, ...props }) => {
   
   useEffect(() => {
     if (nftInfo?.uri) {
-      if (nftInfo.uri.includes('ipfs')) {
-        (async function() {
-          // prereqs
-          const node = await ipfsConnection
-          if (nftInfo?.uri) {
-            const cid = nftInfo.uri.replace('ipfs://', '/ipfs/')
+      // if (nftInfo.uri.includes('ipfs')) {
+      //   (async function() {
+      //     // prereqs
+      //     const node = await ipfsConnection
+      //     if (nftInfo?.uri) {
+      //       const cid = nftInfo.uri.replace('ipfs://', '/ipfs/')
     
-            // load the raw data from js-ipfs (>=0.40.0)
-            let bufs = []
-            for await (const buf of node.cat(cid)) {
-              bufs.push(buf)
-            }
-            const data = Buffer.concat(bufs)
+      //       // load the raw data from js-ipfs (>=0.40.0)
+      //       let bufs = []
+      //       for await (const buf of node.cat(cid)) {
+      //         bufs.push(buf)
+      //       }
+      //       const data = Buffer.concat(bufs)
     
-            const blob = new Blob([data], { type: 'image/jpg' })
-            setImageSource(window.URL.createObjectURL(blob))
-          }
-        })()
-      } else {
+      //       const blob = new Blob([data], { type: 'image/jpg' })
+      //       setImageSource(window.URL.createObjectURL(blob))
+      //     }
+      //   })()
+      // } else {
         setImageSource(nftInfo.uri)
-      }
+      // }
     }
   }, [nftInfo])
 

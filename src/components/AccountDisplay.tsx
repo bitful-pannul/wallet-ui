@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import {  FaArrowRight, FaRegTrashAlt,  } from 'react-icons/fa';
 import { useWalletStore } from '../store/walletStore';
-import { HotWallet, HardwareWallet } from '../types/Accounts';
-import { displayPubKey } from '../utils/account';
+import { LegacyHotWallet, ImportedWallet, EncryptedWallet } from '../types/Accounts';
+import { displayPubKey, getWalletIcon } from '../utils/account';
 import Input from './form/Input';
 import Col from './spacing/Col';
 import Row from './spacing/Row'
@@ -15,17 +15,19 @@ import CustomLink from './nav/Link'
 import './AccountDisplay.css'
 
 interface AccountDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
-  account: HotWallet | HardwareWallet
+  account: LegacyHotWallet | EncryptedWallet | ImportedWallet
+  customLink?: string
   full?: boolean
 }
 
 const AccountDisplay: React.FC<AccountDisplayProps> = ({
   account,
+  customLink,
   full = false,
   ...props
 }) => {
   const { nick, address, rawAddress, nonces } = account
-  const { deleteAccount, editNickname } = useWalletStore()
+  const { connectedAddress, deleteAccount, editNickname } = useWalletStore()
   const [newNick, setNewNick] = useState(nick)
   const [nickSaved, setNickSaved] = useState(false)
 
@@ -45,20 +47,26 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
     return () => clearTimeout(delayDebounceFn)
   }, [newNick]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const hardware = account as HardwareWallet
+  const imported = account as ImportedWallet
+  const importedType = !imported?.type ? null : imported?.type === 'other-browser' ? 'Browser' : imported?.type.charAt(0).toUpperCase() + imported?.type.slice(1)
 
   return (
     <Col {...props} className={`account-display ${props.className || ''}`}>
+      {address === connectedAddress && <Row style={{ marginBottom: 8 }}>
+        <div style={{ height: 16, width: 16, borderRadius: 10, background: 'rgb(50, 255, 50)', marginRight: '1em' }} />
+        <Text style={{ marginRight: '1em' }}>Connected</Text>
+      </Row>}
       <Row between style={{  }}>
         <Row>
-          {hardware && hardware.type && <Text style={{marginRight: '1em'}}>{hardware.type}</Text>}
+          {Boolean(imported?.type) && getWalletIcon(imported?.type)}
+          {/* {Boolean(imported?.type) && <Text style={{marginLeft: '0.5em', marginRight: '1em', width: '4.7em'}}>{importedType}</Text>} */}
           <Input
             className={`nick-input ${nickSaved ? 'nick-saved' : ''}`}
-            style={{ fontWeight: 600, marginRight: '1em', width: '10em'  }}
+            style={{ fontWeight: 600, margin: '0 1em', width: '10em'  }}
             onChange={(e: any) => setNewNick(e.target.value)}
             value={newNick}
           />
-          <CustomLink href={`${PUBLIC_URL}/indexer/address/${address}`}>
+          <CustomLink href={customLink || `${PUBLIC_URL}/indexer/address/${address}`}>
             <Row>
               <HexNum num={address} displayNum={displayPubKey(address)} mono bold />
               {!full && <FaArrowRight className='ml1' />}
@@ -68,7 +76,7 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
           <CopyIcon text={rawAddress} eth style={{ marginLeft: 6 }} />
         </Row>
         <Row>
-          <Row className='icon' onClick={(e) => {
+          <Row className='icon' onClick={(e: any) => {
             e.preventDefault()
             e.stopPropagation()
             if (window.confirm('Really delete this account?') && 'rawAddress' in account) {

@@ -13,6 +13,7 @@ export const DUMMY_METADATA = {
 }
 
 export const DEFAULT_TOWN_ID = '0x0'
+export const BURN_ADDRESS = '0x0'
 export const DEFAULT_USER_ADDRESS = '0xdead.beef'
 export const DEFAULT_RATE = 1
 export const DEFAULT_BUDGET = 1000000 // 1 million
@@ -96,3 +97,11 @@ export const ZIG_HOST = '~dister-dozzod-bacdun'
 export const ZIG_APP = 'zig'
 
 export const GOERLI_DEPOSIT_CONTRACT = '0xAB85B98aff89a7567aC364fB9Ab22fd1E8e6b403'
+
+export const UQBAR_NETWORK_URL = 'https://chain-id.uqbar.network/uqbar-chain-id'
+export const UQBAR_EXPLORER_URL = `${window.location.origin}/apps/uqbar/indexer`
+export const UQBAR_NETWORK_HEX = '0x7261627175'
+export const UQBAR_NETWORK_INT = 491260113269
+export const BROWSER_WALLET_TYPES = ['brave', 'metamask', 'other-browser']
+
+export const BLANK_FORM_VALUES = { to: '', rate: '1', bud: '1000000', amount: '', contract: '', town: '', action: '' }

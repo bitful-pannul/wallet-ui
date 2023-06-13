@@ -4,11 +4,12 @@ import TokenDisplay from './TokenDisplay'
 import { displayPubKey } from '../utils/account'
 import Row from './spacing/Row'
 import CopyIcon from './text/CopyIcon'
-import { addHexDots } from '../utils/format'
+import { addHexDots, removeDots } from '../utils/format'
 import Text from './text/Text'
 import Col from './spacing/Col'
 import Button from './form/Button'
 import HexNum from './text/HexNum'
+import { useWalletStore } from '../store/walletStore'
 
 interface AccountBalanceProps extends React.HTMLAttributes<HTMLDivElement> {
   pubKey: string
@@ -26,12 +27,16 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({
   selectPubkey,
   ...props
 }) => {
+  const connectedAddress = useWalletStore(state => state.connectedAddress)
+
   return (
     <div {...props} className={`account-balance ${props.className || ''}`} style={{ ...props.style, marginBottom: balances.length ? 8 : 16 }}>
       <Row between style={{  }}>
         <Col>
           <Row style={{ alignItems: 'center' }}>
-            <h4 style={{ fontFamily: 'monospace, monospace', margin: 0, cursor: 'pointer', lineHeight: 1.5, whiteSpace: 'nowrap', textOverflow: 'ellipsis', }} onClick={() => selectPubkey(pubKey)}>
+            <h4 style={{ fontFamily: 'monospace, monospace', margin: 0, cursor: 'pointer', lineHeight: 1.5, whiteSpace: 'nowrap', textOverflow: 'ellipsis', flexDirection: 'row', display: 'flex', alignItems: 'center' }}
+              onClick={() => selectPubkey(pubKey)}>
+            {removeDots(pubKey) === connectedAddress && <div style={{ height: 12, width: 14, borderRadius: 8, background: 'rgb(0, 205, 0)', marginRight: '0.5em' }} />}
               <HexNum num={pubKey} displayNum={displayPubKey(pubKey)} />
             </h4>
             <CopyIcon text={addHexDots(pubKey)} />

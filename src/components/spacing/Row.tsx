@@ -9,7 +9,7 @@ interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
   fullWidth?: boolean
 }
 
-const Row: React.FC<RowProps> = ( { between, evenly,  reverse, fullWidth, ...props } ) => {
+const Row = ( { between, evenly,  reverse, fullWidth, ...props }: any ) => {
   return (
     <div {...props} className={`row ${props.className || ''} ${classNames({ between, evenly, reverse, w100: fullWidth })}`}>
       {props.children}

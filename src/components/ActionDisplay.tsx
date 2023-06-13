@@ -7,7 +7,6 @@ interface ActionDisplayProps {
 }
 
 export const ActionDisplay = ({ action }: ActionDisplayProps) => {
-  console.log('ACTION', action)
   if (typeof action === 'string') {
     return <Row>Action: {action}</Row>
   }

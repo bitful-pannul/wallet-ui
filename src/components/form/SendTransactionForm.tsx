@@ -1,4 +1,8 @@
 import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { ethers } from 'ethers'
+import { isAddress } from 'ethers/lib/utils'
+import { useConnect, useRequest } from '@web3modal/sign-react'
+
 import Button from './Button'
 import Form from './Form'
 import Input from './Input'
@@ -8,7 +12,7 @@ import { useWalletStore } from '../../store/walletStore'
 import { Token } from '../../types/Token'
 import { displayTokenAmount } from '../../utils/number'
 import { displayPubKey } from '../../utils/account'
-import { abbreviateHex, addHexDots, removeDots, addDecimalDots } from '../../utils/format'
+import { abbreviateHex, addHexDots, removeDots } from '../../utils/format'
 import Col from '../spacing/Col'
 import CopyIcon from '../text/CopyIcon'
 import TextArea from './TextArea'
@@ -16,19 +20,14 @@ import { NON_HEX_REGEX, NON_NUM_REGEX } from '../../utils/regex'
 import { ActionDisplay } from '../ActionDisplay'
 import Loader from '../popups/Loader'
 import { TransactionArgs } from '../../types/Transaction'
-import { signWithHardwareWallet } from '../../utils/hardware-wallet'
+import { generateEthHash, generateMessage, signWithImportedWallet } from '../../utils/imported-wallet'
 import CustomLink from '../nav/Link'
-import { DEFAULT_TXN_COST, getStatus, PUBLIC_URL } from '../../utils/constants'
+import { DEFAULT_TXN_COST, getStatus, PUBLIC_URL, UQBAR_NETWORK_HEX, BURN_ADDRESS, BLANK_FORM_VALUES } from '../../utils/constants'
 import Pill from '../text/Pill'
-import { isAddress } from 'ethers/lib/utils'
+import { useKeyStore } from '../../store/keyStore'
+import { SendFormField, SendFormType, SendFormValues } from '../../types/Forms'
 
 import './SendTransactionForm.css'
-
-export interface SendFormValues { to: string; rate: string; bud: string; amount: string; contract: string; town: string; action: string; }
-export type SendFormField = 'to' | 'rate' | 'bud' | 'amount' | 'contract' | 'town' | 'action'
-export type SendFormType = 'tokens' | 'nft' | 'custom';
-
-export const BLANK_FORM_VALUES = { to: '', rate: '1', bud: '1000000', amount: '', contract: '', town: '', action: '' }
 
 interface SendTransactionFormProps {
   setFormValues: (values: SendFormValues) => void
@@ -56,12 +55,53 @@ const SendTransactionForm = ({
   formType,
 }: SendTransactionFormProps) => {
   const {
-    assets, metadata, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, selectedAccount,
-    sendTokens, sendNft, submitSignedHash, setMostRecentTransaction, getUnsignedTransactions, sendCustomTransaction
+    assets, metadata, encryptedAccounts, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, connectedType, wcTopic, connectedAddress,
+    signHotTransaction, sendTokens, sendNft, submitSignedHash, setMostRecentTransaction, getUnsignedTransactions, sendCustomTransaction, connectEncryptedWallet,
+    set
   } = useWalletStore()
+
+  const { keys, addKey } = useKeyStore()
+
+  const { connect, error: wcError } = useConnect({
+    requiredNamespaces: {
+      eip155: {
+        methods: ['personal_sign'],
+        chains: ['eip155:1', 'eip155:5'],
+        events: ['chainChanged', 'accountsChanged']
+      }
+    }
+  })
+
+  useEffect(() => {
+    if (from && connectedAddress !== from) {
+      const importedAccount = importedAccounts.find(a => a.rawAddress === from)
+      if (importedAccount) {
+        if (importedAccount.type === 'walletconnect') {
+          connect().then(data => {
+            // console.log('WALLETCONNECT: ', data)
+            // TODO: give user the option to select one of these addresses rather than just using the first one
+            if (data.namespaces.eip155.accounts.find(a => a.toLowerCase().includes(removeDots(from)))) {
+              set({ connectedAddress: removeDots(from), connectedType: importedAccount.type, wcTopic: data.topic })
+            } else {
+              alert('Please connect to the correct account')
+            }
+          })
+        }
+      }
+    }
+  }, [from, connectedAddress])
+
+  const { request, data, loading: wcLoading } = useRequest({
+    topic: wcTopic || '',
+    chainId: `eip155:5`,
+    request: { id: 1, jsonrpc: '2.0', method: 'personal_sign', params: [] } as any
+  })
 
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [customUnsigned, setCustomUnsigned] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
   const isNft = useMemo(() => formType === 'nft', [formType])
   const isCustom = useMemo(() => formType === 'custom', [formType])
@@ -85,6 +125,19 @@ const SendTransactionForm = ({
     setFormValues(BLANK_FORM_VALUES)
   }, [setSelected, setFormValues])
 
+  const connectEncrypted = useCallback((e: any) => {
+    e.preventDefault()
+    if (from) {
+      try {
+        connectEncryptedWallet(from, password, addKey)
+      } catch {
+        setError('Incorrect password')
+      }
+      
+      setPassword('')
+    }
+  }, [from, password])
+
   useEffect(() => {
     if (selectedToken === undefined && id) {
       setSelected(assetsList.find(a => a.id === id && (nftIndex === undefined || Number(nftIndex) === a.data.id)))
@@ -95,7 +148,7 @@ const SendTransactionForm = ({
 
   const generateTransaction = async (e: FormEvent) => {
     e.preventDefault()
-    if (selectedToken && !isAddress(to.replace(/\./g, ''))) {
+    if (selectedToken && !isAddress(to.replace(/\./g, '')) && to !== BURN_ADDRESS) {
       alert('Invalid address')
     } else if (selectedToken?.data?.balance && Number(amount) * Math.pow(10, tokenMetadata?.data?.decimals || 1) > +selectedToken?.data?.balance) {
       alert(`You do not have that many tokens. You have ${selectedToken.data?.balance} tokens.`)
@@ -120,11 +173,10 @@ const SendTransactionForm = ({
           await sendTokens({ ...payload, amount: Number(amount) * Math.pow(10, tokenMetadata?.data?.decimals || 1) })
         }
       } else {
-        const payload = { from: from || '', contract: addHexDots(contract), town: addHexDots(town), action: action.replace(/\n/g, '') }
+        const payload = { from: from || '', contract: addHexDots(contract), town: addHexDots(town), action: action.replace(/\n/g, ''), unsigned: customUnsigned }
         await sendCustomTransaction(payload)
       }
 
-      getUnsignedTransactions()
       const unsigned = await getUnsignedTransactions()
       const mostRecentPendingHash = Object.keys(unsigned)
         .filter(hash => unsigned[hash].from === (selectedToken?.holder || from))
@@ -135,16 +187,22 @@ const SendTransactionForm = ({
     }
   }
 
+  const isImportedWallet = useMemo(() => Boolean(importedAccounts.find(a => a.rawAddress === from)), [importedAccounts, from])
+  const isEncryptedWallet = useMemo(() => Boolean(encryptedAccounts.find(a => a.rawAddress === from)), [encryptedAccounts, from])
+  const encryptedWalletNotLoaded = isEncryptedWallet && !keys[from || '']
+
   const submitSignedTransaction = useCallback(async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     if (pendingHash && unsignedTransactions[pendingHash]) {
       const fromAddress = unsignedTransactions[pendingHash].from
+      const address = removeDots(fromAddress)
+
       let ethHash, sig, hardwareHash
   
       const importedAccount = importedAccounts.find(a => a.rawAddress === fromAddress)
       
-      if (importedAccount?.type) {
+      if (isEncryptedWallet || importedAccount?.type) {
         hardwareHash = pendingHash
 
         setLoading(true)
@@ -154,14 +212,48 @@ const SendTransactionForm = ({
           (unsignedTransactions[pendingHash] as any)?.action?.['give-nft']?.to ||
           `0x${contract}${contract}`
 
-        const sigResult = await signWithHardwareWallet(
-          importedAccount.type, removeDots(fromAddress), pendingHash, { ...unsignedTransactions[pendingHash], to }
-        )
+        let sigResult: {
+          ethHash: string;
+          sig: {
+              r: string;
+              s: string;
+              v: number;
+          } | null | undefined
+        }
+
+        const txn = { ...unsignedTransactions[pendingHash], to, rate: Number(rate), budget: Number(bud) }
+
+        try {
+          const message = generateMessage(pendingHash, txn)
+          const ethHash = generateEthHash(message)
+
+          if (isEncryptedWallet) {
+            console.log(1, message, keys[from || ''])
+            const sigHex = await signHotTransaction(message, keys[from || ''])
+            sigResult = { ethHash, sig: ethers.utils.splitSignature(sigHex) }
+            console.log(2, sigHex, sigResult)
+          } else if (connectedType === 'walletconnect') {
+            const sigHex: any = await request({
+              topic: wcTopic || '',
+              // chainId: `eip155:${UQBAR_NETWORK_HEX.slice(2)}`,
+              chainId: `eip155:5`,
+              request: { id: 1, jsonrpc: '2.0', method: 'personal_sign', params: [message, address, message] } as any
+            })
+
+            sigResult = { ethHash, sig: ethers.utils.splitSignature(sigHex) }
+          } else if (importedAccount?.type) {
+            sigResult = await signWithImportedWallet(connectedType || importedAccount.type, address, pendingHash, txn)
+          } else {
+            throw new Error('Unsupported wallet type')
+          }
+        } catch (err) {
+          return setLoading(false)
+        }
         setLoading(false)
         ethHash = sigResult.ethHash ? addHexDots(sigResult.ethHash) : undefined
         sig = sigResult.sig
         if (!sig)
-          return alert('There was an error signing the transaction with the hardware wallet')
+          return alert('There was an issue with the signature, please try again')
       }
   
       try {
@@ -172,14 +264,17 @@ const SendTransactionForm = ({
         setPendingHash(undefined)
         onSubmit && onSubmit()
       } catch (err) {
-        alert('There was an error signing the transaction with the hardware wallet')
         setSubmitted(false)
+        alert('There was an issue with the signature, please try again')
       }
       finally {
         setLoading(false)
       }
     }
-  }, [unsignedTransactions, rate, bud, importedAccounts, pendingHash, onSubmit, clearForm, submitSignedHash, setLoading, setSubmitted, setPendingHash])
+  }, [
+    unsignedTransactions, rate, bud, importedAccounts, pendingHash, wcTopic, isEncryptedWallet, customUnsigned, isImportedWallet,
+    request, onSubmit, clearForm, submitSignedHash, setLoading, setSubmitted, setPendingHash
+  ])
 
   const tokenDisplay = isNft ? (
     <Col>
@@ -193,7 +288,19 @@ const SendTransactionForm = ({
     </Col>
   )
 
-  if (submitted) {
+  if (encryptedWalletNotLoaded) {
+    return (
+      <Col className='connection-prompt'>
+        <Form onSubmit={connectEncrypted}>
+          <h4 style={{ marginBottom: 4 }}>Log in to account:</h4>
+          <Text style={{ marginBottom: 16, wordBreak: 'break-all' }} mono>{from}</Text>
+          <Input label='Please enter your password:' value={password} onChange={e => setPassword(e.target.value)} autoFocus />
+          {Boolean(error) && <Text style={{ marginTop: 8, color: 'red' }}>{error}</Text>}
+          <Button style={{ marginTop: '1em' }} type='submit'>Load Wallet</Button>
+        </Form>
+      </Col>
+    )
+  } else if (submitted) {
     return (
       <Col className='submission-confirmation'>
         <h4 style={{ marginTop: 0, marginBottom: 16 }}>Transaction {txn?.status === 0 ? 'Complete' : 'Sent'}!</h4>
@@ -276,7 +383,14 @@ const SendTransactionForm = ({
   } else if (isCustom) {
     return (
       <Form className='send-transaction-form' onSubmit={generateTransaction}>
-        <Input label='From:' containerStyle={{ marginTop: 12, width: '100%' }} value={from || ''} style={{ width: '100%' }} disabled />
+        <Input
+          style={{ marginTop: 12 }}
+          label='Unsigned Transaction'
+          type='checkbox'
+          value={customUnsigned ? 'true' : ''}
+          onClick={() => setCustomUnsigned(!customUnsigned)}
+        />
+        {!customUnsigned && <Input label='From:' containerStyle={{ marginTop: 12, width: '100%' }} value={from || ''} style={{ width: '100%' }} disabled />}
         <Input
           label='Contract:'
           containerStyle={{ marginTop: 12, width: '100%' }}
@@ -302,7 +416,7 @@ const SendTransactionForm = ({
           onChange={(e: any) => setFormValue('action', e.target.value)}
         />
         {loading ? (
-          <Loader style={{ alignSelf: 'center', justifySelf: 'center' }} dark />
+          <Loader style={{ alignSelf: 'center', justifySelf: 'center', marginTop: '1em' }} dark />
         ) : (
           <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark disabled={loading}>
             Generate Transaction
@@ -337,7 +451,7 @@ const SendTransactionForm = ({
         <Text style={{ marginTop: 2, fontSize: 11, color: 'red' }}>Not enough assets: {displayTokenAmount(tokenBalance, tokenMetadata?.data.decimals || 18, tokenMetadata?.data.decimals || 18)}</Text>
       )}
       {loading ? (
-        <Loader style={{ alignSelf: 'center', justifySelf: 'center' }} dark />
+        <Loader style={{ alignSelf: 'center', justifySelf: 'center', marginTop: '1em' }} dark />
       ) : (
         <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark disabled={loading}>
           Generate Transaction

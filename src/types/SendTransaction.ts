@@ -6,6 +6,7 @@ export interface SendTransactionPayload {
 
 export interface SendCustomTransactionPayload extends SendTransactionPayload {
   action: string
+  unsigned?: boolean
 }
 
 export interface SendAssetPayload extends SendTransactionPayload {

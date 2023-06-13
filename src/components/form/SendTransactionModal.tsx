@@ -1,19 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import Button from './Button'
-import Loader from '../popups/Loader'
-import Col from '../spacing/Col'
-import Row from '../spacing/Row'
-import Text from '../text/Text'
-import { abbreviateHex } from '../../utils/format'
-import CopyIcon from '../text/CopyIcon';
-import { getStatus } from '../../utils/constants'
-import SendTransactionForm, { BLANK_FORM_VALUES, SendFormField, SendFormType } from './SendTransactionForm'
+import SendTransactionForm from './SendTransactionForm'
 import Modal, { ModalProps } from '../popups/Modal'
 import { useWalletStore } from '../../store/walletStore'
 import { watchTabClose } from '../../utils/nav'
-import CustomLink from '../nav/Link'
  
 import './SendTransactionModal.css'
+import { SendFormField, SendFormType } from '../../types/Forms'
+import { BLANK_FORM_VALUES } from '../../utils/constants'
 
 interface SendTransactionModalProps extends ModalProps {
   id?: string
