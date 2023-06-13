@@ -78,7 +78,6 @@ const SendTransactionForm = ({
       if (importedAccount) {
         if (importedAccount.type === 'walletconnect') {
           connect().then(data => {
-            // console.log('WALLETCONNECT: ', data)
             // TODO: give user the option to select one of these addresses rather than just using the first one
             if (data.namespaces.eip155.accounts.find(a => a.toLowerCase().includes(removeDots(from)))) {
               set({ connectedAddress: removeDots(from), connectedType: importedAccount.type, wcTopic: data.topic })
@@ -232,10 +231,8 @@ const SendTransactionForm = ({
           const ethHash = generateEthHash(message)
 
           if (isEncryptedWallet) {
-            console.log(1, message, keys[from || ''])
             const sigHex = await signHotTransaction(message, keys[from || ''])
             sigResult = { ethHash, sig: ethers.utils.splitSignature(sigHex) }
-            console.log(2, sigHex, sigResult)
           } else if (connectedType === 'walletconnect') {
             const sigHex: any = await request({
               topic: wcTopic || '',

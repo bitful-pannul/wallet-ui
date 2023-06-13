@@ -52,6 +52,8 @@ export const useWalletStore = create<WalletStore>(
 
       if (!apiToUse) throw new Error('No api provided or available on window object')
 
+      set({ api: apiToUse })
+
       if (prompt) {
         try {
           await apiToUse.scry({ app: 'wallet', path: '/accounts' })
@@ -261,7 +263,7 @@ export const useWalletStore = create<WalletStore>(
     },
     getUnsignedTransactions: async (api?: Urbit) => {
       const apiToUse = api || get().api
-      if (!apiToUse) return
+      if (!apiToUse?.scry) return
       const { legacyAccounts, encryptedAccounts, importedAccounts } = get()
       const unsigned: any = await Promise.all(
         legacyAccounts
