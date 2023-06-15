@@ -22,7 +22,7 @@ export const ZIGGURAT_STORAGE_VERSION = 2
 export const INDEXER_STORAGE_VERSION = 2
 export const WALLET_STORAGE_VERSION = 2
 
-export const ORIGIN = window.location.origin
+export const ORIGIN = window?.location?.origin
 export const BASENAME = '/apps/uqbar'
 export const WEBTERM_PATH = '/apps/webterm'
 
@@ -99,7 +99,7 @@ export const ZIG_APP = 'zig'
 export const GOERLI_DEPOSIT_CONTRACT = '0xAB85B98aff89a7567aC364fB9Ab22fd1E8e6b403'
 
 export const UQBAR_NETWORK_URL = 'https://chain-id.uqbar.network/uqbar-chain-id'
-export const UQBAR_EXPLORER_URL = `${window.location.origin}/apps/uqbar/indexer`
+export const UQBAR_EXPLORER_URL = `${ORIGIN}/apps/uqbar/indexer`
 export const UQBAR_NETWORK_HEX = '0x7261627175'
 export const UQBAR_NETWORK_INT = 491260113269
 export const BROWSER_WALLET_TYPES = ['brave', 'metamask', 'other-browser']
