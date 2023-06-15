@@ -2,6 +2,7 @@ import create, { SetState } from "zustand"
 import { persist } from "zustand/middleware"
 import { ethers } from "ethers"
 import { Urbit } from "@urbit/http-api"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { LegacyHotWallet, processAccount, RawLegacyAccount, RawEncryptedAccount, ImportedWallet, WalletType, Seed, processEncrypted, EncryptedWallet } from "../types/Accounts"
 import { SendNftPayload, SendCustomTransactionPayload, SendTokenPayload } from "../types/SendTransaction"
@@ -212,14 +213,12 @@ export const useWalletStore = create<WalletStore>(
       set({ loadingText: null })
     },
     deleteAccount: async (address: string) => {
-      if (window.confirm(`Are you sure you want to remove this address?\n\n${addHexDots(address)}`)) {
-        await get().api?.poke({ app: 'wallet', mark: 'wallet-poke', json: { 'delete-address': { address } } })
-        // TODO: remove assests
-        get().getAccounts()
-        const newAssets = { ...get().assets }
-        delete newAssets[address]
-        set({ assets: newAssets })
-      }
+      await get().api?.poke({ app: 'wallet', mark: 'wallet-poke', json: { 'delete-address': { address } } })
+      // TODO: remove assests
+      get().getAccounts()
+      const newAssets = { ...get().assets }
+      delete newAssets[address]
+      set({ assets: newAssets })
     },
     setNode: async (town: number, ship: string) => {
       const json = { 'set-node': { town, ship } }
@@ -298,7 +297,7 @@ export const useWalletStore = create<WalletStore>(
       try {
         await get().api?.poke({ app: 'uqbar', mark: 'uqbar-action', json: { 'open-faucet': { town: '0x0', 'send-to': address } } })
       } catch (err) {
-        alert('An error occurred. Note that you can only request zigs from the faucet once per hour.')
+        window?.alert && window.alert('An error occurred. Note that you can only request zigs from the faucet once per hour.')
       }
     },
 
@@ -308,7 +307,7 @@ export const useWalletStore = create<WalletStore>(
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
 
         if (targetAddress && !accounts.includes(removeDots(targetAddress))) {
-          alert('Please allow access to address ' + targetAddress + ' in your wallet and try again.')
+          window?.alert && window.alert('Please allow access to address ' + targetAddress + ' in your wallet and try again.')
           throw new Error('Address not found in wallet')
         } 
 
@@ -368,20 +367,20 @@ export const useWalletStore = create<WalletStore>(
               }
 
               const receipt = await signer.sendTransaction(transactionRequest)
-              alert('Your deposit has started, please check the status in your wallet. Hash: ' + receipt.hash)
+              window?.alert && window.alert('Your deposit has started, please check the status in your wallet. Hash: ' + receipt.hash)
             } catch (err) {
               console.warn(err)
-              alert('There was an error with the deposit, please check your wallet and try again.')
+              window?.alert && window.alert('There was an error with the deposit, please check your wallet and try again.')
             }
           } else {
-            alert('Please connect one of your accounts and try again.')
+            window?.alert && window.alert('Please connect one of your accounts and try again.')
           }
         } else {
-          alert('Please install MetaMask, Brave Wallet, or any browser-based Ethereum client and confirm you are on the Goerli network to continue.')
+          window?.alert && window.alert('Please install MetaMask, Brave Wallet, or any browser-based Ethereum client and confirm you are on the Goerli network to continue.')
         }
       } catch (err) {
         console.warn(err)
-        alert('There was an error, please try again.')
+        window?.alert && window.alert('There was an error, please try again.')
       }
 
       set({ loadingText: null })
@@ -405,6 +404,6 @@ export const useWalletStore = create<WalletStore>(
   {
     name: `${(window as any).ship}-walletStore`,
     version: WALLET_STORAGE_VERSION,
-    getStorage: () => sessionStorage,
+    getStorage: () => window?.location ? sessionStorage : AsyncStorage,
   })
 )
