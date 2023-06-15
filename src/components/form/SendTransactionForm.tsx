@@ -145,7 +145,7 @@ const SendTransactionForm = ({
 
   const tokenMetadata = selectedToken && metadata[selectedToken.data.metadata]
 
-  const generateTransaction = async (e: FormEvent) => {
+  const generateTransaction = useCallback(async (e: FormEvent) => {
     e.preventDefault()
     if (selectedToken && !isAddress(to.replace(/\./g, '')) && to !== BURN_ADDRESS) {
       alert('Invalid address')
@@ -188,7 +188,7 @@ const SendTransactionForm = ({
       }
       setLoading(false)
     }
-  }
+  }, [to, selectedToken, isNft, isCustom, amount, contract, town, action, tokenMetadata])
 
   const isImportedWallet = useMemo(() => Boolean(importedAccounts.find(a => a.rawAddress === from)), [importedAccounts, from])
   const isEncryptedWallet = useMemo(() => Boolean(encryptedAccounts.find(a => a.rawAddress === from)), [encryptedAccounts, from])
