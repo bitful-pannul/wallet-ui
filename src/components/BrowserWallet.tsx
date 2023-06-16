@@ -200,7 +200,7 @@ export default function BrowserWallet ({ showNetwork = false, showWalletConnect 
           <Button onClick={doImport} disabled={disableImport} dark fullWidth style={{ width: '100%', marginBottom: '1em' }}>
             Import
           </Button>
-          <Button onClick={() => setImportType(null)} dark fullWidth style={{ width: '100%' }}>
+          <Button onClick={() => { setImportType(null); setShowImport(false) }} dark fullWidth style={{ width: '100%' }}>
             No Thanks
           </Button>
         </Col>

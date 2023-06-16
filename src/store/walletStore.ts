@@ -111,9 +111,12 @@ export const useWalletStore = create<WalletStore>(
       if (apiToUse) {
         const accountData = await apiToUse.scry<{[key: string]: RawLegacyAccount}>({ app: 'wallet', path: '/accounts' }) || {}
         const legacyAndImported = Object.values(accountData).map(processAccount).sort((a, b) => a.nick.localeCompare(b.nick))
-        const encryptedAccountsData = await apiToUse.scry<{[key: string]: RawEncryptedAccount}>({ app: 'wallet', path: '/encrypted-accounts' }) || {}
+        let encryptedAccountsData: {[key: string]: RawEncryptedAccount} = {}
+        try {
+          encryptedAccountsData = await apiToUse.scry<{[key: string]: RawEncryptedAccount}>({ app: 'wallet', path: '/encrypted-accounts' })
+        } catch {}
         const encryptedAccounts = Object.keys(encryptedAccountsData).map(pubkey => processEncrypted({ ...encryptedAccountsData[pubkey], pubkey }))
-  
+        
         const { legacyAccounts, importedAccounts } = legacyAndImported.reduce(({ legacyAccounts, importedAccounts }, cur) => {
           if (cur.imported) {
             const [nick, type] = cur.nick.split('//')
