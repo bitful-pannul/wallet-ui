@@ -157,6 +157,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
     if (importType) {
       await importAccount({ address: connectedAddress ? connectedAddress : undefined, nick: newNick, type: importType })
       setNewNick('')
+      set({ insetView: 'main' })
       setImportType(null)
       setShowConnect(false)
       setShowImport(false)

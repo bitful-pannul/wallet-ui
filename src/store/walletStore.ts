@@ -129,9 +129,10 @@ export const useWalletStore = create<WalletStore>(
   
         set({ legacyAccounts, encryptedAccounts, importedAccounts, loadingText: null })
   
-        if (get().connectedAddress) {
+        const { connectedAddress } = get()
+        if (connectedAddress) {
           const selectedAccount = (legacyAccounts as AnyWallet[]).concat(importedAccounts).concat(encryptedAccounts)
-            .find(({ rawAddress }) => rawAddress === get().connectedAddress)
+            .find(a => a.rawAddress === connectedAddress || a.address === connectedAddress)
           if (selectedAccount) set({ selectedAccount })
         } else if (!get().selectedAccount) {
           set({ selectedAccount: (legacyAccounts as any[]).concat(importedAccounts)[0] })
@@ -191,12 +192,12 @@ export const useWalletStore = create<WalletStore>(
         const ethereum = (window as any).ethereum // default is to use Metamask
         await ethereum.request({ method: 'eth_requestAccounts' });
         importedAddress = ethereum.selectedAddress
-        set({ connectedAddress: importedAddress })
       }
 
       if (importedAddress) {
         // TODO: get nonce info
         const { importedAccounts } = get()
+        set({ connectedAddress: importedAddress })
 
         const existing = importedAccounts.find(({ address }) => importedAddress === address)
         if (!existing) {
@@ -223,12 +224,22 @@ export const useWalletStore = create<WalletStore>(
       set({ loadingText: null })
     },
     deleteAccount: async (address: string) => {
+      const { getAccounts, connectedAddress, selectedAccount, legacyAccounts, encryptedAccounts, importedAccounts } = get()
       await get().api?.poke({ app: 'wallet', mark: 'wallet-poke', json: { 'delete-address': { address } } })
       // TODO: remove assests
-      get().getAccounts()
+      getAccounts()
       const newAssets = { ...get().assets }
       delete newAssets[address]
       set({ assets: newAssets })
+
+      if (connectedAddress === address || selectedAccount?.address === address || selectedAccount?.rawAddress === address) {
+        const next = (legacyAccounts as AnyWallet[]).concat(encryptedAccounts).concat(importedAccounts).find(a => a.address !== address && a.rawAddress !== address)
+        if (next) {
+          set({ selectedAccount: next, connectedAddress: next.address })
+        } else {
+          set({ selectedAccount: undefined, connectedAddress: undefined })
+        }
+      }
     },
     setNode: async (town: number, ship: string) => {
       const json = { 'set-node': { town, ship } }

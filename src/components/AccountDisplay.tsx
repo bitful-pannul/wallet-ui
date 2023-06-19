@@ -52,7 +52,7 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
 
   return (
     <Col {...props} className={`account-display ${props.className || ''}`}>
-      {address === connectedAddress && <Row style={{ marginBottom: 8 }}>
+      {address === connectedAddress && Boolean(imported?.type) && <Row style={{ marginBottom: 8 }}>
         <div style={{ height: 16, width: 16, borderRadius: 10, background: 'rgb(50, 255, 50)', marginRight: '1em' }} />
         <Text style={{ marginRight: '1em' }}>Connected</Text>
       </Row>}
