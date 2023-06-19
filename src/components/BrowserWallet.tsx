@@ -44,12 +44,15 @@ export default function BrowserWallet ({ showNetwork = false, showWalletConnect 
 
   useEffect(() => {
     if (importType) {
+      console.log(0)
       if (BROWSER_WALLET_TYPES.includes(importType)) {
         setShowConnect(false)
         connectBrowserWallet(importType).then(address => {
-          if (address && importedAccounts.find(a => a.address === address?.toLowerCase())) {
+          const existingAccount = importedAccounts.find(a => a.address === address?.toLowerCase())
+          if (address && existingAccount) {
             setImportType(null)
             setShowImport(false)
+            set({ selectedAccount: existingAccount })
           } else if (address) {
             setShowImport(true)
           }
@@ -61,11 +64,13 @@ export default function BrowserWallet ({ showNetwork = false, showWalletConnect 
             // TODO: give user the option to select one of these addresses rather than just using the first one
             const address = data.namespaces.eip155.accounts[0].replace(/eip155\:[0-9]+?\:/, '').toLowerCase()
             set({ connectedAddress: address, connectedType: importType, wcTopic: data.topic })
-            if (!importedAccounts.find(a => a.address === address?.toLowerCase())) {
-              setShowImport(true)
-            } else {
+            const existingAccount = importedAccounts.find(a => a.address === address?.toLowerCase())
+            if (existingAccount) {
               setImportType(null)
               setShowImport(false)
+              set({ selectedAccount: existingAccount })
+            } else if (address) {
+              setShowImport(true)
             }
           })
           .catch(err => {

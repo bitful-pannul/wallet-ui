@@ -40,6 +40,7 @@ interface SendTransactionFormProps {
   nftIndex?: number
   from?: string
   formType?: SendFormType
+  hideDetails?: boolean
 }
 
 const SendTransactionForm = ({
@@ -53,6 +54,7 @@ const SendTransactionForm = ({
   nftIndex,
   from,
   formType,
+  hideDetails = false,
 }: SendTransactionFormProps) => {
   const {
     assets, metadata, encryptedAccounts, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, connectedType, wcTopic, connectedAddress,
@@ -346,7 +348,7 @@ const SendTransactionForm = ({
         {showToAddress ? (
           <Input label='To:' style={{ width: '100%' }} containerStyle={{ marginTop: 12, width: '100%' }} value={to || giveAction.to as any} disabled />
         ) : (
-          <ActionDisplay action={pendingAction} />
+          <ActionDisplay action={pendingAction} hideDetails={hideDetails} />
         )}
         {showAmount && (
           <Input label='Amount:' style={{ width: '100%' }} containerStyle={{ marginTop: 12, width: '100%' }} value={amount || displayTokenAmount(+removeDots(''+giveAction.amount), tokenMetadata?.data.decimals || 1)} disabled />

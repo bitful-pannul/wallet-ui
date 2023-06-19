@@ -1,8 +1,8 @@
 {
   "name": "@uqbar/wallet-ui",
-  "version": "0.4.4",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "version": "0.4.5",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "dependencies": {
     "@urbit/api": "^2.3.0",
     "@urbit/http-api": "2.4.0-dev",
@@ -26,7 +26,7 @@
     "clean": "rm -rf dist",
     "copy-files": "copyfiles -u 1 src/**/*.css src/**/**/*.css src/**/*.png src/**/**/*.png src/**/*.jpeg src/**/**/*.jpeg src/**/*.jpg src/**/**/*.jpg dist/",
     "dev": "tsc --watch",
-    "build": "yarn run clean && tsc && cp package.json README.md ./dist && yarn copy-files"
+    "build": "yarn run clean && tsc && cp package.json README.md ./dist && yarn copy-files && sed -i '' \"s/.\\/dist\\/index/.\\/index/g\" dist/package.json"
   },
   "eslintConfig": {
     "extends": [

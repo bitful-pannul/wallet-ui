@@ -4,7 +4,7 @@ import { ethers } from "ethers"
 import { Urbit } from "@urbit/http-api"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { LegacyHotWallet, processAccount, RawLegacyAccount, RawEncryptedAccount, ImportedWallet, WalletType, Seed, processEncrypted, EncryptedWallet } from "../types/Accounts"
+import { LegacyHotWallet, processAccount, RawLegacyAccount, RawEncryptedAccount, ImportedWallet, WalletType, Seed, processEncrypted, EncryptedWallet, AnyWallet } from "../types/Accounts"
 import { SendNftPayload, SendCustomTransactionPayload, SendTokenPayload } from "../types/SendTransaction"
 import { handleBookUpdate, handleTxnUpdate, handleMetadataUpdate, createSubscription, SubParams } from "./subscriptions"
 import { Transactions, Transaction } from "../types/Transaction"
@@ -129,7 +129,13 @@ export const useWalletStore = create<WalletStore>(
   
         set({ legacyAccounts, encryptedAccounts, importedAccounts, loadingText: null })
   
-        if (!get().selectedAccount) set({ selectedAccount: (legacyAccounts as any[]).concat(importedAccounts)[0] })
+        if (get().connectedAddress) {
+          const selectedAccount = (legacyAccounts as AnyWallet[]).concat(importedAccounts).concat(encryptedAccounts)
+            .find(({ rawAddress }) => rawAddress === get().connectedAddress)
+          if (selectedAccount) set({ selectedAccount })
+        } else if (!get().selectedAccount) {
+          set({ selectedAccount: (legacyAccounts as any[]).concat(importedAccounts)[0] })
+        }
       }
     },
     getTransactions: async (api?: Urbit) => {
@@ -192,7 +198,8 @@ export const useWalletStore = create<WalletStore>(
         // TODO: get nonce info
         const { importedAccounts } = get()
 
-        if (!importedAccounts.find(({ address }) => importedAddress === address)) {
+        const existing = importedAccounts.find(({ address }) => importedAddress === address)
+        if (!existing) {
           await get().api?.poke({
             app: 'wallet',
             mark: 'wallet-poke',
@@ -210,7 +217,7 @@ export const useWalletStore = create<WalletStore>(
 
           set({ subscriptions })
         } else {
-          set({ loadingText: null })
+          set({ selectedAccount: existing })
         }
       }
       set({ loadingText: null })
@@ -364,10 +371,7 @@ export const useWalletStore = create<WalletStore>(
 
             try {
               const txn = await depositContract.populateTransaction.depositEth(parseInt(town.replace('0x', ''), 16), destination)
-              const transactionRequest = {
-                ...txn,
-                value: ethers.utils.parseEther(amount),
-              }
+              const transactionRequest = { ...txn, value: ethers.utils.parseEther(amount) }
 
               const receipt = await signer.sendTransaction(transactionRequest)
               window?.alert && window.alert('Your deposit has started, please check the status in your wallet. Hash: ' + receipt.hash)
