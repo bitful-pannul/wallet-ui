@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {  FaArrowRight, FaRegTrashAlt,  } from 'react-icons/fa';
 import { useWalletStore } from '../store/walletStore';
 import { LegacyHotWallet, ImportedWallet, EncryptedWallet } from '../types/Accounts';
@@ -18,16 +18,18 @@ interface AccountDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   account: LegacyHotWallet | EncryptedWallet | ImportedWallet
   customLink?: string
   full?: boolean
+  onDelete?: () => void
 }
 
 const AccountDisplay: React.FC<AccountDisplayProps> = ({
   account,
   customLink,
   full = false,
+  onDelete = () => {},
   ...props
 }) => {
   const { nick, address, rawAddress, nonces } = account
-  const { connectedAddress, deleteAccount, editNickname } = useWalletStore()
+  const { connectedAddress, deleteAccount, editNickname, setLoading } = useWalletStore()
   const [newNick, setNewNick] = useState(nick)
   const [nickSaved, setNickSaved] = useState(false)
 
@@ -46,6 +48,19 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
     }, ONE_SECOND)
     return () => clearTimeout(delayDebounceFn)
   }, [newNick]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onClickDelete = useCallback(async (e: any) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setLoading('Deleting account...')
+    try {
+      if (window.confirm('Really delete this account?') && 'rawAddress' in account) {
+        await deleteAccount(rawAddress)
+        await onDelete()
+      }
+    } catch {}
+    setLoading(null)
+  }, [])
 
   const imported = account as ImportedWallet
   const importedType = !imported?.type ? null : imported?.type === 'other-browser' ? 'Browser' : imported?.type.charAt(0).toUpperCase() + imported?.type.slice(1)
@@ -76,13 +91,7 @@ const AccountDisplay: React.FC<AccountDisplayProps> = ({
           <CopyIcon text={rawAddress} eth style={{ marginLeft: 6 }} />
         </Row>
         <Row>
-          <Row className='icon' onClick={(e: any) => {
-            e.preventDefault()
-            e.stopPropagation()
-            if (window.confirm('Really delete this account?') && 'rawAddress' in account) {
-              deleteAccount(rawAddress)
-            }
-          }}>
+          <Row className='icon' onClick={onClickDelete}>
             <FaRegTrashAlt  />
           </Row>
         </Row>
