@@ -15,6 +15,7 @@ import { parseRawTransaction, processTransactions } from "../utils/transactions"
 import { GOERLI_DEPOSIT_CONTRACT_ABI } from "../utils/deposit-contract-abi"
 import { encrypt, decrypt } from '../utils/account'
 import { InitOptions, InsetView, WalletStore } from "../types/WalletStore"
+import { PendingSigned } from "../types/PendingSigned";
 
 const resetSubscriptions = async (set: SetState<any>, api: Urbit, oldSubs: number[], newSubs: SubParams[]) => {
   await Promise.all(oldSubs.map(os => api.unsubscribe(os)))
@@ -45,9 +46,10 @@ export const useWalletStore = create<WalletStore>(
     promptInstall: false,
     appInstalled: true,
     subscriptions: [],
+    pendingSigned: [],
     initWallet: async ({ assets = true, transactions = true, prompt = false, failOnError = false, onReceiveTransaction }: InitOptions, api?: Urbit) => {
-      const { getAccounts, getTransactions, getUnsignedTransactions } = get()
-      set({ loadingText: 'Loading...', connectedAddress: undefined, connectedType: undefined, wcTopic: undefined })
+      const { getAccounts, getTransactions, getUnsignedTransactions, getPendingSignMessages } = get()
+      set({ loadingText: 'Loading...', connectedAddress: undefined, connectedType: undefined })
 
       const apiToUse = api || (window as any)?.api
 
@@ -74,6 +76,7 @@ export const useWalletStore = create<WalletStore>(
         if (transactions) {
           getTransactions(apiToUse)
           getUnsignedTransactions(apiToUse)
+          getPendingSignMessages(apiToUse)
           newSubs.push(createSubscription('wallet', '/tx-updates', handleTxnUpdate(get, set, onReceiveTransaction)))
         }
         await getAccounts(apiToUse)
@@ -279,7 +282,7 @@ export const useWalletStore = create<WalletStore>(
     deleteUnsignedTransaction: async (address: string, hash: string) => {
       const json = { 'delete-pending': { from: address, hash } }
       await get().api?.poke({ app: 'wallet', mark: 'wallet-poke', json })
-      get().getUnsignedTransactions()
+      setTimeout(() => get().getUnsignedTransactions(), 500)
     },
     getUnsignedTransactions: async (api?: Urbit) => {
       const apiToUse = api || get().api
@@ -417,6 +420,21 @@ export const useWalletStore = create<WalletStore>(
         })
       }
     },
+    getPendingSignMessages: async (api?: Urbit) => {
+      const apiToUse: Urbit = api || (window as any)?.api
+      if (apiToUse) {
+        const result = await apiToUse.scry<PendingSigned>({ app: 'wallet', path: '/pending-sign-messages' })
+        set({ pendingSigned: Object.keys(result).map(hash => ({ ...result[hash], hash })) })
+      }
+    },
+    submitTypedMessage: async (hash: string, from: string, sig: { v: number; r: string; s: string; }) => {
+      const { api } = get()
+      if (api) {
+        const json = { 'submit-typed-message': { hash, from, sig: { r: addHexDots(sig.r), s: addHexDots(sig.s), v: sig.v } } }
+        await api.poke({ app: 'wallet', mark: 'wallet-poke', json: json })
+      }
+    },
+
     set,
   }),
   {

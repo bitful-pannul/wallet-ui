@@ -8,6 +8,9 @@ interface HexIconProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const HexIcon = ({ hexNum, size = '1em', ...props }: HexIconProps) => {
   let num = hexNum
+  if (!num) {
+    return null
+  }
   num = num.replace(/(0x|\.)/g,'')
   
   while (num.length < 6)

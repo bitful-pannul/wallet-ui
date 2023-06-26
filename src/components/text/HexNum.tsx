@@ -4,9 +4,9 @@ import { addHexDots } from '../../utils/format'
 import CopyIcon from './CopyIcon'
 import Row from '../spacing/Row'
 import Text from './Text'
+import HexIcon from './HexIcon'
 
 import './HexNum.css'
-import HexIcon from './HexIcon'
 
 interface HexNumProps extends React.HTMLAttributes<HTMLSpanElement> {
   colors?: boolean,
@@ -37,6 +37,7 @@ const HexNum: React.FC<HexNumProps> = ({
         {displayNum}
       </Text>
       {copy && <CopyIcon text={addHexDots(copyText)} />}
+      {props.children}
     </Row>
   )
 }

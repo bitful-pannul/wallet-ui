@@ -9,9 +9,16 @@ button.button {
   border: 1px solid black;
   cursor: pointer;
   transition: all 0.1s;
+  box-shadow: 0 1px 2px rgb(55, 55, 55);
 }
 button.button:hover {
   background: #c7cafa;
+}
+button.button:active {
+  transform: translateY(1px)
+}
+button.button.no-shadow {
+  box-shadow: none;
 }
 button.button.dark {
   color: white;

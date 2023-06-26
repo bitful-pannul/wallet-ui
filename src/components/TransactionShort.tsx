@@ -35,7 +35,7 @@ const TransactionShort: React.FC<TransactionShortProps> = ({
   const unsigned = Number(txn.status) === 100
 
   return (
-      <Col {...props} className={`transaction-short ${props.className || ''} ${vertical ? 'vertical' : ''}`}>
+      <Col key={txn.hash} {...props} className={`transaction-short ${props.className || ''} ${vertical ? 'vertical' : ''}`}>
         <Row between style={{ flexDirection: vertical ? 'column' : undefined }}>
           <Row style={vertical ? { flexDirection: 'column', alignItems: 'flex-start' } : {}}>
             <Row>

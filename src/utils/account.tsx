@@ -7,7 +7,8 @@ import ledger from '../assets/img/wallets/ledger.png'
 import trezor from '../assets/img/wallets/trezor.png'
 import { Assets } from "../types/Assets"
 import { fromUd } from "./number"
-import { EncryptedWallet, ImportedWallet, LegacyHotWallet, WalletKind, WalletType } from '../types/Accounts'
+import { AnyWallet, EncryptedWallet, ImportedWallet, LegacyHotWallet, WalletKind, WalletType } from '../types/Accounts'
+import { addHexDots } from "./format"
 
 export const displayPubKey = (pubKey: string) => pubKey.slice(0, 6) + '...' + pubKey.slice(-4)
 
@@ -40,3 +41,5 @@ export const getWalletKind = (address: string, hot: LegacyHotWallet[], encrypted
   imported.find(({ rawAddress }) => rawAddress === address) ? 'imported' :
   hot.find(({ rawAddress }) => rawAddress === address) ? 'hot' :
   encrypted.find(({ rawAddress }) => rawAddress === address) ? 'encrypted' : null
+
+export const findAccount = (address: string, accounts: AnyWallet[]) : AnyWallet | undefined => accounts.find(a => a.rawAddress === addHexDots(address))

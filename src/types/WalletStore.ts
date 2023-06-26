@@ -5,6 +5,7 @@ import { TokenMetadataStore } from "./TokenMetadata"
 import { Assets } from "./Assets"
 import { SendCustomTransactionPayload, SendNftPayload, SendTokenPayload } from "./SendTransaction"
 import { SetState } from "zustand"
+import { PendingSignedMessage } from "./PendingSigned"
 
 export interface InitOptions {
   assets?: boolean
@@ -37,7 +38,7 @@ export interface WalletStore {
   currentChainId?: string;
   connectedAddress?: string | null;
   connectedType?: WalletType;
-  wcTopic?: string;
+  pendingSigned: PendingSignedMessage[];
   initWallet: (options: InitOptions, api?: Urbit) => Promise<void>;
   clearSubscriptions: () => Promise<void>;
   setLoading: (loadingText: string | null) => void;
@@ -69,5 +70,9 @@ export interface WalletStore {
   connectEncryptedWallet: (address: string, password: string, setKey: (address: string, key: string) => void) => void;
   connectUqbarNetwork: () => Promise<void>;
   depositEth: (amount: string, town: string, destination: string) => Promise<void>;
+
+  getPendingSignMessages: (api?: Urbit) => Promise<any>;
+  submitTypedMessage: (hash: string, from: string, sig: { v: number; r: string; s: string; }) => Promise<void>;
+
   set: SetState<WalletStore>;
 }

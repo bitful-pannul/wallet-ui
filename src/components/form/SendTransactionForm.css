@@ -1,7 +1,7 @@
 form.form.send-transaction-form {
   border-top-left-radius: 0;
   min-width: 280px;
-  width: calc(100% - 32px);
+  width: 100%;
   min-height: 267px;
   border-radius: 4px;
 }

@@ -1,7 +1,8 @@
 import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { ethers } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
-import { useConnect, useRequest } from '@web3modal/sign-react'
+import { Web3ModalSign, useConnect, useDisconnect, useRequest, useSession } from '@web3modal/sign-react'
+import { getSdkError } from '@walletconnect/utils'
 
 import Button from './Button'
 import Form from './Form'
@@ -22,7 +23,7 @@ import Loader from '../popups/Loader'
 import { TransactionArgs } from '../../types/Transaction'
 import { generateEthHash, generateMessage, signWithImportedWallet } from '../../utils/imported-wallet'
 import CustomLink from '../nav/Link'
-import { DEFAULT_TXN_COST, getStatus, PUBLIC_URL, UQBAR_NETWORK_HEX, BURN_ADDRESS, BLANK_FORM_VALUES } from '../../utils/constants'
+import { DEFAULT_TXN_COST, getStatus, PUBLIC_URL, UQBAR_NETWORK_HEX, BURN_ADDRESS, BLANK_FORM_VALUES, WALLETCONNECT_PROJECT_ID, WALLETCONNECT_METADATA, WALLETCONNECT_CONNECT_PARAMS } from '../../utils/constants'
 import Pill from '../text/Pill'
 import { useKeyStore } from '../../store/keyStore'
 import { SendFormField, SendFormType, SendFormValues } from '../../types/Forms'
@@ -41,6 +42,7 @@ interface SendTransactionFormProps {
   from?: string
   formType?: SendFormType
   hideDetails?: boolean
+  showWalletConnect?: boolean
 }
 
 const SendTransactionForm = ({
@@ -55,45 +57,28 @@ const SendTransactionForm = ({
   from,
   formType,
   hideDetails = false,
+  showWalletConnect = true,
 }: SendTransactionFormProps) => {
   const {
-    assets, metadata, encryptedAccounts, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, connectedType, wcTopic, connectedAddress,
+    assets, metadata, encryptedAccounts, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, connectedType, connectedAddress,
     signHotTransaction, sendTokens, sendNft, submitSignedHash, setMostRecentTransaction, getUnsignedTransactions, sendCustomTransaction, connectEncryptedWallet,
     set
   } = useWalletStore()
 
   const { keys, addKey } = useKeyStore()
 
-  const { connect, error: wcError } = useConnect({
-    requiredNamespaces: {
-      eip155: {
-        methods: ['personal_sign'],
-        chains: ['eip155:1', 'eip155:5'],
-        events: ['chainChanged', 'accountsChanged']
-      }
-    }
-  })
+  const wcSession = useSession()
+  const { connect, error: wcError } = useConnect(WALLETCONNECT_CONNECT_PARAMS)
+  const { disconnect } = useDisconnect({ topic: wcSession?.pairingTopic || '', reason: getSdkError('USER_DISCONNECTED') })
 
   useEffect(() => {
-    if (from && connectedAddress !== from) {
-      const importedAccount = importedAccounts.find(a => a.rawAddress === from)
-      if (importedAccount) {
-        if (importedAccount.type === 'walletconnect') {
-          connect().then(data => {
-            // TODO: give user the option to select one of these addresses rather than just using the first one
-            if (data.namespaces.eip155.accounts.find(a => a.toLowerCase().includes(removeDots(from)))) {
-              set({ connectedAddress: removeDots(from), connectedType: importedAccount.type, wcTopic: data.topic })
-            } else {
-              alert('Please connect to the correct account')
-            }
-          })
-        }
-      }
+    if (wcSession) {
+      set({ connectedAddress: addHexDots(wcSession?.namespaces.eip155.accounts[0].slice(9)), connectedType: 'walletconnect' })
     }
-  }, [from, connectedAddress])
+  }, [wcSession])
 
   const { request, data, loading: wcLoading } = useRequest({
-    topic: wcTopic || '',
+    topic: wcSession?.topic || '',
     chainId: `eip155:5`,
     request: { id: 1, jsonrpc: '2.0', method: 'personal_sign', params: [] } as any
   })
@@ -195,6 +180,9 @@ const SendTransactionForm = ({
   const isImportedWallet = useMemo(() => Boolean(importedAccounts.find(a => a.rawAddress === from)), [importedAccounts, from])
   const isEncryptedWallet = useMemo(() => Boolean(encryptedAccounts.find(a => a.rawAddress === from)), [encryptedAccounts, from])
   const encryptedWalletNotLoaded = isEncryptedWallet && !keys[from || '']
+  const isWalletConnect = useMemo(() => isImportedWallet && Boolean(importedAccounts.find(a => a.type === 'walletconnect')), [isImportedWallet, importedAccounts])
+  const wcNotConnected = useMemo(() => !wcSession, [wcSession])
+  const wcWrongAddress = useMemo(() => wcSession && addHexDots(wcSession?.namespaces.eip155.accounts[0].slice(9)) !== from, [from, wcSession])
 
   const submitSignedTransaction = useCallback(async (e: FormEvent) => {
     e.preventDefault()
@@ -237,9 +225,8 @@ const SendTransactionForm = ({
             sigResult = { ethHash, sig: ethers.utils.splitSignature(sigHex) }
           } else if (connectedType === 'walletconnect') {
             const sigHex: any = await request({
-              topic: wcTopic || '',
-              // chainId: `eip155:${UQBAR_NETWORK_HEX.slice(2)}`,
-              chainId: `eip155:5`,
+              topic: wcSession?.topic || '',
+              chainId: `eip155:1`,
               request: { id: 1, jsonrpc: '2.0', method: 'personal_sign', params: [message, address, message] } as any
             })
 
@@ -275,9 +262,16 @@ const SendTransactionForm = ({
       }
     }
   }, [
-    unsignedTransactions, rate, bud, importedAccounts, pendingHash, wcTopic, isEncryptedWallet, customUnsigned, isImportedWallet,
+    unsignedTransactions, rate, bud, importedAccounts, pendingHash, wcSession?.pairingTopic, isEncryptedWallet, customUnsigned, isImportedWallet,
     request, onSubmit, clearForm, submitSignedHash, setLoading, setSubmitted, setPendingHash
   ])
+
+  const disconnectWallet = useCallback(async () => {
+    if (connectedAddress) {
+      if (wcSession) disconnect({ topic: wcSession.pairingTopic, reason: getSdkError('USER_DISCONNECTED') })
+      set({ connectedAddress: undefined, connectedType: undefined, currentChainId: undefined })
+    }
+  }, [disconnect, wcSession?.pairingTopic, connectedAddress])
 
   const tokenDisplay = isNft ? (
     <Col>
@@ -291,8 +285,26 @@ const SendTransactionForm = ({
     </Col>
   )
 
-  if (encryptedWalletNotLoaded) {
-    return (
+  let content = null
+
+  if (isWalletConnect && (wcNotConnected || wcWrongAddress)) {
+    content = (
+      <Col style={{ padding: 16 }}>
+        <Text style={{ fontSize: 16, fontWeight: '600' }}>Connect to account:</Text>
+        <Text mono style={{ marginTop: 8, wordBreak: 'break-all' }}>{from}</Text>
+        {wcWrongAddress ? (
+          <>
+            <Text style={{ fontSize: 16, marginTop: 16, fontWeight: '600' }}>Please disconnect from:</Text>
+            <Text mono style={{ marginTop: 8, wordBreak: 'break-all' }}>{wcSession?.namespaces.eip155.accounts[0].slice(9)}</Text>
+            <Button style={{ marginTop: 16 }} onClick={disconnectWallet}>Disconnect</Button>
+          </>
+        ) : (
+          <Button style={{ marginTop: 16 }} onClick={() => connect().catch(() => alert("There was an error connecting"))}>Connect using WalletConnect</Button>
+        )}
+      </Col>
+    )
+  } else if (encryptedWalletNotLoaded) {
+    content = (
       <Col className='connection-prompt'>
         <Form onSubmit={connectEncrypted}>
           <h4 style={{ marginBottom: 4 }}>Log in to account:</h4>
@@ -304,7 +316,7 @@ const SendTransactionForm = ({
       </Col>
     )
   } else if (submitted) {
-    return (
+    content = (
       <Col className='submission-confirmation'>
         <h4 style={{ marginTop: 0, marginBottom: 16 }}>Transaction {txn?.status === 0 ? 'Complete' : 'Sent'}!</h4>
         {txn ? (
@@ -342,7 +354,7 @@ const SendTransactionForm = ({
     const showToAddress = Boolean(to || (tokenMetadata?.data?.symbol && giveAction.to))
     const showAmount = Boolean(!isNft && (amount || (tokenMetadata?.data?.symbol && giveAction.amount)))
 
-    return (
+    content = (
       <Form className='send-transaction-form' onSubmit={submitSignedTransaction}>
         {!isCustom && tokenDisplay}
         {showToAddress ? (
@@ -384,7 +396,7 @@ const SendTransactionForm = ({
       </Form>
     )
   } else if (isCustom) {
-    return (
+    content = (
       <Form className='send-transaction-form' onSubmit={generateTransaction}>
         <Input
           style={{ marginTop: 12 }}
@@ -427,41 +439,46 @@ const SendTransactionForm = ({
         )}
       </Form>
     )
+  } else {
+    content = (
+      <Form className='send-transaction-form' onSubmit={generateTransaction}>
+        {tokenDisplay}
+        <Input
+          label='To:'
+          placeholder='Destination address'
+          style={{ width: '100%' }}
+          containerStyle={{ marginTop: 12, width: '100%' }}
+          value={to}
+          onChange={(e: any) => setFormValue('to', e.target.value.replace(NON_HEX_REGEX, ''))}
+          required
+        />
+        {!isNft && <Input
+          label='Amount:'
+          placeholder='Amount'
+          style={{ width: '100%' }}
+          containerStyle={{ marginTop: 12, width: '100%' }}
+          value={amount}
+          onChange={(e: any) => setFormValue('amount', e.target.value.replace(NON_NUM_REGEX, ''))}
+          required
+        />}
+        {isNft || Number(amount) <= 0 || isNaN(Number(amount)) ? null : amountDiff < 0 && (
+          <Text style={{ marginTop: 2, fontSize: 11, color: 'red' }}>Not enough assets: {displayTokenAmount(tokenBalance, tokenMetadata?.data.decimals || 18, tokenMetadata?.data.decimals || 18)}</Text>
+        )}
+        {loading ? (
+          <Loader style={{ alignSelf: 'center', justifySelf: 'center', marginTop: '1em' }} dark />
+        ) : (
+          <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark disabled={loading}>
+            Generate Transaction
+          </Button>
+        )}
+      </Form>
+    )
   }
 
-  return (
-    <Form className='send-transaction-form' onSubmit={generateTransaction}>
-      {tokenDisplay}
-      <Input
-        label='To:'
-        placeholder='Destination address'
-        style={{ width: '100%' }}
-        containerStyle={{ marginTop: 12, width: '100%' }}
-        value={to}
-        onChange={(e: any) => setFormValue('to', e.target.value.replace(NON_HEX_REGEX, ''))}
-        required
-      />
-      {!isNft && <Input
-        label='Amount:'
-        placeholder='Amount'
-        style={{ width: '100%' }}
-        containerStyle={{ marginTop: 12, width: '100%' }}
-        value={amount}
-        onChange={(e: any) => setFormValue('amount', e.target.value.replace(NON_NUM_REGEX, ''))}
-        required
-      />}
-      {isNft || Number(amount) <= 0 || isNaN(Number(amount)) ? null : amountDiff < 0 && (
-        <Text style={{ marginTop: 2, fontSize: 11, color: 'red' }}>Not enough assets: {displayTokenAmount(tokenBalance, tokenMetadata?.data.decimals || 18, tokenMetadata?.data.decimals || 18)}</Text>
-      )}
-      {loading ? (
-        <Loader style={{ alignSelf: 'center', justifySelf: 'center', marginTop: '1em' }} dark />
-      ) : (
-        <Button style={{ width: '100%', margin: '16px 0px 8px' }} type='submit' dark disabled={loading}>
-          Generate Transaction
-        </Button>
-      )}
-    </Form>
-  )
+  return <>
+    {content}
+    {showWalletConnect && <Web3ModalSign projectId={WALLETCONNECT_PROJECT_ID} metadata={WALLETCONNECT_METADATA} />}
+  </>
 }
 
 export default SendTransactionForm

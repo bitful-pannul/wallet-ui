@@ -8,7 +8,7 @@ import CopyIcon from '../text/CopyIcon';
 import Button from '../form/Button';
 import Row from '../spacing/Row';
 import { displayTokenAmount } from '../../utils/number';
-import { BLANK_FORM_VALUES, BROWSER_WALLET_TYPES, UQBAR_NETWORK_HEX, ZIGS_CONTRACT } from '../../utils/constants';
+import { BLANK_FORM_VALUES, BROWSER_WALLET_TYPES, UQBAR_NETWORK_HEX, WALLETCONNECT_CONNECT_PARAMS, ZIGS_CONTRACT } from '../../utils/constants';
 import { removeDots } from '../../utils/format';
 import { displayPubKey, getWalletIcon } from '../../utils/account';
 import { useWalletStore } from '../../store/walletStore';
@@ -40,15 +40,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
   const { insetView, legacyAccounts, encryptedAccounts, importedAccounts, assets, transactions, mostRecentTransaction: txn, unsignedTransactions, connectedAddress,
     deleteAccount, setInsetView, connectBrowserWallet, importAccount, set } = useWalletStore()
 
-  const { connect, data, error: wcError, loading } = useConnect({
-    requiredNamespaces: {
-      eip155: {
-        methods: ['personal_sign'],
-        chains: ['eip155:1', 'eip155:5'],
-        events: ['chainChanged', 'accountsChanged']
-      }
-    }
-  })
+  const { connect, data, error: wcError, loading } = useConnect(WALLETCONNECT_CONNECT_PARAMS)
 
   const allAccounts = useMemo(() => [...legacyAccounts, ...encryptedAccounts, ...importedAccounts], [legacyAccounts, encryptedAccounts, importedAccounts])
 
@@ -103,7 +95,7 @@ const WalletInset: React.FC<WalletInsetProps> = ({
           .then(data => {
             // TODO: give user the option to select one of these addresses rather than just using the first one
             const address = data.namespaces.eip155.accounts[0].replace(/eip155\:[0-9]+?\:/, '').toLowerCase()
-            set({ connectedAddress: address, connectedType: importType, wcTopic: data.topic })
+            set({ connectedAddress: address, connectedType: importType })
             const existingAccount = importedAccounts.find(a => a.address === address?.toLowerCase())
             if (existingAccount) {
               setImportType(null)
