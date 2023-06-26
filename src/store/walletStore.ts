@@ -424,7 +424,17 @@ export const useWalletStore = create<WalletStore>(
       const apiToUse: Urbit = api || (window as any)?.api
       if (apiToUse) {
         const result = await apiToUse.scry<PendingSigned>({ app: 'wallet', path: '/pending-sign-messages' })
-        set({ pendingSigned: Object.keys(result).map(hash => ({ ...result[hash], hash })) })
+        const pendingSigned = Object.keys(result).map(hash => ({ ...result[hash], hash }))
+        set({ pendingSigned })
+        return pendingSigned
+      }
+    },
+    deletePendingSignedMessage: async (hash: string) => {
+      const { api } = get()
+      if (api) {
+        const json = { 'delete-typed-message': { hash } }
+        await api.poke({ app: 'wallet', mark: 'wallet-poke', json: json })
+        get().getPendingSignMessages()
       }
     },
     submitTypedMessage: async (hash: string, from: string, sig: { v: number; r: string; s: string; }) => {

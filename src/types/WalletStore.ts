@@ -71,7 +71,8 @@ export interface WalletStore {
   connectUqbarNetwork: () => Promise<void>;
   depositEth: (amount: string, town: string, destination: string) => Promise<void>;
 
-  getPendingSignMessages: (api?: Urbit) => Promise<any>;
+  getPendingSignMessages: (api?: Urbit) => Promise<PendingSignedMessage[] | undefined>;
+  deletePendingSignedMessage: (hash: string) => Promise<void>;
   submitTypedMessage: (hash: string, from: string, sig: { v: number; r: string; s: string; }) => Promise<void>;
 
   set: SetState<WalletStore>;

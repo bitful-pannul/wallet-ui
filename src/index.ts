@@ -36,6 +36,7 @@ import {
   Transactions,
   SortedTransactions,
 } from './types/Transaction'
+import { PendingSignedMessage } from './types/PendingSigned'
 
 import { SendFormValues, SendFormField, SendFormType } from './types/Forms'
 
@@ -93,6 +94,7 @@ export {
   SendFormField,
   SendFormType,
   Seed,
+  PendingSignedMessage,
 
   groupTransactions,
   getWalletIcon,
