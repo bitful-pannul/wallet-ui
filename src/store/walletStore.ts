@@ -76,7 +76,7 @@ export const useWalletStore = create<WalletStore>(
         if (transactions) {
           getTransactions(apiToUse)
           getUnsignedTransactions(apiToUse)
-          getPendingSignMessages(apiToUse)
+          getPendingSignMessages(apiToUse).catch(() => null)
           newSubs.push(createSubscription('wallet', '/tx-updates', handleTxnUpdate(get, set, onReceiveTransaction)))
         }
         await getAccounts(apiToUse)

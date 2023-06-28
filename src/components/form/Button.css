@@ -46,6 +46,7 @@ button.button.unstyled {
   background: inherit;
   padding: 0;
   border: none;
+  box-shadow: none;
 }
 button.button.unstyled:hover {
   transform: scale(1.1);

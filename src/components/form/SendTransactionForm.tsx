@@ -54,10 +54,10 @@ const SendTransactionForm = ({
   id,
   unsignedTransactionHash,
   nftIndex,
-  from,
   formType,
   hideDetails = false,
   showWalletConnect = true,
+  ...props
 }: SendTransactionFormProps) => {
   const {
     assets, metadata, encryptedAccounts, importedAccounts, unsignedTransactions, mostRecentTransaction: txn, connectedType, connectedAddress,
@@ -102,6 +102,7 @@ const SendTransactionForm = ({
   const [selectedToken, setSelected] =
     useState<Token | undefined>(assetsList.find(a => a.id === id && (!isNft || a.data.id === Number(nftIndex))))
   const [pendingHash, setPendingHash] = useState<string | undefined>(unsignedTransactionHash)
+  const from = useMemo(() => props.from || unsignedTransactions[pendingHash || '']?.from, [props.from, unsignedTransactions, pendingHash])
 
   const tokenBalance = useMemo(() => Number((selectedToken?.data.balance ?? '0').replace(/\./gi, '')), [selectedToken])
   const amountDiff = useMemo(() => tokenBalance - (Number(amount) * Math.pow(10, 18) + DEFAULT_TXN_COST), [amount, tokenBalance])
@@ -180,7 +181,7 @@ const SendTransactionForm = ({
   const isImportedWallet = useMemo(() => Boolean(importedAccounts.find(a => a.rawAddress === from)), [importedAccounts, from])
   const isEncryptedWallet = useMemo(() => Boolean(encryptedAccounts.find(a => a.rawAddress === from)), [encryptedAccounts, from])
   const encryptedWalletNotLoaded = isEncryptedWallet && !keys[from || '']
-  const isWalletConnect = useMemo(() => isImportedWallet && Boolean(importedAccounts.find(a => a.type === 'walletconnect')), [isImportedWallet, importedAccounts])
+  const isWalletConnect = useMemo(() => Boolean(importedAccounts.find(a => a.type === 'walletconnect' && a.rawAddress === from)), [isImportedWallet, importedAccounts])
   const wcNotConnected = useMemo(() => !wcSession, [wcSession])
   const wcWrongAddress = useMemo(() => wcSession && addHexDots(wcSession?.namespaces.eip155.accounts[0].slice(9)) !== from, [from, wcSession])
 
@@ -286,6 +287,8 @@ const SendTransactionForm = ({
   )
 
   let content = null
+
+  console.log(isWalletConnect, wcNotConnected, wcWrongAddress)
 
   if (isWalletConnect && (wcNotConnected || wcWrongAddress)) {
     content = (
