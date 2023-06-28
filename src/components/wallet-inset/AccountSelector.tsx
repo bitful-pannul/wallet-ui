@@ -16,7 +16,6 @@ import LoadingOverlay from '../popups/LoadingOverlay';
 import PendingTxnIndicator from './PendingTxnIndicator';
 
 import './AccountSelector.css'
-import { Urbit } from '@urbit/http-api';
 
 interface AccountSelectorProps extends React.HTMLAttributes<HTMLDivElement> {
   onSelectAccount?: (account: AnyWallet) => void
@@ -29,7 +28,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
   ...props
 }) => {
   const { api, insetView, selectedAccount, promptInstall, appInstalled, loadingText, unsignedTransactions,
-    setInsetView, setSelectedAccount, setPromptInstall, setLoading } = useWalletStore()
+    setInsetView, setSelectedAccount, setPromptInstall, setLoading, initWallet } = useWalletStore()
 
   const selectAccount = useCallback((account: AnyWallet) => {
     setSelectedAccount(account)

@@ -309,10 +309,13 @@ export const useWalletStore = create<WalletStore>(
       return wallet.signMessage(message)
     },
     submitSignedHash: async (from: string, hash: string, rate: number, bud: number, ethHash?: string, sig?: { v: number; r: string; s: string; }) => {
+      const { api } = get()
       const json = ethHash && sig ?
-        { 'submit-signed': { from, hash, gas: { rate, bud }, 'eth-hash': ethHash, sig: { r: addHexDots(sig.r), s: addHexDots(sig.s), v: sig.v } } } :
-        { 'submit': { from, hash, gas: { rate, bud } } }
-      await get().api?.poke({ app: 'wallet', mark: 'wallet-poke', json })
+      { 'submit-signed': { from, hash, gas: { rate, bud }, 'eth-hash': ethHash, sig: { r: addHexDots(sig.r), s: addHexDots(sig.s), v: sig.v } } } :
+      { 'submit': { from, hash, gas: { rate, bud } } }
+      if (api) {
+        await api.poke({ app: 'wallet', mark: 'wallet-poke', json })
+      }
       get().getUnsignedTransactions()
     },
     setMostRecentTransaction: (mostRecentTransaction?: Transaction) => set({ mostRecentTransaction }),
