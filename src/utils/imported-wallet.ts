@@ -12,7 +12,7 @@ export const generateMessage = (hash: string, txn: Txn) => {
   const data = cleanHash.length % 2 === 0 ? cleanHash : '0x0' + cleanHash.slice(2)
   // const ethHash = ethers.utils.serializeTransaction({
   return JSON.stringify({
-    to: removeDots(txn.to).substring(0, 42),
+    contract: removeDots(txn.to),
     gasPrice: '0x' + txn.rate.toString(16),
     gasLimit: ethers.utils.hexlify(txn.budget),
     nonce: txn.nonce,
