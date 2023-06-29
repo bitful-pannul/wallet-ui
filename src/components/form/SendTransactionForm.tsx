@@ -69,7 +69,7 @@ const SendTransactionForm = ({
 
   const wcSession = useSession()
   const { connect, error: wcError } = useConnect(WALLETCONNECT_CONNECT_PARAMS)
-  const { disconnect } = useDisconnect({ topic: wcSession?.pairingTopic || '', reason: getSdkError('USER_DISCONNECTED') })
+  const { disconnect } = useDisconnect({ topic: wcSession?.topic || '', reason: getSdkError('USER_DISCONNECTED') })
   const { request } = useRequest({ topic: wcSession?.topic || '', chainId: `eip155:1`, request: { id: 1, jsonrpc: '2.0', method: 'personal_sign', params: [] } as any })
 
   useEffect(() => {
@@ -266,7 +266,7 @@ const SendTransactionForm = ({
 
   const disconnectWallet = useCallback(async () => {
     if (connectedAddress) {
-      if (wcSession) disconnect({ topic: wcSession.pairingTopic, reason: getSdkError('USER_DISCONNECTED') })
+      if (wcSession) disconnect({ topic: wcSession.topic, reason: getSdkError('USER_DISCONNECTED') })
       set({ connectedAddress: undefined, connectedType: undefined, currentChainId: undefined })
     }
   }, [disconnect, wcSession?.pairingTopic, connectedAddress])

@@ -42,7 +42,7 @@ const NetworkSelector = ({ currentChainId, setChainId, ...props }: any) => {
     <div {...props} className={`${props.className} dropdown`}>
       <Button className="dropdown-header" onClick={() => setIsOpen(!isOpen)}>
         {Boolean(networks[currentChainId || '']?.logo) && <img src={networks[currentChainId || '']?.logo} style={{ height: 20, width: 20, borderRadius: 10, margin: '-4px 8px -4px 0' }} />}
-        {networks[currentChainId || '']?.chainName || "Select a network"}
+        {networks[currentChainId || '']?.chainName || "Select network"}
       </Button>
       {isOpen && (
         <>

@@ -4,7 +4,6 @@ import { getSdkError } from '@walletconnect/utils'
 
 import Row from '../components/spacing/Row'
 import NetworkSelector from './NetworkSelector'
-import { FaEthereum, FaExclamationTriangle } from 'react-icons/fa'
 import Text from '../components/text/Text'
 import Button from '../components/form/Button'
 import Modal from '../components/popups/Modal'
@@ -35,6 +34,8 @@ export default function BrowserWallet ({ showNetwork = false, showWalletConnect 
   const [showDisconnect, setShowDisconnect] = useState(false)
   const [nick, setNick] = useState('')
   const [error, setError] = useState('')
+
+  const isWalletConnect = useMemo(() => Boolean(connectedAddress && importedAccounts.find(a => a.rawAddress === addHexDots(connectedAddress))), [connectedAddress, importedAccounts])
 
   useEffect(() => {
     if (wcSession) {
@@ -123,8 +124,9 @@ export default function BrowserWallet ({ showNetwork = false, showWalletConnect 
   const disconnectWallet = useCallback(async () => {
     if (connectedAddress) {
       if (wcSession) {
-        disconnect({ topic: wcSession.pairingTopic, reason: getSdkError('USER_DISCONNECTED') })
+        disconnect({ topic: wcSession.topic, reason: getSdkError('USER_DISCONNECTED') })
           .then(() => set({ connectedAddress: undefined, connectedType: undefined, currentChainId: undefined }))
+          .catch(() => null)
       } else {
         set({ connectedAddress: undefined, connectedType: undefined, currentChainId: undefined })
       }
@@ -136,7 +138,8 @@ export default function BrowserWallet ({ showNetwork = false, showWalletConnect 
 
   return (
     <Row {...props} style={{marginLeft: 'auto', ...props.style}}>
-      {Boolean(connectedAddress) && showNetwork && <NetworkSelector currentChainId={currentChainId} setChainId={setChainId} style={{ marginRight: 16 }} />}
+      {Boolean(connectedAddress) && !isWalletConnect && showNetwork &&
+        <NetworkSelector currentChainId={currentChainId} setChainId={setChainId} style={{ marginRight: 16 }} />}
 
       {connectedAddress ? (
         <Dropdown open={showDisconnect} toggleOpen={() => setShowDisconnect(!showDisconnect)} value={

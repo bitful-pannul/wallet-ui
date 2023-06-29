@@ -19,8 +19,10 @@ import { PendingSigned } from "../types/PendingSigned";
 
 const resetSubscriptions = async (set: SetState<any>, api: Urbit, oldSubs: number[], newSubs: SubParams[]) => {
   await Promise.all(oldSubs.map(os => api.unsubscribe(os)))
-  const subscriptions = await Promise.all(newSubs.map(ns => api.subscribe(ns)))
-  set({ api, subscriptions })
+  setTimeout(async () => {
+    const subscriptions = await Promise.all(newSubs.map(ns => api.subscribe(ns)))
+    set({ api, subscriptions })
+  }, 1000)
 }
 
 const pokeWithAlert = async (api: Urbit, json: any) => {
